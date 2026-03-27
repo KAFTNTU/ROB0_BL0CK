@@ -1,0 +1,328 @@
+:root {
+  --rbb-z: 11050;
+  --rbb-size: 94px;
+  --rbb-face-w: 36px;
+  --rbb-face-h: 24px;
+  --rbb-scale: 1;
+}
+
+#rbBuddyShell {
+  position: fixed;
+  left: 18px;
+  top: 90px;
+  width: calc(var(--rbb-size) * var(--rbb-scale));
+  height: calc(var(--rbb-size) * var(--rbb-scale));
+  z-index: var(--rbb-z);
+  pointer-events: none;
+  user-select: none;
+}
+
+#rbBuddyShell.hidden {
+  display: none;
+}
+
+#rbBuddy {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 999px;
+  border: 2px solid rgba(125, 211, 252, 0.82);
+  background:
+    radial-gradient(circle at 34% 22%, rgba(125, 211, 252, 0.34), rgba(30, 64, 175, 0.16) 46%, rgba(10, 16, 32, 0.16) 100%);
+  box-shadow:
+    0 14px 34px rgba(2, 6, 23, 0.48),
+    0 0 26px rgba(59, 130, 246, 0.24);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  pointer-events: auto;
+  overflow: hidden;
+  touch-action: none;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+  animation: rbbFloat 3.2s ease-in-out infinite;
+}
+
+#rbBuddy.dragging {
+  cursor: grabbing;
+  animation: none;
+}
+
+#rbBuddy.mood-happy {
+  border-color: rgba(74, 222, 128, 0.88);
+  box-shadow:
+    0 14px 34px rgba(2, 6, 23, 0.5),
+    0 0 28px rgba(74, 222, 128, 0.34);
+}
+
+#rbBuddy.mood-angry {
+  border-color: rgba(248, 113, 113, 0.9);
+  box-shadow:
+    0 14px 34px rgba(2, 6, 23, 0.52),
+    0 0 28px rgba(248, 113, 113, 0.34);
+}
+
+#rbBuddy.mood-shocked {
+  border-color: rgba(251, 191, 36, 0.92);
+  box-shadow:
+    0 14px 34px rgba(2, 6, 23, 0.52),
+    0 0 30px rgba(251, 191, 36, 0.32);
+}
+
+#rbBuddy.mood-sleepy {
+  border-color: rgba(148, 163, 184, 0.88);
+  box-shadow:
+    0 12px 28px rgba(2, 6, 23, 0.44),
+    0 0 20px rgba(148, 163, 184, 0.18);
+}
+
+#rbBuddy.mood-curious {
+  border-color: rgba(167, 139, 250, 0.88);
+  box-shadow:
+    0 14px 34px rgba(2, 6, 23, 0.5),
+    0 0 28px rgba(167, 139, 250, 0.3);
+}
+
+#rbBuddy.mood-sad {
+  border-color: rgba(148, 163, 184, 0.9);
+  box-shadow:
+    0 12px 28px rgba(2, 6, 23, 0.5),
+    0 0 20px rgba(148, 163, 184, 0.18);
+  filter: saturate(0.9);
+}
+
+#rbBuddy.mood-dead {
+  border-color: rgba(248, 113, 113, 0.92);
+  box-shadow:
+    0 14px 34px rgba(2, 6, 23, 0.56),
+    0 0 28px rgba(248, 113, 113, 0.28);
+}
+
+#rbBuddy.bump {
+  transform: scale(1.06);
+}
+
+#rbBuddy.shake {
+  animation: rbbShake 0.18s linear 5;
+}
+
+#rbBuddyLottie,
+#rbBuddyFallback {
+  width: 92%;
+  height: 92%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  transform-origin: 50% 56%;
+}
+
+#rbBuddyFallback {
+  font-size: 34px;
+  line-height: 1;
+}
+
+#rbBuddy[data-has-lottie="1"] #rbBuddyFallback {
+  display: none;
+}
+
+#rbBuddy.pose-left #rbBuddyLottie,
+#rbBuddy.pose-left #rbBuddyFallback {
+  animation: rbbPoseLeft .48s ease;
+}
+
+#rbBuddy.pose-right #rbBuddyLottie,
+#rbBuddy.pose-right #rbBuddyFallback {
+  animation: rbbPoseRight .48s ease;
+}
+
+#rbBuddy.pose-hype #rbBuddyLottie,
+#rbBuddy.pose-hype #rbBuddyFallback {
+  animation: rbbPoseHype .56s ease;
+}
+
+#rbBuddy.pose-shrug #rbBuddyLottie,
+#rbBuddy.pose-shrug #rbBuddyFallback {
+  animation: rbbPoseShrug .5s ease;
+}
+
+#rbBuddyFace {
+  position: absolute;
+  left: 50%;
+  top: 20px;
+  width: calc(var(--rbb-face-w) * var(--rbb-scale));
+  height: calc(var(--rbb-face-h) * var(--rbb-scale));
+  transform: translateX(-50%);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  pointer-events: none;
+  filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.42));
+}
+
+#rbBuddyFace[data-face="normal"] { background-image: url("face-normal.svg"); }
+#rbBuddyFace[data-face="happy"] { background-image: url("face-happy.svg"); }
+#rbBuddyFace[data-face="angry"] { background-image: url("face-angry.svg"); }
+#rbBuddyFace[data-face="shocked"] { background-image: url("face-shocked.svg"); }
+#rbBuddyFace[data-face="sleepy"] { background-image: url("face-sleepy.svg"); }
+#rbBuddyFace[data-face="curious"] { background-image: url("face-curious.svg"); }
+#rbBuddyFace[data-face="sad"] { background-image: url("face-sad.svg"); }
+#rbBuddyFace[data-face="dead"] { background-image: url("face-dead.svg"); }
+
+#rbBuddyBubble {
+  position: absolute;
+  min-width: 136px;
+  max-width: min(220px, calc(100vw - 32px));
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(125, 211, 252, 0.38);
+  background: rgba(15, 23, 42, 0.96);
+  color: #e2e8f0;
+  box-shadow: 0 16px 30px rgba(2, 6, 23, 0.44);
+  font-size: 12px;
+  line-height: 1.35;
+  font-weight: 800;
+  opacity: 0;
+  transform: translateY(8px) scale(0.96);
+  transform-origin: left bottom;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+  pointer-events: none;
+}
+
+#rbBuddyBubble.show {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+#rbBuddyBubble::after {
+  content: "";
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  background: rgba(15, 23, 42, 0.96);
+  border-left: 1px solid rgba(125, 211, 252, 0.38);
+  border-bottom: 1px solid rgba(125, 211, 252, 0.38);
+  transform: rotate(45deg);
+}
+
+#rbBuddyShell.bubble-right #rbBuddyBubble {
+  left: calc(100% + 10px);
+  top: 2px;
+}
+
+#rbBuddyShell.bubble-right #rbBuddyBubble::after {
+  left: -8px;
+  top: 18px;
+}
+
+#rbBuddyShell.bubble-left #rbBuddyBubble {
+  right: calc(100% + 10px);
+  top: 2px;
+  transform-origin: right bottom;
+}
+
+#rbBuddyShell.bubble-left #rbBuddyBubble::after {
+  right: -8px;
+  top: 18px;
+  border-left: none;
+  border-bottom: none;
+  border-right: 1px solid rgba(125, 211, 252, 0.38);
+  border-top: 1px solid rgba(125, 211, 252, 0.38);
+}
+
+#rbBuddyShell.bubble-bottom #rbBuddyBubble {
+  top: calc(100% + 10px);
+}
+
+#rbBuddyShell.bubble-bottom #rbBuddyBubble::after {
+  top: -8px;
+}
+
+#rbBuddyBubble.mood-happy {
+  border-color: rgba(74, 222, 128, 0.44);
+  color: #dcfce7;
+}
+
+#rbBuddyBubble.mood-angry {
+  border-color: rgba(248, 113, 113, 0.42);
+  color: #fecaca;
+}
+
+#rbBuddyBubble.mood-shocked {
+  border-color: rgba(251, 191, 36, 0.42);
+  color: #fde68a;
+}
+
+#rbBuddyBubble.mood-sleepy {
+  border-color: rgba(148, 163, 184, 0.38);
+  color: #cbd5e1;
+}
+
+#rbBuddyBubble.mood-curious {
+  border-color: rgba(167, 139, 250, 0.42);
+  color: #e9d5ff;
+}
+
+#rbBuddyBubble.mood-sad {
+  border-color: rgba(148, 163, 184, 0.38);
+  color: #cbd5e1;
+}
+
+#rbBuddyBubble.mood-dead {
+  border-color: rgba(248, 113, 113, 0.42);
+  color: #fecaca;
+}
+
+@keyframes rbbFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+@keyframes rbbShake {
+  0% { transform: translate(0, 0); }
+  25% { transform: translate(-2px, 1px); }
+  50% { transform: translate(2px, -1px); }
+  75% { transform: translate(-1px, -1px); }
+  100% { transform: translate(0, 0); }
+}
+
+@keyframes rbbPoseLeft {
+  0% { transform: rotate(0deg) translateY(0); }
+  45% { transform: rotate(-10deg) translate(-3px, -1px); }
+  100% { transform: rotate(0deg) translateY(0); }
+}
+
+@keyframes rbbPoseRight {
+  0% { transform: rotate(0deg) translateY(0); }
+  45% { transform: rotate(10deg) translate(3px, -1px); }
+  100% { transform: rotate(0deg) translateY(0); }
+}
+
+@keyframes rbbPoseHype {
+  0% { transform: scale(1) rotate(0deg); }
+  30% { transform: scale(1.04) rotate(-7deg); }
+  60% { transform: scale(1.04) rotate(7deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+
+@keyframes rbbPoseShrug {
+  0% { transform: translateY(0) rotate(0deg); }
+  35% { transform: translateY(-2px) rotate(-5deg); }
+  70% { transform: translateY(-1px) rotate(5deg); }
+  100% { transform: translateY(0) rotate(0deg); }
+}
+
+@media (max-width: 640px) {
+  :root {
+    --rbb-size: 82px;
+    --rbb-face-w: 31px;
+    --rbb-face-h: 22px;
+  }
+
+  #rbBuddyBubble {
+    min-width: 122px;
+    max-width: min(188px, calc(100vw - 20px));
+    font-size: 11px;
+    padding: 9px 10px;
+  }
+}
