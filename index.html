@@ -5120,6 +5120,16 @@ function getAuthUser() {
           <div id="autosaveDot" style="position:absolute;top:2px;left:2px;width:20px;height:20px;background:#64748b;border-radius:50%;transition:.2s"></div>
         </div>
       </div>
+      <div style="margin:6px 0 10px">
+        <span style="color:#94a3b8;font-size:11px;display:block;margin-bottom:6px">Частота автозбереження</span>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px">
+          <button id="autosaveModeChange" onclick="setAutosaveMode('change')" style="padding:8px;border-radius:10px;border:2px solid #334155;background:#1e293b;color:#64748b;font-size:11px;cursor:pointer;transition:.15s">Зміна</button>
+          <button id="autosaveMode30" onclick="setAutosaveMode('30s')" style="padding:8px;border-radius:10px;border:2px solid #334155;background:#1e293b;color:#64748b;font-size:11px;cursor:pointer;transition:.15s">30с</button>
+          <button id="autosaveMode60" onclick="setAutosaveMode('60s')" style="padding:8px;border-radius:10px;border:2px solid #334155;background:#1e293b;color:#64748b;font-size:11px;cursor:pointer;transition:.15s">1хв</button>
+          <button id="autosaveMode300" onclick="setAutosaveMode('300s')" style="padding:8px;border-radius:10px;border:2px solid #334155;background:#1e293b;color:#64748b;font-size:11px;cursor:pointer;transition:.15s">5хв</button>
+        </div>
+        <p style="color:#64748b;font-size:10px;margin:6px 2px 0">"Зміна" зберігає після редагування, інші — за таймером.</p>
+      </div>
       <label style="display:flex;align-items:center;gap:10px;cursor:pointer">
         <div id="confirmClearToggle" onclick="toggleSetting('confirmClear')" style="width:36px;height:20px;background:#334155;border-radius:10px;position:relative;cursor:pointer;flex-shrink:0">
           <div id="confirmClearDot" style="position:absolute;top:2px;left:2px;width:16px;height:16px;background:#64748b;border-radius:50%;transition:.2s"></div>
@@ -5224,6 +5234,7 @@ if(!window._settings.joyDeadzone) window._settings.joyDeadzone = 10;
 if(!window._settings.joyInvertX)  window._settings.joyInvertX  = false;
 if(!window._settings.joyInvertY)  window._settings.joyInvertY  = false;
 if(!window._settings.autosave)    window._settings.autosave    = true;
+if(!window._settings.autosaveMode)window._settings.autosaveMode= 'change';
 if(!window._settings.confirmClear)window._settings.confirmClear= true;
 if(window._settings.buddyEnabled == null) window._settings.buddyEnabled = true;
 if(window._settings.buddyScale == null) window._settings.buddyScale = 1;
@@ -5259,6 +5270,13 @@ function _renderSettingsAccount(){
 function setSetting(key,val){
     window._settings[key]=val; _saveSett(); _renderSettings();
     if(window.RoboBuddy && typeof window.RoboBuddy.applySettings === 'function') window.RoboBuddy.applySettings(window._settings);
+    if(window._applyAutosaveSettings) window._applyAutosaveSettings();
+}
+function setAutosaveMode(mode){
+    window._settings.autosaveMode = mode;
+    _saveSett();
+    _renderSettings();
+    if(window._applyAutosaveSettings) window._applyAutosaveSettings();
 }
 function setBuddyScale(val){
     window._settings.buddyScale = val;
@@ -5269,12 +5287,13 @@ function setBuddyScale(val){
 function toggleSetting(key){
     window._settings[key]=!window._settings[key]; _saveSett(); _renderSettings();
     if(window.RoboBuddy && typeof window.RoboBuddy.applySettings === 'function') window.RoboBuddy.applySettings(window._settings);
+    if(window._applyAutosaveSettings) window._applyAutosaveSettings();
 }
 function _renderSettings(){
     const s=window._settings;
     const BASE='padding:10px;border-radius:10px;font-size:13px;cursor:pointer;transition:.15s;';
-    const ACTIVE=BASE+'border:2px solid #3b82f6;background:#1d4ed8;color:#fff;';
-    const INACTIVE=BASE+'border:2px solid #334155;background:#1e293b;color:#64748b;';
+    const ACTIVE=BASE+'border:2px solid #334155 !important;background:#1e293b !important;color:#e2e8f0 !important;box-shadow:inset 0 -12px 18px rgba(59,130,246,0.35), inset 0 -2px 0 rgba(59,130,246,0.6) !important;';
+    const INACTIVE=BASE+'border:2px solid #334155 !important;background:#1e293b !important;color:#64748b !important;box-shadow:none !important;';
     const setBtn=(id,active)=>{
         const el=document.getElementById(id);
         if(!el) return;
@@ -5303,8 +5322,8 @@ function _renderSettings(){
 function _renderSettingsExtra(){
     const s=window._settings;
     const BASE='padding:10px;border-radius:10px;font-size:13px;cursor:pointer;transition:.15s;';
-    const ACTIVE=BASE+'border:2px solid #3b82f6;background:#1d4ed8;color:#fff;';
-    const INACTIVE=BASE+'border:2px solid #334155;background:#1e293b;color:#64748b;';
+    const ACTIVE=BASE+'border:2px solid #334155 !important;background:#1e293b !important;color:#e2e8f0 !important;box-shadow:inset 0 -12px 18px rgba(59,130,246,0.35), inset 0 -2px 0 rgba(59,130,246,0.6) !important;';
+    const INACTIVE=BASE+'border:2px solid #334155 !important;background:#1e293b !important;color:#64748b !important;box-shadow:none !important;';
     const setChoiceBtn=(id,active)=>{
         const el=document.getElementById(id);
         if(!el) return;
@@ -5333,6 +5352,13 @@ function _renderSettingsExtra(){
         if(dot){dot.style.left=val?'18px':'2px';dot.style.background=val?'#6366f1':'#64748b';}
         if(tog){tog.style.background=val?'#312e81':'#334155';}
     });
+    const mode = s.autosaveMode || 'change';
+    [
+        ['autosaveModeChange','change'],
+        ['autosaveMode30','30s'],
+        ['autosaveMode60','60s'],
+        ['autosaveMode300','300s'],
+    ].forEach(([id,val])=>setChoiceBtn(id, mode === val));
     [
         ['buddyScale05',0.5],
         ['buddyScale10',1],
@@ -5410,7 +5436,7 @@ function resetSettings(){
         zoomStart:0.75,zoomMin:0.25,zoomMax:1.5,zoomSpeed:1.2,
         btAutoName:'',btTimeout:1000,motorMax:100,
         joyDeadzone:10,joyInvertX:false,joyInvertY:false,
-        autosave:true,confirmClear:true,buddyEnabled:true,buddyScale:1,dispColor:'#4f46e5'
+        autosave:true,autosaveMode:'change',confirmClear:true,buddyEnabled:true,buddyScale:1,dispColor:'#4f46e5'
     };
     _saveSett(); _renderSettings();
     if(typeof makeWorkspace==='function'){
@@ -5717,6 +5743,122 @@ function showSiteQR(){
   // І при зміні layout
   const obs = new MutationObserver(() => applyLabels());
   obs.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+})();
+</script>
+
+<script>
+/* ================================================================
+   BLOCKLY AUTOSAVE (localStorage)
+   ================================================================ */
+(function setupBlocklyAutosave() {
+  const STORAGE_KEY = 'blocklyWorkspace';
+  const SAVE_DEBOUNCE_MS = 400;
+  let saveTimer = null;
+  let intervalId = null;
+  let dirty = false;
+  let currentMode = null;
+
+  function getWorkspace() {
+    if (window.workspace && typeof window.workspace.addChangeListener === 'function') {
+      return window.workspace;
+    }
+    if (window.Blockly) {
+      if (typeof Blockly.getMainWorkspace === 'function') return Blockly.getMainWorkspace();
+      if (Blockly.common && typeof Blockly.common.getMainWorkspace === 'function') {
+        return Blockly.common.getMainWorkspace();
+      }
+    }
+    return null;
+  }
+
+  function loadWorkspace(ws) {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (!saved) return;
+      const xml = Blockly.Xml.textToDom(saved);
+      Blockly.Xml.domToWorkspace(xml, ws);
+    } catch (e) {
+      console.warn('Blockly autosave load failed:', e);
+    }
+  }
+
+  function saveWorkspace(ws) {
+    try {
+      const xml = Blockly.Xml.workspaceToDom(ws);
+      const text = Blockly.Xml.domToText(xml);
+      localStorage.setItem(STORAGE_KEY, text);
+    } catch (e) {
+      console.warn('Blockly autosave save failed:', e);
+    }
+  }
+
+  function getMode() {
+    const s = window._settings || {};
+    return s.autosaveMode || 'change';
+  }
+
+  function modeToInterval(mode) {
+    if (mode === '30s') return 30000;
+    if (mode === '60s') return 60000;
+    if (mode === '300s') return 300000;
+    return null;
+  }
+
+  function applyMode(ws) {
+    const mode = getMode();
+    currentMode = mode;
+    if (intervalId) { clearInterval(intervalId); intervalId = null; }
+    const ms = modeToInterval(mode);
+    if (ms) {
+      intervalId = setInterval(function() {
+        if (!ws || !dirty) return;
+        if (window._settings && window._settings.autosave === false) return;
+        saveWorkspace(ws);
+        dirty = false;
+      }, ms);
+    }
+  }
+
+  function attachAutosave(ws) {
+    if (!ws || ws.__autosaveAttached) return;
+    ws.__autosaveAttached = true;
+
+    // Load once
+    loadWorkspace(ws);
+    applyMode(ws);
+
+    // Save on changes (debounced)
+    ws.addChangeListener(function() {
+      if (window._settings && window._settings.autosave === false) return;
+      dirty = true;
+      const mode = getMode();
+      if (mode !== 'change') return;
+      if (saveTimer) clearTimeout(saveTimer);
+      saveTimer = setTimeout(function() { saveWorkspace(ws); dirty = false; }, SAVE_DEBOUNCE_MS);
+    });
+  }
+
+  window._applyAutosaveSettings = function() {
+    const ws = getWorkspace();
+    if (!ws) return;
+    const mode = getMode();
+    if (mode !== currentMode) applyMode(ws);
+  };
+
+  // Try now, then retry a few times if workspace not ready yet
+  if (!attachAutosave(getWorkspace())) {
+    let tries = 0;
+    const t = setInterval(function() {
+      tries += 1;
+      const ws = getWorkspace();
+      if (ws) {
+        attachAutosave(ws);
+        clearInterval(t);
+      } else if (tries > 50) {
+        clearInterval(t);
+      }
+    }, 200);
+  }
 })();
 </script>
 
