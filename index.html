@@ -1593,7 +1593,7 @@ select, option{
     </div>
 
     <xml id="toolbox" style="display: none">
-<category name="🚗 Рух" colour="#244FA8">
+<category name="Рух" colour="#244FA8">
   <block type="start_hat"></block>
     <block type="robot_stop"></block>
     <block type="robot_move">
@@ -1621,7 +1621,7 @@ select, option{
     <block type="joy_y"></block>
 </category>
 
-        <category name="🖥️ Дисплей" colour="#4f46e5">
+        <category name="Дисплей" colour="#4f46e5">
   <label text="— Основне —"></label>
   <block type="disp_clear"></block>
   <block type="disp_send"></block>
@@ -1746,7 +1746,7 @@ select, option{
 </category>
         
         
-        <category name="🧠 Логіка" colour="%{BKY_LOGIC_HUE}">
+        <category name="Логіка" colour="%{BKY_LOGIC_HUE}">
     <block type="controls_if"></block>
     <block type="controls_if">
       <mutation elseif="1"></mutation>
@@ -2815,51 +2815,6 @@ let _isMobile = null;
             });
 
             window.workspace = workspace;
-
-            /* ── Автозбереження workspace ── */
-            const WS_KEY = 'rb_workspace_v1';
-
-            function saveWorkspace() {
-                try {
-                    const xml = Blockly.Xml.workspaceToDom(workspace);
-                    localStorage.setItem(WS_KEY, Blockly.Xml.domToText(xml));
-                } catch(e) {}
-            }
-
-            function loadWorkspace() {
-                try {
-                    const xml = localStorage.getItem(WS_KEY);
-                    if (!xml) return false;
-                    workspace.clear();
-                    Blockly.Xml.domToWorkspace(Blockly.utils.xml.textToDom(xml), workspace);
-                    return true;
-                } catch(e) { return false; }
-            }
-
-            /* Завантажити тільки при першому створенні (без дублювання при resize) */
-            if (!dom) loadWorkspace();
-
-            /* Зберігати при кожній зміні блоків (з дебаунсом 1с), якщо автозбереження увімкнено */
-            let _wsTimer = null;
-            const autosaveEnabled = () => (!window._settings || window._settings.autosave !== false);
-            const scheduleSave = () => {
-                if (!autosaveEnabled()) return;
-                clearTimeout(_wsTimer);
-                _wsTimer = setTimeout(saveWorkspace, 1000);
-            };
-            workspace.addChangeListener((e) => {
-                const skip = [Blockly.Events.VIEWPORT_CHANGE, Blockly.Events.SELECTED, Blockly.Events.CLICK];
-                if (skip.includes(e.type)) return;
-                scheduleSave();
-            });
-            window.addEventListener('beforeunload', () => { if (autosaveEnabled()) saveWorkspace(); });
-            document.addEventListener('visibilitychange', () => {
-                if (document.visibilityState === 'hidden' && autosaveEnabled()) saveWorkspace();
-            });
-
-            /* Публічне API */
-            window.saveWorkspace  = saveWorkspace;
-            window.clearWorkspace = () => { localStorage.removeItem(WS_KEY); workspace.clear(); };
 
             if (!window.__rcSensorDispTimer) {
                 window.__rcSensorDispTimer = setInterval(rcUpdateSensorDisplayBlocks, 200);
