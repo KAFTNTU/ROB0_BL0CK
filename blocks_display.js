@@ -239,7 +239,7 @@ class FieldPaintGrid extends Blockly.Field {
     _svg(t,a,p){ const e=document.createElementNS('http://www.w3.org/2000/svg',t); Object.entries(a).forEach(([k,v])=>e.setAttribute(k,v)); p.appendChild(e); return e; }
     _build(){
         if(this._isTouch===undefined)
-            this._isTouch=navigator.maxTouchPoints>0&&window.matchMedia('(pointer:coarse)').matches;
+            this._isTouch=('ontouchstart' in window)||navigator.maxTouchPoints>0;
         if(this._isTouch) this._buildCanvas();
         else              this._buildSVG();
     }
@@ -334,16 +334,11 @@ class FieldPaintGrid extends Blockly.Field {
 
     _buildCanvas(){
         const g=this.fieldGroup_; while(g.firstChild)g.removeChild(g.firstChild);
-        /* Блокуємо Blockly drag — те саме що в _buildSVG */
-        ['mousedown','pointerdown','touchstart'].forEach(ev=>{
-            g.addEventListener(ev, e=>{ e.stopPropagation(); }, ev==='touchstart'?{passive:false}:false);
-        });
         const W=this.cW,H=this.cH,C=this.CELL;
         this._svg('rect',{x:0,y:0,width:W+36,height:H,fill:'#0a0f1a',rx:4},g);
         this._rects=[];
         const fo=document.createElementNS('http://www.w3.org/2000/svg','foreignObject');
         fo.setAttribute('x','0');fo.setAttribute('y','0');fo.setAttribute('width',String(W));fo.setAttribute('height',String(H));
-        fo.style.cssText='touch-action:none;';
         g.appendChild(fo);
         const cv=document.createElement('canvas');
         cv.width=W;cv.height=H;
@@ -351,12 +346,10 @@ class FieldPaintGrid extends Blockly.Field {
         fo.appendChild(cv);
         this._cv=cv;this._ctx=cv.getContext('2d');this._redrawAll();
         const _idx=(cx,cy)=>{
-            /* getScreenCTM враховує zoom/pan/scale Blockly workspace */
-            const ctm=fo.getScreenCTM();
-            if(!ctm) return -1;
-            const pt=new DOMPoint(cx,cy).matrixTransform(ctm.inverse());
-            const col=Math.floor(pt.x/C);
-            const row=Math.floor(pt.y/C);
+            const r=cv.getBoundingClientRect();
+            if(!r.width||!r.height) return -1;
+            const col=Math.floor((cx-r.left)*(W/r.width)/C);
+            const row=Math.floor((cy-r.top)*(H/r.height)/C);
             if(col<0||col>=this.cols||row<0||row>=this.rows) return -1;
             return row*this.cols+col;
         };
@@ -367,22 +360,18 @@ class FieldPaintGrid extends Blockly.Field {
             this.pixels[idx]=v;this._redrawCell(idx);this.value_=this._ser();
         };
         let _td=false;
-        cv.addEventListener('pointerdown',e=>{
-            e.preventDefault();e.stopPropagation();
+        cv.addEventListener('touchstart',e=>{
+            if(e.cancelable)e.preventDefault();
             try{const ws=window.workspace||Blockly.getMainWorkspace();const gg=ws&&ws.currentGesture_;if(gg)gg.cancel();}catch(_){}
-            cv.setPointerCapture(e.pointerId);
-            _td=true;
-            const i=_idx(e.clientX,e.clientY);
-            this._e=i>=0?this.pixels[i]===1:false;
-            _dot(i);
-        });
-        cv.addEventListener('pointermove',e=>{
-            if(!_td)return;
-            e.preventDefault();e.stopPropagation();
-            _dot(_idx(e.clientX,e.clientY));
-        });
-        cv.addEventListener('pointerup',  e=>{_td=false;try{cv.releasePointerCapture(e.pointerId);}catch(_){}});
-        cv.addEventListener('pointercancel',e=>{_td=false;});
+            _td=true;const t=e.touches[0],i=_idx(t.clientX,t.clientY);
+            this._e=i>=0?this.pixels[i]===1:false;_dot(i);
+        },{passive:false});
+        cv.addEventListener('touchmove',e=>{
+            if(!_td)return;if(e.cancelable)e.preventDefault();
+            const t=e.touches[0];_dot(_idx(t.clientX,t.clientY));
+        },{passive:false});
+        cv.addEventListener('touchend',()=>{_td=false;});
+        cv.addEventListener('touchcancel',()=>{_td=false;});
         /* Сітка тільки на телефоні */
         for(let r=0;r<=this.rows;r++) this._svg('line',{x1:0,y1:r*C,x2:W,y2:r*C,stroke:'#1e3a5f','stroke-width':'0.4','pointer-events':'none'},g);
         for(let c=0;c<=this.cols;c++) this._svg('line',{x1:c*C,y1:0,x2:c*C,y2:H,stroke:'#1e3a5f','stroke-width':'0.4','pointer-events':'none'},g);
@@ -546,11 +535,11 @@ class FieldPaintGrid extends Blockly.Field {
                 ctx.drawImage(img,0,0,cW,cH);
                 ctx.fillStyle='rgba(0,0,0,0.55)';
                 ctx.fillRect(0,0,cW,rY);ctx.fillRect(0,rY+rH,cW,cH-rY-rH);ctx.fillRect(0,rY,rX,rH);ctx.fillRect(rX+rW,rY,cW-rX-rW,rH);
-                ctx.strokeStyle='#ef4444';ctx.lineWidth=3;ctx.strokeRect(rX+1,rY+1,rW-2,rH-2);
-                ctx.strokeStyle='rgba(239,68,68,0.45)';ctx.lineWidth=1;
+                ctx.strokeStyle='#6366f1';ctx.lineWidth=2;ctx.strokeRect(rX+1,rY+1,rW-2,rH-2);
+                ctx.strokeStyle='rgba(99,102,241,0.4)';ctx.lineWidth=1;
                 [1,2].forEach(i=>{ctx.beginPath();ctx.moveTo(rX+rW*i/3,rY);ctx.lineTo(rX+rW*i/3,rY+rH);ctx.stroke();ctx.beginPath();ctx.moveTo(rX,rY+rH*i/3);ctx.lineTo(rX+rW,rY+rH*i/3);ctx.stroke();});
-                ctx.fillStyle='rgba(239,68,68,0.9)';ctx.fillRect(rX,rY,70,16);ctx.fillStyle='#fff';ctx.font='10px monospace';ctx.fillText(aW+'x'+aH,rX+3,rY+11);
-                ctx.fillStyle='#ef4444';ctx.fillRect(rX+rW-HND,rY+rH-HND,HND,HND);
+                ctx.fillStyle='rgba(99,102,241,0.85)';ctx.fillRect(rX,rY,70,16);ctx.fillStyle='#fff';ctx.font='10px monospace';ctx.fillText(aW+'x'+aH,rX+3,rY+11);
+                ctx.fillStyle='#6366f1';ctx.fillRect(rX+rW-HND,rY+rH-HND,HND,HND);
             };draw();
             const pos=e=>{const r=canvas.getBoundingClientRect(),s=e.touches?e.touches[0]:e;return{x:s.clientX-r.left,y:s.clientY-r.top};};
             const isH=p=>p.x>=rX+rW-HND&&p.x<=rX+rW&&p.y>=rY+rH-HND&&p.y<=rY+rH;
