@@ -239,7 +239,7 @@ class FieldPaintGrid extends Blockly.Field {
     _svg(t,a,p){ const e=document.createElementNS('http://www.w3.org/2000/svg',t); Object.entries(a).forEach(([k,v])=>e.setAttribute(k,v)); p.appendChild(e); return e; }
     _build(){
         if(this._isTouch===undefined)
-            this._isTouch=('ontouchstart' in window)||navigator.maxTouchPoints>0;
+            this._isTouch=navigator.maxTouchPoints>0&&window.matchMedia('(pointer:coarse)').matches;
         if(this._isTouch) this._buildCanvas();
         else              this._buildSVG();
     }
