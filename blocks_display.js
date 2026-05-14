@@ -334,11 +334,16 @@ class FieldPaintGrid extends Blockly.Field {
 
     _buildCanvas(){
         const g=this.fieldGroup_; while(g.firstChild)g.removeChild(g.firstChild);
+        /* Блокуємо Blockly drag — те саме що в _buildSVG */
+        ['mousedown','pointerdown','touchstart'].forEach(ev=>{
+            g.addEventListener(ev, e=>{ e.stopPropagation(); }, ev==='touchstart'?{passive:false}:false);
+        });
         const W=this.cW,H=this.cH,C=this.CELL;
         this._svg('rect',{x:0,y:0,width:W+36,height:H,fill:'#0a0f1a',rx:4},g);
         this._rects=[];
         const fo=document.createElementNS('http://www.w3.org/2000/svg','foreignObject');
         fo.setAttribute('x','0');fo.setAttribute('y','0');fo.setAttribute('width',String(W));fo.setAttribute('height',String(H));
+        fo.style.cssText='touch-action:none;';
         g.appendChild(fo);
         const cv=document.createElement('canvas');
         cv.width=W;cv.height=H;
@@ -361,17 +366,19 @@ class FieldPaintGrid extends Blockly.Field {
         };
         let _td=false;
         cv.addEventListener('touchstart',e=>{
+            e.stopPropagation();
             if(e.cancelable)e.preventDefault();
             try{const ws=window.workspace||Blockly.getMainWorkspace();const gg=ws&&ws.currentGesture_;if(gg)gg.cancel();}catch(_){}
             _td=true;const t=e.touches[0],i=_idx(t.clientX,t.clientY);
             this._e=i>=0?this.pixels[i]===1:false;_dot(i);
         },{passive:false});
         cv.addEventListener('touchmove',e=>{
+            e.stopPropagation();
             if(!_td)return;if(e.cancelable)e.preventDefault();
             const t=e.touches[0];_dot(_idx(t.clientX,t.clientY));
-        },{passive:false});
-        cv.addEventListener('touchend',()=>{_td=false;});
-        cv.addEventListener('touchcancel',()=>{_td=false;});
+        },{passive:false,capture:true});
+        cv.addEventListener('touchend',e=>{e.stopPropagation();_td=false;});
+        cv.addEventListener('touchcancel',e=>{e.stopPropagation();_td=false;});
         /* Сітка тільки на телефоні */
         for(let r=0;r<=this.rows;r++) this._svg('line',{x1:0,y1:r*C,x2:W,y2:r*C,stroke:'#1e3a5f','stroke-width':'0.4','pointer-events':'none'},g);
         for(let c=0;c<=this.cols;c++) this._svg('line',{x1:c*C,y1:0,x2:c*C,y2:H,stroke:'#1e3a5f','stroke-width':'0.4','pointer-events':'none'},g);
