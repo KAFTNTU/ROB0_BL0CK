@@ -280,6 +280,10 @@ class FieldPaintGrid extends Blockly.Field {
             } catch(_) {}
         };
 
+        /* FIX: старий touch fallback підключає this._onDocMove / this._onDocEnd. */
+        this._onDocMove = _onDocMove;
+        this._onDocEnd = _onDocEnd;
+
         for(let r=0;r<this.rows;r++) for(let c=0;c<this.cols;c++){
             const idx=r*this.cols+c;
             const rc=this._svg('rect',{
@@ -661,7 +665,7 @@ Blockly.fieldRegistry.register('field_paint_grid',FieldPaintGrid);
 .rb-oled-editor{width:936px;height:438px;background:#1e293b;border:1px solid #334155;border-radius:10px;display:flex;flex-direction:column;gap:6px;padding:6px;box-sizing:border-box;color:#e2e8f0;font-family:Arial,system-ui,sans-serif;touch-action:none;user-select:none;overflow:visible}
 .rb-oled-top{height:344px;display:flex;gap:8px;min-height:0}
 .rb-oled-canvasBox{flex:1;min-width:0;position:relative;background:#0b1326;border:1px solid #334155;border-radius:8px;overflow:hidden}
-.rb-oled-canvas{display:block;width:100%;height:100%;touch-action:none;cursor:crosshair}
+.rb-oled-canvas{display:block;width:100%;height:100%;touch-action:none!important;cursor:crosshair;-webkit-user-select:none!important;user-select:none!important;-webkit-touch-callout:none!important;pointer-events:auto!important}
 .rb-oled-resPanel{width:62px;flex:0 0 auto;background:#1b2638;border:1px solid #334155;border-radius:10px;padding:6px;display:flex;flex-direction:column;gap:7px}
 .rb-oled-resBtn{flex:1;border:0;border-radius:7px;background:#0f172a;color:#9ca3af;font-weight:800;cursor:pointer}
 .rb-oled-resBtn b{display:block;font-size:12px;line-height:1.1}
@@ -682,6 +686,7 @@ Blockly.fieldRegistry.register('field_paint_grid',FieldPaintGrid);
 .rb-oled-drop.open .rb-oled-menu{display:flex}
 .rb-oled-toolboxMini{width:210px;height:46px;display:flex;align-items:center;gap:10px;color:white;font:bold 16px Arial,system-ui,sans-serif}
 .rb-oled-toolboxMini .ico{font-size:20px}
+.rb-oled-editor,.rb-oled-editor *{touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 `;
     document.head.appendChild(st);
   }
@@ -811,6 +816,17 @@ Blockly.fieldRegistry.register('field_paint_grid',FieldPaintGrid);
 
   function bindEditor(root, field){
     const cv=root.querySelector('.rb-oled-canvas');
+    /* TOUCH FIX: один палець має йти в canvas, а не в drag/scroll Blockly. */
+    try{
+      cv.style.touchAction='none';
+      cv.style.webkitUserSelect='none';
+      cv.style.userSelect='none';
+      cv.style.webkitTouchCallout='none';
+      cv.style.pointerEvents='auto';
+      root.style.touchAction='none';
+      const box=root.querySelector('.rb-oled-canvasBox');
+      if(box){ box.style.touchAction='none'; box.style.pointerEvents='auto'; }
+    }catch(_){}
     const ctx=cv.getContext('2d');
     const brushBtn=root.querySelector('[data-act="brush"]');
     let scale=field.scale||4;
@@ -867,10 +883,27 @@ Blockly.fieldRegistry.register('field_paint_grid',FieldPaintGrid);
       brushBtn.textContent=String(brush);
     }
 
+    let activeTouchId=null;
+    function pointFromEvent(e){
+      if(e && e.touches && e.touches.length){
+        if(activeTouchId!==null){
+          for(let i=0;i<e.touches.length;i++) if(e.touches[i].identifier===activeTouchId) return e.touches[i];
+        }
+        return e.touches[0];
+      }
+      if(e && e.changedTouches && e.changedTouches.length){
+        if(activeTouchId!==null){
+          for(let i=0;i<e.changedTouches.length;i++) if(e.changedTouches[i].identifier===activeTouchId) return e.changedTouches[i];
+        }
+        return e.changedTouches[0];
+      }
+      return e;
+    }
     function eventIndex(e){
       const d=dims(scale);
       const r=cv.getBoundingClientRect();
-      const p=e.touches ? e.touches[0] : e;
+      const p=pointFromEvent(e);
+      if(!p) return -1;
       const x=p.clientX-r.left, y=p.clientY-r.top;
       if(x<0||y<0||x>=r.width||y>=r.height) return -1;
       const col=Math.floor(x/r.width*d.cols);
@@ -891,10 +924,23 @@ Blockly.fieldRegistry.register('field_paint_grid',FieldPaintGrid);
       commit(next,scale);
     }
 
+    function eat(e){
+      if(e && e.cancelable) e.preventDefault();
+      if(e) e.stopPropagation();
+    }
+    function cancelBlocklyGesture(){
+      try{
+        const ws=window.workspace||Blockly.getMainWorkspace();
+        const gg=ws&&ws.currentGesture_;
+        if(gg&&gg.cancel) gg.cancel();
+      }catch(_){}
+    }
     function startDraw(e){
       if(e.button!==undefined && e.button!==0) return;
-      e.preventDefault(); e.stopPropagation();
-      try{ const ws=window.workspace||Blockly.getMainWorkspace(); const gg=ws&&ws.currentGesture_; if(gg)gg.cancel(); }catch(_){}
+      eat(e);
+      cancelBlocklyGesture();
+      if(e.changedTouches && e.changedTouches.length) activeTouchId=e.changedTouches[0].identifier;
+      else if(e.touches && e.touches.length) activeTouchId=e.touches[0].identifier;
       const idx=eventIndex(e);
       if(idx<0) return;
       remember();
@@ -903,25 +949,40 @@ Blockly.fieldRegistry.register('field_paint_grid',FieldPaintGrid);
       erase=!!field.pixels[idx];
       paint(idx);
       try{ cv.setPointerCapture && e.pointerId!==undefined && cv.setPointerCapture(e.pointerId); }catch(_){}
+      /* як у старому робочому варіанті: після старту ловимо рух навіть якщо Blockly забрав focus */
+      document.addEventListener('touchmove', moveDraw, {capture:true, passive:false});
+      document.addEventListener('touchend', stopDraw, {capture:true, passive:false});
+      document.addEventListener('touchcancel', stopDraw, {capture:true, passive:false});
     }
 
     function moveDraw(e){
       if(!drawing) return;
-      if(e.buttons!==undefined && e.buttons===0 && !e.touches){ drawing=false; return; }
-      e.preventDefault(); e.stopPropagation();
+      if(e.pointerType && e.pointerType!=='touch' && e.buttons!==undefined && e.buttons===0 && !e.touches){ drawing=false; return; }
+      eat(e);
       paint(eventIndex(e));
     }
 
-    function stopDraw(){ drawing=false; lastIdx=-1; }
+    function stopDraw(e){
+      if(e) eat(e);
+      drawing=false; lastIdx=-1; activeTouchId=null;
+      try{ cv.releasePointerCapture && e&&e.pointerId!==undefined && cv.releasePointerCapture(e.pointerId); }catch(_){}
+      document.removeEventListener('touchmove', moveDraw, {capture:true, passive:false});
+      document.removeEventListener('touchend', stopDraw, {capture:true, passive:false});
+      document.removeEventListener('touchcancel', stopDraw, {capture:true, passive:false});
+    }
 
-    cv.addEventListener('pointerdown', startDraw);
-    cv.addEventListener('pointermove', moveDraw);
-    cv.addEventListener('pointerup', stopDraw);
-    cv.addEventListener('pointercancel', stopDraw);
-    cv.addEventListener('pointerleave', e=>{ if(e.buttons===0) stopDraw(); });
-    cv.addEventListener('mousedown', startDraw);
-    cv.addEventListener('mousemove', moveDraw);
-    window.addEventListener('mouseup', stopDraw);
+    /* Capture phase: не даємо Blockly почати перетягування блока замість малювання */
+    ['pointerdown','pointermove','touchstart','touchmove','mousedown','mousemove'].forEach(ev=>{
+      cv.addEventListener(ev, eat, {capture:true, passive:false});
+    });
+    cv.addEventListener('pointerdown', startDraw, {passive:false});
+    cv.addEventListener('pointermove', moveDraw, {passive:false});
+    cv.addEventListener('pointerup', stopDraw, {passive:false});
+    cv.addEventListener('pointercancel', stopDraw, {passive:false});
+    cv.addEventListener('pointerleave', e=>{ if(e.buttons===0) stopDraw(e); }, {passive:false});
+    cv.addEventListener('mousedown', startDraw, {passive:false});
+    cv.addEventListener('mousemove', moveDraw, {passive:false});
+    window.addEventListener('mouseup', stopDraw, {passive:false});
     cv.addEventListener('touchstart', startDraw, {passive:false});
     cv.addEventListener('touchmove', moveDraw, {passive:false});
     cv.addEventListener('touchend', stopDraw, {passive:false});
@@ -1064,9 +1125,10 @@ Blockly.fieldRegistry.register('field_paint_grid',FieldPaintGrid);
     const root=buildEditor(this);
     fo.appendChild(root);
 
-    ['mousedown','pointerdown','touchstart','mousemove','pointermove','dblclick','click'].forEach(ev=>{
-      g.addEventListener(ev, e=>{ e.stopPropagation(); }, ev==='touchstart'?{passive:false}:false);
-      root.addEventListener(ev, e=>{ e.stopPropagation(); }, ev==='touchstart'?{passive:false}:false);
+    ['mousedown','pointerdown','touchstart','touchmove','mousemove','pointermove','dblclick','click'].forEach(ev=>{
+      const opt=(ev.indexOf('touch')===0)?{passive:false}:false;
+      g.addEventListener(ev, e=>{ e.stopPropagation(); }, opt);
+      root.addEventListener(ev, e=>{ e.stopPropagation(); }, opt);
     });
 
     bindEditor(root,this);
@@ -4126,4 +4188,21 @@ window._updateBatDisplayBlocks = function() {
       });
     }catch(e){}
   };
+})();
+
+
+/* RB_SINGLE_FINGER_TOUCH_FIX_18 */
+(function(){
+  window.rbRebuildOledPaintersTouch18 = function(){
+    try{
+      const ws = window.workspace || (window.Blockly && Blockly.getMainWorkspace && Blockly.getMainWorkspace());
+      if(!ws || !ws.getAllBlocks) return;
+      ws.getAllBlocks(false).forEach(b=>{
+        if(b.type!=='disp_paint' && b.type!=='disp_anim_frame') return;
+        const f=b.getField && b.getField('GRID');
+        if(f && typeof f._build==='function') f._build();
+      });
+    }catch(e){ console.warn('rbRebuildOledPaintersTouch18', e); }
+  };
+  window.addEventListener('load', function(){ [0,250,900,1800,3200].forEach(t=>setTimeout(window.rbRebuildOledPaintersTouch18,t)); });
 })();
