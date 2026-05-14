@@ -351,10 +351,12 @@ class FieldPaintGrid extends Blockly.Field {
         fo.appendChild(cv);
         this._cv=cv;this._ctx=cv.getContext('2d');this._redrawAll();
         const _idx=(cx,cy)=>{
-            const r=cv.getBoundingClientRect();
-            if(!r.width||!r.height) return -1;
-            const col=Math.floor((cx-r.left)*(W/r.width)/C);
-            const row=Math.floor((cy-r.top)*(H/r.height)/C);
+            /* getScreenCTM враховує zoom/pan/scale Blockly workspace */
+            const ctm=fo.getScreenCTM();
+            if(!ctm) return -1;
+            const pt=new DOMPoint(cx,cy).matrixTransform(ctm.inverse());
+            const col=Math.floor(pt.x/C);
+            const row=Math.floor(pt.y/C);
             if(col<0||col>=this.cols||row<0||row>=this.rows) return -1;
             return row*this.cols+col;
         };
@@ -365,20 +367,22 @@ class FieldPaintGrid extends Blockly.Field {
             this.pixels[idx]=v;this._redrawCell(idx);this.value_=this._ser();
         };
         let _td=false;
-        cv.addEventListener('touchstart',e=>{
-            e.stopPropagation();
-            if(e.cancelable)e.preventDefault();
+        cv.addEventListener('pointerdown',e=>{
+            e.preventDefault();e.stopPropagation();
             try{const ws=window.workspace||Blockly.getMainWorkspace();const gg=ws&&ws.currentGesture_;if(gg)gg.cancel();}catch(_){}
-            _td=true;const t=e.touches[0],i=_idx(t.clientX,t.clientY);
-            this._e=i>=0?this.pixels[i]===1:false;_dot(i);
-        },{passive:false});
-        cv.addEventListener('touchmove',e=>{
-            e.stopPropagation();
-            if(!_td)return;if(e.cancelable)e.preventDefault();
-            const t=e.touches[0];_dot(_idx(t.clientX,t.clientY));
-        },{passive:false,capture:true});
-        cv.addEventListener('touchend',e=>{e.stopPropagation();_td=false;});
-        cv.addEventListener('touchcancel',e=>{e.stopPropagation();_td=false;});
+            cv.setPointerCapture(e.pointerId);
+            _td=true;
+            const i=_idx(e.clientX,e.clientY);
+            this._e=i>=0?this.pixels[i]===1:false;
+            _dot(i);
+        });
+        cv.addEventListener('pointermove',e=>{
+            if(!_td)return;
+            e.preventDefault();e.stopPropagation();
+            _dot(_idx(e.clientX,e.clientY));
+        });
+        cv.addEventListener('pointerup',  e=>{_td=false;try{cv.releasePointerCapture(e.pointerId);}catch(_){}});
+        cv.addEventListener('pointercancel',e=>{_td=false;});
         /* Сітка тільки на телефоні */
         for(let r=0;r<=this.rows;r++) this._svg('line',{x1:0,y1:r*C,x2:W,y2:r*C,stroke:'#1e3a5f','stroke-width':'0.4','pointer-events':'none'},g);
         for(let c=0;c<=this.cols;c++) this._svg('line',{x1:c*C,y1:0,x2:c*C,y2:H,stroke:'#1e3a5f','stroke-width':'0.4','pointer-events':'none'},g);
