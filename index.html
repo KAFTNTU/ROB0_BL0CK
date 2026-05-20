@@ -2498,6 +2498,7 @@ function a0_0x52c6(W,o){W-=348;const c=a0_0x54fe();let n=c[W];if(void 0===a0_0x5
   let desiredL = 0;
   let desiredR = 0;
   let _lastActiveTs = Date.now();
+  let _activeStick = null; // "L" | "R" | null
 
   function $(id){ return document.getElementById(id); }
   function clamp(n, min, max){ return Math.max(min, Math.min(max, n)); }
@@ -2719,12 +2720,39 @@ function a0_0x52c6(W,o){W-=348;const c=a0_0x54fe();let n=c[W];if(void 0===a0_0x5
       const speed = getSpeedPercent() / 100;
       const dz = 0.08;
 
+      // Two 360° sticks: use either Left stick (X/Y) or Right stick (X/Y).
+      // When one stick is active, the other is ignored until the active one returns to center.
+      const leftX = gp.axes && gp.axes.length > 0 ? deadzone(gp.axes[0], dz) : 0;
       const leftY = gp.axes && gp.axes.length > 1 ? deadzone(-gp.axes[1], dz) : 0;
+      const rightX = gp.axes && gp.axes.length > 2 ? deadzone(gp.axes[2], dz) : 0;
       const rightY = gp.axes && gp.axes.length > 3 ? deadzone(-gp.axes[3], dz) : 0;
 
-      // Map to two motors: tank drive. Values -100..100
-      const l = Math.round(clamp(leftY * 100 * speed, -100, 100));
-      const r = Math.round(clamp(rightY * 100 * speed, -100, 100));
+      const magL = Math.hypot(leftX, leftY);
+      const magR = Math.hypot(rightX, rightY);
+
+      const acquire = 0.18;
+      const release = 0.10;
+      if(_activeStick === "L" && magL < release) _activeStick = null;
+      if(_activeStick === "R" && magR < release) _activeStick = null;
+      if(_activeStick == null){
+        if(magL > acquire && magR <= acquire) _activeStick = "L";
+        else if(magR > acquire && magL <= acquire) _activeStick = "R";
+        else if(magL > acquire && magR > acquire) _activeStick = (magL >= magR) ? "L" : "R";
+      }
+
+      const stickX = _activeStick === "R" ? rightX : leftX;
+      const stickY = _activeStick === "R" ? rightY : leftY;
+
+      // Arcade drive from one stick (360°):
+      // Y = throttle, X = turn. Normalize to keep within [-1..1].
+      const norm = Math.max(1, Math.abs(stickY) + Math.abs(stickX));
+      const y = stickY / norm;
+      const x = stickX / norm;
+      const rawL = (y + x);
+      const rawR = (y - x);
+
+      const l = Math.round(clamp(rawL * 100 * speed, -100, 100));
+      const r = Math.round(clamp(rawR * 100 * speed, -100, 100));
 
       setUiMotorValues(l, r);
       desiredL = l;
@@ -2756,6 +2784,7 @@ function a0_0x52c6(W,o){W-=348;const c=a0_0x54fe();let n=c[W];if(void 0===a0_0x5
       lastSentR = 0;
       desiredL = 0;
       desiredR = 0;
+      _activeStick = null;
       stopPhysSender();
       safeSendDrive(0,0);
       return;
@@ -3460,296 +3489,6 @@ function a0_0x52c6(W,o){W-=348;const c=a0_0x54fe();let n=c[W];if(void 0===a0_0x5
   window.addEventListener('load', function(){
     [0,100,300,700,1500,3000].forEach(ms => setTimeout(apply, ms));
   });
-})();
-</script>
-
-
-
-<!-- =========================================================
-     ONE 360° JOYSTICK DRIVE PATCH
-     Один джойстик керує двома моторами:
-       Y = вперед/назад
-       X = поворот
-       L = Y + X
-       R = Y - X
-     Старі маленькі M2/M3/M4 ігноруються.
-     ========================================================= -->
-<style id="one-360-joystick-style">
-  /* У вкладці з 4 моторами залишаємо тільки один джойстик як 360°-керування */
-  #view-dual #joy2-container,
-  #view-dual #joy3-container,
-  #view-dual #joy4-container {
-    display: none !important;
-  }
-
-  #view-dual .joy-quad-wrapper {
-    gap: 0 !important;
-  }
-
-  #view-dual #joy1-container {
-    width: 260px !important;
-    height: 260px !important;
-  }
-
-  #view-dual #joy1-base {
-    border-radius: 50% !important;
-    background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.10), rgba(255,255,255,.02)) !important;
-    border: 1px solid rgba(58,160,255,.35) !important;
-    box-shadow: 0 24px 70px rgba(0,0,0,.55) !important;
-  }
-
-  #view-dual #joy1-stick {
-    width: 88px !important;
-    height: 88px !important;
-    background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.18), rgba(255,255,255,.05)),
-                linear-gradient(180deg, rgba(58,160,255,.95), rgba(58,160,255,.55)) !important;
-    box-shadow: 0 18px 36px rgba(58,160,255,.22), 0 8px 20px rgba(0,0,0,.55) !important;
-    pointer-events: none !important;
-  }
-
-  #view-dual .joy-quad-label {
-    font-size: 0 !important;
-    margin-bottom: 14px !important;
-  }
-
-  #view-dual .joy-quad-label::after {
-    content: '360° керування';
-    font-size: 14px;
-    color: #93c5fd;
-    letter-spacing: .08em;
-    text-transform: uppercase;
-  }
-
-  #view-dual #quadPacketHex::after {
-    content: '  L/R';
-    color: #64748b;
-  }
-
-  .one360-active-stick {
-    transition: none !important;
-  }
-
-  .one360-snap-stick {
-    transition: transform .18s cubic-bezier(.175,.885,.32,1.275) !important;
-  }
-</style>
-<script id="one-360-joystick-patch">
-(function one360JoystickPatch(){
-  'use strict';
-
-  const MAX_POWER = 100;
-  const DEAD_ZONE = 0.08;
-  const SEND_INTERVAL_MS = 45;
-
-  let active = null;
-  let activePointerId = null;
-  let lastSendAt = 0;
-  let lastL = 999;
-  let lastR = 999;
-
-  function $(id){ return document.getElementById(id); }
-
-  function clamp(v, min, max){ return Math.max(min, Math.min(max, v)); }
-
-  function signedByte(v){ return v < 0 ? 256 + v : v; }
-
-  function hex2(v){ return signedByte(v).toString(16).toUpperCase().padStart(2, '0'); }
-
-  function speedScale(){
-    const slider = $('speedSlider');
-    const raw = slider ? parseInt(slider.value, 10) : 100;
-    return clamp(isNaN(raw) ? 100 : raw, 10, 100) / 100;
-  }
-
-  function getJoystickParts(root){
-    if(!root) return null;
-    if(root.id === 'joystick-container'){
-      return { root, base: $('joystick-base'), stick: $('joystick-stick'), mode: 'main' };
-    }
-    if(root.id === 'joy1-container'){
-      return { root, base: $('joy1-base'), stick: $('joy1-stick'), mode: 'dual360' };
-    }
-    return null;
-  }
-
-  function eventJoystick(event){
-    const target = event.target;
-    if(!target || !target.closest) return null;
-    if(target.closest('#physJoyMini')) return null;
-
-    // Основний круглий джойстик.
-    const main = target.closest('#joystick-container');
-    if(main) return main;
-
-    // У вкладці view-dual дозволений тільки перший джойстик, він стає 360° керуванням.
-    const quad = target.closest('.joy-quad-container');
-    if(!quad) return null;
-    if(quad.id === 'joy1-container') return quad;
-
-    // M2/M3/M4 повністю глушимо, щоб вони не керували окремими моторами.
-    stopEvent(event);
-    return null;
-  }
-
-  function stopEvent(event){
-    if(!event) return;
-    event.preventDefault();
-    event.stopPropagation();
-    if(typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
-  }
-
-  function setStick(parts, nx, ny, snap){
-    if(!parts || !parts.stick || !parts.base) return;
-    const rect = parts.base.getBoundingClientRect();
-    const radius = Math.min(rect.width, rect.height) / 2;
-    const stickRadius = Math.min(parts.stick.offsetWidth || 80, parts.stick.offsetHeight || 80) / 2;
-    const maxMove = Math.max(8, radius - stickRadius - 4);
-    parts.stick.classList.toggle('one360-active-stick', !snap);
-    parts.stick.classList.toggle('one360-snap-stick', !!snap);
-    parts.stick.style.transform = `translate(-50%, -50%) translate(${nx * maxMove}px, ${ny * maxMove}px)`;
-  }
-
-  function pointToNorm(parts, clientX, clientY){
-    const rect = parts.base.getBoundingClientRect();
-    const cx = rect.left + rect.width / 2;
-    const cy = rect.top + rect.height / 2;
-    let nx = (clientX - cx) / (rect.width / 2);
-    let ny = (clientY - cy) / (rect.height / 2);
-
-    const len = Math.hypot(nx, ny);
-    if(len > 1){
-      nx /= len;
-      ny /= len;
-    }
-
-    if(Math.hypot(nx, ny) < DEAD_ZONE){
-      nx = 0;
-      ny = 0;
-    }
-
-    return { x: nx, y: ny };
-  }
-
-  function mixDrive(nx, ny){
-    // На екрані вверх = y мінус, тому throttle = -ny.
-    const throttle = -ny;
-    const turn = nx;
-
-    let left = throttle + turn;
-    let right = throttle - turn;
-
-    // Нормалізація, щоб діагональ не вилітала за 100%.
-    const maxAbs = Math.max(1, Math.abs(left), Math.abs(right));
-    left /= maxAbs;
-    right /= maxAbs;
-
-    const scale = speedScale();
-    return {
-      l: Math.round(clamp(left * MAX_POWER * scale, -100, 100)),
-      r: Math.round(clamp(right * MAX_POWER * scale, -100, 100))
-    };
-  }
-
-  function updateDisplays(l, r){
-    const ml = $('motorLDisplay');
-    const mr = $('motorRDisplay');
-    const hex = $('quadPacketHex');
-    if(ml) ml.textContent = String(l);
-    if(mr) mr.textContent = String(r);
-    if(hex) hex.textContent = `${hex2(l)} ${hex2(r)} 00 00`;
-  }
-
-  function sendDrive(l, r, force){
-    const now = Date.now();
-    if(!force && now - lastSendAt < SEND_INTERVAL_MS) return;
-    if(!force && l === lastL && r === lastR) return;
-
-    lastSendAt = now;
-    lastL = l;
-    lastR = r;
-    updateDisplays(l, r);
-
-    if(typeof window.sendDrivePacket === 'function'){
-      try { window.sendDrivePacket(l, r, 0, 0); } catch(e) { console.warn('[360 joystick] sendDrivePacket error:', e); }
-    } else if(typeof window.sendCar === 'function'){
-      try { window.sendCar(l, r); } catch(e) { console.warn('[360 joystick] sendCar error:', e); }
-    }
-  }
-
-  function driveFromEvent(event, force){
-    if(!active) return;
-    const parts = getJoystickParts(active.root);
-    if(!parts || !parts.base) return;
-    const p = pointToNorm(parts, event.clientX, event.clientY);
-    setStick(parts, p.x, p.y, false);
-    const drive = mixDrive(p.x, p.y);
-    sendDrive(drive.l, drive.r, !!force);
-  }
-
-  function onPointerDown(event){
-    if(document.body.classList.contains('phys-joy-active')) return;
-    const root = eventJoystick(event);
-    if(!root) return;
-
-    const parts = getJoystickParts(root);
-    if(!parts || !parts.base || !parts.stick) return;
-
-    stopEvent(event);
-    active = { root };
-    activePointerId = event.pointerId;
-    try { root.setPointerCapture && root.setPointerCapture(event.pointerId); } catch(e) {}
-    driveFromEvent(event, true);
-  }
-
-  function onPointerMove(event){
-    if(!active) return;
-    if(activePointerId !== null && event.pointerId !== activePointerId) return;
-    stopEvent(event);
-    driveFromEvent(event, false);
-  }
-
-  function release(event){
-    if(!active) return;
-    if(event && activePointerId !== null && event.pointerId !== activePointerId) return;
-
-    const parts = getJoystickParts(active.root);
-    if(parts) setStick(parts, 0, 0, true);
-    stopEvent(event);
-    sendDrive(0, 0, true);
-    active = null;
-    activePointerId = null;
-  }
-
-  function killOldSmallJoystickEvents(event){
-    const target = event.target;
-    if(!target || !target.closest) return;
-    const bad = target.closest('#joy2-container, #joy3-container, #joy4-container');
-    if(bad) stopEvent(event);
-  }
-
-  function renameDualLabel(){
-    const label = document.querySelector('#view-dual #joy1-container')?.closest('div')?.querySelector('.joy-quad-label');
-    if(label) label.setAttribute('title', 'Один джойстик: вперед/назад + поворот на 360°');
-  }
-
-  function init(){
-    renameDualLabel();
-    updateDisplays(0, 0);
-  }
-
-  // Capture=true: наш 360° обробник спрацьовує раніше за старі обробники.
-  document.addEventListener('pointerdown', onPointerDown, true);
-  document.addEventListener('pointermove', onPointerMove, true);
-  document.addEventListener('pointerup', release, true);
-  document.addEventListener('pointercancel', release, true);
-
-  ['mousedown','mousemove','mouseup','touchstart','touchmove','touchend','touchcancel'].forEach(function(type){
-    document.addEventListener(type, killOldSmallJoystickEvents, true);
-  });
-
-  window.addEventListener('blur', function(){ release({preventDefault(){}, stopPropagation(){}, stopImmediatePropagation(){}}); });
-  window.addEventListener('load', init);
-  setTimeout(init, 300);
 })();
 </script>
 
