@@ -1,12 +1,3 @@
-/* ================================================================
-   qr_manager.js
-   QR-менеджер для Robo Block
-   - Генерація QR з програми (байткод + XML блоків)
-   - Сканування QR камерою (мобільний)
-   - Історія QR з мініатюрами
-   - Кастомний скролбар в логу
-   ================================================================ */
-
 (function () {
 
 /* ---- Завантажити бібліотеки ---- */
@@ -720,8 +711,8 @@ function loadXMLToWorkspace(xml, name) {
     try {
         window.workspace.clear();
         /* Сумісність з різними версіями Blockly */
-        const textToDom = Blockly.Xml.textToDom
-            || Blockly.utils?.xml?.textToDom
+        const textToDom = Blockly.utils?.xml?.textToDom
+            || Blockly.Xml.textToDom
             || ((s) => new DOMParser().parseFromString(s, 'text/xml').documentElement);
         const dom = textToDom(xml);
         Blockly.Xml.domToWorkspace(dom, window.workspace);
