@@ -212,6 +212,17 @@ window.PixelEngine = {
 };
 })();
 
+/* RB generator sync: keep late display/game generators visible to new Blockly API. */
+(function(){
+  const G = (window.javascript && window.javascript.javascriptGenerator) ||
+            (window.Blockly && window.Blockly.JavaScript);
+  if(!G) return;
+  G.forBlock = G.forBlock || {};
+  Object.keys(G).forEach(k => {
+    if(typeof G[k] === 'function') G.forBlock[k] = G[k];
+  });
+})();
+
 /* ================================================================
    CUSTOM FIELD: field_paint_grid
    ================================================================ */
@@ -3707,6 +3718,11 @@ window.DISPLAY_CATEGORY=`
     <value name="X"><shadow type="math_number"><field name="NUM">0</field></shadow></value>
     <value name="Y"><shadow type="math_number"><field name="NUM">0</field></shadow></value>
   </block>
+  <block type="disp_sensor_value">
+    <field name="SENSOR">0</field>
+    <value name="X"><shadow type="math_number"><field name="NUM">0</field></shadow></value>
+    <value name="Y"><shadow type="math_number"><field name="NUM">20</field></shadow></value>
+  </block>
   <block type="disp_smile"><field name="FACE">happy</field></block>
   <label text="\u2014 Малювання \u2014"></label>
   <block type="disp_pixel_on">
@@ -3833,6 +3849,10 @@ Blockly.defineBlocksWithJsonArray([
   {"type":"disp_number","message0":"\uD83D\uDDA5\uFE0F число %1 X %2 Y %3",
    "args0":[{"type":"input_value","name":"VAL","check":"Number"},{"type":"input_value","name":"X","check":"Number"},{"type":"input_value","name":"Y","check":"Number"}],
    "inputsInline":true,"previousStatement":null,"nextStatement":null,"colour":"#2563eb","tooltip":"\u0412\u0438\u0432\u043e\u0434\u0438\u0442\u044c \u0447\u0438\u0441\u043b\u043e \u0446\u0438\u0444\u0440\u0430\u043c\u0438 \u043d\u0430 \u0435\u043a\u0440\u0430\u043d\u0456"},
+  {"type":"disp_sensor_value","message0":"\uD83D\uDDA5\uFE0F \u0434\u0430\u0442\u0447\u0438\u043a %1 X %2 Y %3",
+   "args0":[{"type":"field_dropdown","name":"SENSOR","options":[["S0","0"],["S1","1"],["S2","2"],["S3","3"],["\u0431\u0430\u0442\u0430\u0440\u0435\u044f %","bat"]]},
+            {"type":"input_value","name":"X","check":"Number"},{"type":"input_value","name":"Y","check":"Number"}],
+   "inputsInline":true,"previousStatement":null,"nextStatement":null,"colour":"#2563eb","tooltip":"\u0412\u0438\u0432\u043e\u0434\u0438\u0442\u044c \u043f\u043e\u0442\u043e\u0447\u043d\u0435 \u0437\u043d\u0430\u0447\u0435\u043d\u043d\u044f \u0434\u0430\u0442\u0447\u0438\u043a\u0430 \u043d\u0430 \u0435\u043a\u0440\u0430\u043d"},
   {"type":"disp_smile","message0":"\uD83D\uDDA5\uFE0F смайл %1",
    "args0":[{"type":"field_dropdown","name":"FACE","options":[["😊","happy"],["😢","sad"],["⚡","bolt"],["❓","question"],["✓","check"]]}],
    "previousStatement":null,"nextStatement":null,"colour":"#2563eb","tooltip":"\u041c\u0430\u043b\u044e\u0454 \u0441\u043c\u0430\u0439\u043b\u0438\u043a \u043f\u043e \u0446\u0435\u043d\u0442\u0440\u0443: \u0443\u0441\u043c\u0456\u0445\u043d\u0435\u043d\u0438\u0439, \u0441\u0443\u043c\u043d\u0438\u0439 \u0430\u0431\u043e \u043d\u0435\u0439\u0442\u0440\u0430\u043b\u044c\u043d\u0438\u0439"},
@@ -3959,6 +3979,14 @@ J['disp_text'] = (b)=>{
   return `${PE}.drawText(${t},+${v(b,'X','0')},+${v(b,'Y','0')},${scale});\n`;
 };
 J['disp_number'] = (b)=>`${PE}.drawText(String(Math.round(${v(b,'VAL','0')})),+${v(b,'X','0')},+${v(b,'Y','0')},1);\n`;
+function rbDisplaySensorExpr(sensorId){
+  const id = JSON.stringify(sensorId || '0');
+  return `(()=>{const id=${id};if(id==='bat')return(window._batPct!=null?window._batPct:(window._batVolts!=null?window._batVolts:0));const i=Number(id)||0;const p=window.lastPacket||window._lastPacket||[];if(p&&p[i]!=null)return p[i];const el=document.getElementById('s'+i);const n=el?parseFloat(el.textContent):0;return Number.isFinite(n)?n:0;})()`;
+}
+J['disp_sensor_value'] = (b)=>{
+  const data = rbDisplaySensorExpr(b.getFieldValue('SENSOR'));
+  return `${PE}.drawText(String(Math.round(Number(${data})||0)),+${v(b,'X','0')},+${v(b,'Y','20')},1);\n`;
+};
 J['disp_smile'] = (b)=>{
   const f=b.getFieldValue('FACE');
   const m=f==='happy'?`for(let i=-5;i<=5;i++)${PE}.set(cx+i,cy+5+Math.round(3*Math.sin((i+5)*Math.PI/10)),1);`
@@ -4223,5 +4251,16 @@ window._updateBatDisplayBlocks = function() {
   };
   window.addEventListener('load', function(){
     [0,300,1000,2500].forEach(t=>setTimeout(window.rbRebuildOledPaintersTouch18Safe,t));
+  });
+})();
+
+/* RB final generator sync: includes blocks defined after the first sync pass. */
+(function(){
+  const G = (window.javascript && window.javascript.javascriptGenerator) ||
+            (window.Blockly && window.Blockly.JavaScript);
+  if(!G) return;
+  G.forBlock = G.forBlock || {};
+  Object.keys(G).forEach(k => {
+    if(typeof G[k] === 'function') G.forBlock[k] = G[k];
   });
 })();
