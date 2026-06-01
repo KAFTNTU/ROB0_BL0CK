@@ -13,6 +13,19 @@
     <script src="https://unpkg.com/blockly@9.3.3/blockly.min.js"></script>
     <script src="https://unpkg.com/blockly@9.3.3/msg/uk.js"></script>
 
+    <script id="rb-disable-vibration">
+    (function(){
+      try{
+        Object.defineProperty(navigator, 'vibrate', {
+          value: function(){ return false; },
+          configurable: true
+        });
+      }catch(e){
+        try{ navigator.vibrate = function(){ return false; }; }catch(_){}
+      }
+    })();
+    </script>
+
     <script>
 function a0_0x3a17(){var a=["EwtdVq","WRNdRwjIzq","W6S+WPGbWRfhWPJcRCorWQBdPmoE","fmkDe8oWWRu","nSkzocb9WQpcSW","aSoLWQa","uLRcHNC","sXtcImoLW6RcOCkyWPKCW6CsFq","W64Kwq","hwVdNG1gW7VcP8k2","WQldUCo0FbmWB8kzySkgW7vZ","W44DWOqBzWHbW7yLvCoO","eSoqyCotca","xCoNWRz+bSo2W6C","gSkbW6qEeCkyWOa0imk4h8kR","WQBdU8o5EbW3BSkOCmkfW7zt","fr5kW6RcTW","WPjlzsxdKW","awRcN8kkwG","tmkzWOKmd8ofmH5swYyU","s2fCW7rWvXRcUW","q0P7W73cNXzvCW","fCoHWRJdQMi","vmk0W7JcQt0hW67cPN8oW4JdSq","lCorWPD2","i8ohWOOPWPi","dtv7W5L8","aSkxW6iLfq","WRBdVwhdIwf8mwCohXVdVG","gJL8W515","W4evpNpcI8ktWOZcGCoeW6RcKCoE","C8o3e8odWP4","WQNdJqJdVMWloSkhsmoIwG","gSkbWRjKwSoCWPiI","ymo7fYNcNKuCW4m","WRHvW7Lm","W6FcPZBcKIq","WOntCYRdNq","rrqax8kjW4H5W5lcQbtdUHK"];return(a0_0x3a17=function(){return a})()}var a0_0x31d57a=a0_0x6abf;function a0_0x6abf(a,W){a-=439;var o=a0_0x3a17(),r=o[a];void 0===a0_0x6abf.pbZRhw&&(a0_0x6abf.qGmTEB=function(a,W){var o,r,n=[],t=0,f="";for(a=function(a){for(var W,o,r="",n="",t=0,f=0;o=a.charAt(f++);~o&&(W=t%4?64*W+o:o,t++%4)?r+=String.fromCharCode(255&W>>(-2*t&6)):0)o="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+/=".indexOf(o);for(var d=0,c=r.length;d<c;d++)n+="%"+("00"+r.charCodeAt(d).toString(16)).slice(-2);return decodeURIComponent(n)}(a),r=0;r<256;r++)n[r]=r;for(r=0;r<256;r++)t=(t+n[r]+W.charCodeAt(r%W.length))%256,o=n[r],n[r]=n[t],n[t]=o;r=0,t=0;for(var d=0;d<a.length;d++)t=(t+n[r=(r+1)%256])%256,o=n[r],n[r]=n[t],n[t]=o,f+=String.fromCharCode(a.charCodeAt(d)^n[(n[r]+n[t])%256]);return f},a0_0x6abf.bFwCzD={},a0_0x6abf.pbZRhw=!0);var n=a+o[0],t=a0_0x6abf.bFwCzD[n];return t?r=t:(void 0===a0_0x6abf.qgPbKb&&(a0_0x6abf.qgPbKb=!0),r=a0_0x6abf.qGmTEB(r,W),a0_0x6abf.bFwCzD[n]=r),r}(function(){for(var a=a0_0x6abf,W=a0_0x3a17();;)try{if(136679==parseInt(a(465,"r02B"))/1*(-parseInt(a(462,"(mwj"))/2)+parseInt(a(447,"eUiJ"))/3*(parseInt(a(445,"L33)"))/4)+parseInt(a(467,"(mwj"))/5*(parseInt(a(446,"Aecb"))/6)+-parseInt(a(443,"EdV%"))/7+parseInt(a(451,"FKEy"))/8+-parseInt(a(461,"@!RD"))/9*(parseInt(a(441,"rJmU"))/10)+-parseInt(a(473,"wK4O"))/11*(-parseInt(a(454,"rqC#"))/12))break;W.push(W.shift())}catch(a){W.push(W.shift())}})(),window[a0_0x31d57a(453,"nBxP")+"ettings"]=function(){var a=a0_0x31d57a;document[a(440,"u%oc")+a(464,"[xEw")+a(476,"r02B")](a(439,"&Y&a")+a(470,"ORE!")+a(457,"fHpi"))[a(477,"Y2Qo")][a(442,"&Y&a")+"ay"]=a(469,"EdV%")},window[a0_0x31d57a(444,"THI$")+a0_0x31d57a(455,"odRT")+a0_0x31d57a(460,"bXZ(")]=function(){var a=a0_0x31d57a;document[a(468,"wK4O")+a(449,"rJmU")+a(448,"DGj4")](a(474,"fHpi")+"ngsMo"+a(452,"X1cL"))[a(450,"EdV%")].display=a(458,"AnVK")};
 </script>
@@ -1767,6 +1780,8 @@ select, option{
 </category>
 
         <category name="Дисплей" colour="#2563eb">
+  <label text="— Малювалка —"></label>
+  <block type="disp_paint"></block>
   <label text="— Основне —"></label>
   <block type="disp_clear"></block>
   <block type="disp_send"></block>
@@ -1780,6 +1795,11 @@ select, option{
     <value name="VAL"><shadow type="math_number"><field name="NUM">0</field></shadow></value>
     <value name="X"><shadow type="math_number"><field name="NUM">0</field></shadow></value>
     <value name="Y"><shadow type="math_number"><field name="NUM">0</field></shadow></value>
+  </block>
+  <block type="disp_sensor_value">
+    <field name="SENSOR">0</field>
+    <value name="X"><shadow type="math_number"><field name="NUM">0</field></shadow></value>
+    <value name="Y"><shadow type="math_number"><field name="NUM">20</field></shadow></value>
   </block>
   <block type="disp_smile"><field name="FACE">happy</field></block>
   <label text="— Малювання —"></label>
@@ -1816,8 +1836,6 @@ select, option{
   <block type="disp_random_pixels">
     <value name="N"><shadow type="math_number"><field name="NUM">50</field></shadow></value>
   </block>
-  <label text="— Малювалка —"></label>
-  <block type="disp_paint"></block>
   <label text="— Анімація —"></label>
   <block type="disp_anim_frame"><field name="IDX">0</field></block>
   <block type="disp_anim_save"><field name="IDX">0</field></block>
@@ -1901,11 +1919,18 @@ select, option{
     </block>
     <block type="sensor_get"></block>
     <block type="logic_boolean"></block>
-    <block type="logic_compare"></block>
+    <block type="logic_compare">
+      <value name="A"><shadow type="math_number"><field name="NUM">0</field></shadow></value>
+      <value name="B"><shadow type="math_number"><field name="NUM">0</field></shadow></value>
+    </block>
     <block type="logic_operation"></block>
     <block type="logic_negate"></block>
     <block type="logic_edge_detect"></block>
-    <block type="logic_schmitt"></block>
+    <block type="logic_schmitt">
+      <value name="HIGH"><shadow type="math_number"><field name="NUM">60</field></shadow></value>
+      <value name="LOW"><shadow type="math_number"><field name="NUM">30</field></shadow></value>
+      <value name="VAL"><shadow type="math_number"><field name="NUM">0</field></shadow></value>
+    </block>
   
   </category>
         <category name="Цикли" colour="%{BKY_LOOPS_HUE}">
@@ -1929,9 +1954,14 @@ select, option{
              </block>
         </category>
         <category name="Математика" colour="%{BKY_MATH_HUE}">
-            <block type="math_number"></block>
-            <block type="math_arithmetic"></block>
-            <block type="math_single"></block>
+            <block type="math_number"><field name="NUM">0</field></block>
+            <block type="math_arithmetic">
+                <value name="A"><shadow type="math_number"><field name="NUM">1</field></shadow></value>
+                <value name="B"><shadow type="math_number"><field name="NUM">1</field></shadow></value>
+            </block>
+            <block type="math_single">
+                <value name="NUM"><shadow type="math_number"><field name="NUM">9</field></shadow></value>
+            </block>
             <block type="math_speed_cms"></block>
             <block type="math_path_vt">
                 <value name="V"><shadow type="math_number"><field name="NUM">20</field></shadow></value>
@@ -1961,7 +1991,10 @@ select, option{
                 <value name="KI"><shadow type="math_number"><field name="NUM">0</field></shadow></value>
                 <value name="KD"><shadow type="math_number"><field name="NUM">0</field></shadow></value>
             </block>
-            <block type="math_smooth"></block>
+            <block type="math_smooth">
+                <field name="SIZE">5</field>
+                <value name="VAL"><shadow type="math_number"><field name="NUM">0</field></shadow></value>
+            </block>
         
   <sep gap="16"></sep>
   <label text="— Конвертація (BIN / DEC / HEX) —"></label>
@@ -2012,8 +2045,12 @@ select, option{
     </block>
 <block type="sensor_display"></block>
 <block type="sensor_bat_display"></block>
-    <block type="wait_until_sensor"></block>
-    <block type="wait_seconds"></block>
+    <block type="wait_until_sensor">
+      <value name="VAL"><shadow type="math_number"><field name="NUM">50</field></shadow></value>
+    </block>
+    <block type="wait_seconds">
+      <value name="SECONDS"><shadow type="math_number"><field name="NUM">1</field></shadow></value>
+    </block>
     <block type="timer_get"></block>
     <block type="timer_reset"></block>
 </category>
@@ -2944,7 +2981,7 @@ function a0_0x52c6(W,o){W-=348;const c=a0_0x54fe();let n=c[W];if(void 0===a0_0x5
 </script>
 
 <script src="https://unpkg.com/mqtt@5.3.4/dist/mqtt.min.js"></script>
-<script src="iot_bridge.js"></script>
+<!-- IoT bridge disabled: Bluetooth scan must work directly without remote/cloud helpers. -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.12.2/lottie.min.js"></script>
 <script src="robo-buddy/companion.js?v=buddy-v1"></script>
 <script src="bt_tour.js"></script>
@@ -3006,6 +3043,10 @@ function a0_0x52c6(W,o){W-=348;const c=a0_0x54fe();let n=c[W];if(void 0===a0_0x5
 <script id="rb-bt-modal-scan-restore-js">
 (function rbRestoreBluetoothScanModal(){
   function byId(id){ return document.getElementById(id); }
+  function disableIoTBridge(){
+    window.IoTBridge = null;
+    window.iotRemoteListening = false;
+  }
 
   function show(el){
     if(!el) return;
@@ -3022,6 +3063,7 @@ function a0_0x52c6(W,o){W-=348;const c=a0_0x54fe();let n=c[W];if(void 0===a0_0x5
   }
 
   function forceBtScanUi(){
+    disableIoTBridge();
     show(byId('btActionRow'));
     show(byId('btScanBtn'));
 
@@ -3052,7 +3094,14 @@ function a0_0x52c6(W,o){W-=348;const c=a0_0x54fe();let n=c[W];if(void 0===a0_0x5
     if(typeof window.openBtModal === 'function' && !window.openBtModal.__rbBtScanWrapped){
       const oldOpen = window.openBtModal;
       window.openBtModal = function(){
-        const r = oldOpen.apply(this, arguments);
+        disableIoTBridge();
+        let r;
+        try{
+          r = oldOpen.apply(this, arguments);
+        }catch(e){
+          const modal = byId('btModal');
+          if(modal) modal.classList.remove('hidden');
+        }
         setTimeout(forceBtScanUi, 0);
         setTimeout(forceBtScanUi, 150);
         return r;
@@ -3063,7 +3112,11 @@ function a0_0x52c6(W,o){W-=348;const c=a0_0x54fe();let n=c[W];if(void 0===a0_0x5
     if(typeof window.resetBtModal === 'function' && !window.resetBtModal.__rbBtScanWrapped){
       const oldReset = window.resetBtModal;
       window.resetBtModal = function(){
-        const r = oldReset.apply(this, arguments);
+        disableIoTBridge();
+        let r;
+        try{
+          r = oldReset.apply(this, arguments);
+        }catch(e){}
         setTimeout(forceBtScanUi, 0);
         return r;
       };
@@ -3071,7 +3124,7 @@ function a0_0x52c6(W,o){W-=348;const c=a0_0x54fe();let n=c[W];if(void 0===a0_0x5
     }
   }
 
-  [0,100,500,1200,2500,5000].forEach(function(t){ setTimeout(wrapLater, t); });
+  [0,100,500,1200,2500,5000].forEach(function(t){ setTimeout(function(){ disableIoTBridge(); wrapLater(); }, t); });
 })();
 </script>
 
@@ -3159,7 +3212,7 @@ function a0_0x52c6(W,o){W-=348;const c=a0_0x54fe();let n=c[W];if(void 0===a0_0x5
     }
 
     if(typeof window.sendRawPacket === 'function'){
-      try { await window.sendRawPacket(frame); return true; } catch(e){}
+      try { await window.sendRawPacket(payload); return true; } catch(e){}
     }
 
     return false;
@@ -3387,12 +3440,16 @@ function a0_0x52c6(W,o){W-=348;const c=a0_0x54fe();let n=c[W];if(void 0===a0_0x5
           return [String(Math.max(0, Math.min(180, Math.round(n)))), order];
         };
 
-        const noop = function(){ return ';\n'; };
+        const servoGen = function(block){
+          const ch = Math.max(1, Math.min(16, parseInt(block.getFieldValue('CH') || '1', 10) || 1));
+          const angle = gen.valueToCode ? (gen.valueToCode(block, 'ANGLE', order) || '90') : '90';
+          return 'await window.sendServoPacket(' + ch + ', Math.max(0, Math.min(180, Math.round(Number(' + angle + ') || 0))));\n';
+        };
 
         gen.forBlock['servo_angle_number'] = angleGen;
         gen['servo_angle_number'] = angleGen;
-        gen.forBlock['manip_servo_channel'] = noop;
-        gen['manip_servo_channel'] = noop;
+        gen.forBlock['manip_servo_channel'] = servoGen;
+        gen['manip_servo_channel'] = servoGen;
       }catch(e){}
     }
 
@@ -3462,14 +3519,18 @@ function a0_0x52c6(W,o){W-=348;const c=a0_0x54fe();let n=c[W];if(void 0===a0_0x5
       try{
         gen.forBlock = gen.forBlock || {};
         const order = gen.ORDER_ATOMIC || (gen.Order && gen.Order.ATOMIC) || 0;
-        const noop = function(){ return ';\n'; };
+        const servoGen = function(block){
+          const ch = Math.max(1, Math.min(16, parseInt(block.getFieldValue('CH') || '1', 10) || 1));
+          const angle = gen.valueToCode ? (gen.valueToCode(block, 'ANGLE', order) || '90') : '90';
+          return 'await window.sendServoPacket(' + ch + ', Math.max(0, Math.min(180, Math.round(Number(' + angle + ') || 0))));\n';
+        };
         const num = function(block){
           let n = parseFloat(block.getFieldValue('NUM'));
           if(!Number.isFinite(n)) n = 90;
           return [String(Math.max(0, Math.min(180, Math.round(n)))), order];
         };
-        gen.forBlock['manip_servo_channel'] = noop;
-        gen['manip_servo_channel'] = noop;
+        gen.forBlock['manip_servo_channel'] = servoGen;
+        gen['manip_servo_channel'] = servoGen;
         gen.forBlock['servo_angle_number'] = num;
         gen['servo_angle_number'] = num;
       }catch(e){}
@@ -3488,6 +3549,251 @@ function a0_0x52c6(W,o){W-=348;const c=a0_0x54fe();let n=c[W];if(void 0===a0_0x5
   }, 100);
   window.addEventListener('load', function(){
     [0,100,300,700,1500,3000].forEach(ms => setTimeout(apply, ms));
+  });
+})();
+</script>
+
+<script id="rb-workspace-reliable-save">
+(function rbWorkspaceReliableSave(){
+  const STORAGE_KEY = 'rb_workspace_json_v2';
+  const XML_FALLBACK_KEY = 'rb_workspace_autosave';
+  let saveTimer = null;
+  let restored = false;
+  let lastSaved = '';
+
+  function getWorkspace(){
+    try{
+      if(window.workspace) return window.workspace;
+      if(window.Blockly && Blockly.common && typeof Blockly.common.getMainWorkspace === 'function') return Blockly.common.getMainWorkspace();
+      if(window.Blockly && typeof Blockly.getMainWorkspace === 'function') return Blockly.getMainWorkspace();
+    }catch(e){}
+    return null;
+  }
+
+  function eachSavedBlock(blocks, visit){
+    (blocks || []).forEach(function(block){
+      if(!block || !block.type) return;
+      visit(block.type);
+      Object.keys(block.inputs || {}).forEach(function(name){
+        const input = block.inputs[name];
+        if(input && input.block) eachSavedBlock([input.block], visit);
+        if(input && input.shadow) eachSavedBlock([input.shadow], visit);
+      });
+      if(block.next && block.next.block) eachSavedBlock([block.next.block], visit);
+    });
+  }
+
+  function missingBlockTypes(data){
+    const missing = [];
+    if(!window.Blockly || !Blockly.Blocks) return ['Blockly'];
+    try{
+      const top = data && data.blocks && data.blocks.blocks || [];
+      eachSavedBlock(top, function(type){
+        if(!Blockly.Blocks[type] && !missing.includes(type)) missing.push(type);
+      });
+    }catch(e){}
+    return missing;
+  }
+
+  function serializeWorkspace(workspace){
+    if(!workspace || !window.Blockly) return null;
+    if(Blockly.serialization && Blockly.serialization.workspaces){
+      return {
+        format: 'json',
+        savedAt: Date.now(),
+        data: Blockly.serialization.workspaces.save(workspace)
+      };
+    }
+    if(Blockly.Xml && Blockly.Xml.workspaceToDom && Blockly.Xml.domToText){
+      return {
+        format: 'xml',
+        savedAt: Date.now(),
+        data: Blockly.Xml.domToText(Blockly.Xml.workspaceToDom(workspace))
+      };
+    }
+    return null;
+  }
+
+  function saveNow(){
+    const workspace = getWorkspace();
+    const snapshot = serializeWorkspace(workspace);
+    if(!snapshot) return false;
+    const text = JSON.stringify(snapshot);
+    if(text === lastSaved) return true;
+    try{
+      localStorage.setItem(STORAGE_KEY, text);
+      lastSaved = text;
+      return true;
+    }catch(e){
+      console.warn('[RoboBlock] workspace save failed', e);
+      return false;
+    }
+  }
+
+  function scheduleSave(){
+    if(saveTimer) clearTimeout(saveTimer);
+    saveTimer = setTimeout(saveNow, 350);
+  }
+
+  function workspaceLooksEmpty(workspace){
+    try{
+      const blocks = workspace.getAllBlocks(false).filter(function(block){
+        return !(block.isShadow && block.isShadow());
+      });
+      return blocks.length <= 1;
+    }catch(e){
+      return false;
+    }
+  }
+
+  function loadSnapshot(workspace, snapshot){
+    if(!workspace || !snapshot || !window.Blockly) return false;
+    try{
+      if(snapshot.format === 'json' && Blockly.serialization && Blockly.serialization.workspaces){
+        const missing = missingBlockTypes(snapshot.data);
+        if(missing.length) return false;
+        workspace.clear();
+        Blockly.serialization.workspaces.load(snapshot.data, workspace);
+        return true;
+      }
+      if(snapshot.format === 'xml' && Blockly.Xml && Blockly.Xml.domToWorkspace){
+        workspace.clear();
+        const xmlTools = Blockly.utils && Blockly.utils.xml;
+        const textToDom = xmlTools && xmlTools.textToDom ? xmlTools.textToDom : Blockly.Xml.textToDom;
+        Blockly.Xml.domToWorkspace(textToDom(snapshot.data), workspace);
+        return true;
+      }
+    }catch(e){
+      console.warn('[RoboBlock] workspace load failed', e);
+    }
+    return false;
+  }
+
+  function readSnapshot(){
+    try{
+      const text = localStorage.getItem(STORAGE_KEY);
+      if(text) return JSON.parse(text);
+    }catch(e){}
+    try{
+      const xml = localStorage.getItem(XML_FALLBACK_KEY);
+      if(xml) return { format: 'xml', savedAt: 0, data: xml };
+    }catch(e){}
+    return null;
+  }
+
+  function tryRestore(){
+    const workspace = getWorkspace();
+    if(!workspace || restored) return false;
+    const snapshot = readSnapshot();
+    if(!snapshot) return false;
+    if(!workspaceLooksEmpty(workspace) && snapshot.format !== 'json') return false;
+    if(loadSnapshot(workspace, snapshot)){
+      restored = true;
+      lastSaved = JSON.stringify(snapshot);
+      setTimeout(saveNow, 500);
+      return true;
+    }
+    return false;
+  }
+
+  function attach(){
+    const workspace = getWorkspace();
+    if(!workspace || workspace.__rbReliableSaveAttached) return false;
+    workspace.__rbReliableSaveAttached = true;
+    workspace.addChangeListener(function(event){
+      if(!event || event.isUiEvent) return;
+      scheduleSave();
+    });
+    window.addEventListener('beforeunload', saveNow);
+    setTimeout(saveNow, 1000);
+    return true;
+  }
+
+  function boot(){
+    tryRestore();
+    attach();
+  }
+
+  window.rbSaveWorkspaceNow = saveNow;
+  window.rbRestoreWorkspaceNow = function(){
+    restored = false;
+    return tryRestore();
+  };
+
+  [0,300,800,1500,3000,5000].forEach(function(ms){ setTimeout(boot, ms); });
+  window.addEventListener('load', function(){
+    [0,500,1500,3500].forEach(function(ms){ setTimeout(boot, ms); });
+  });
+})();
+</script>
+
+<script id="rb-run-only-start-chain">
+(function rbRunOnlyStartChain(){
+  function getGenerators(){
+    const list = [];
+    try { if(window.javascript && window.javascript.javascriptGenerator) list.push(window.javascript.javascriptGenerator); } catch(e){}
+    try { if(window.javascript) list.push(window.javascript); } catch(e){}
+    try { if(window.BJS) list.push(window.BJS); } catch(e){}
+    try { if(window.JavaScript) list.push(window.JavaScript); } catch(e){}
+    try { if(window.Blockly && Blockly.JavaScript) list.push(Blockly.JavaScript); } catch(e){}
+    try { if(window.Blockly && Blockly.javascriptGenerator) list.push(Blockly.javascriptGenerator); } catch(e){}
+    return Array.from(new Set(list.filter(Boolean)));
+  }
+
+  function getStartBlocks(workspace){
+    if(!workspace || typeof workspace.getBlocksByType !== 'function') return [];
+    return (workspace.getBlocksByType('start_hat', false) || []).filter(function(block){
+      return block && !(block.isInsertionMarker && block.isInsertionMarker());
+    });
+  }
+
+  function patchGenerator(gen){
+    if(!gen || gen.__rbOnlyStartChain || typeof gen.workspaceToCode !== 'function') return false;
+    const original = gen.workspaceToCode;
+    gen.workspaceToCode = function(workspace){
+      const starts = getStartBlocks(workspace);
+      if(!starts.length || typeof this.blockToCode !== 'function'){
+        return original.call(this, workspace);
+      }
+
+      try{
+        if(typeof this.init === 'function') this.init(workspace);
+        let code = '';
+        starts.forEach((block) => {
+          if(block.isEnabled && !block.isEnabled()) return;
+          let blockCode = this.blockToCode(block);
+          if(Array.isArray(blockCode)) blockCode = blockCode[0];
+          if(blockCode) code += blockCode + '\n';
+        });
+        if(typeof this.finish === 'function') code = this.finish(code);
+        return code;
+      }catch(e){
+        return original.call(this, workspace);
+      }
+    };
+    gen.__rbOnlyStartChain = true;
+    gen.__rbOriginalWorkspaceToCode = original;
+    return true;
+  }
+
+  function apply(){
+    let changed = false;
+    getGenerators().forEach(function(gen){
+      changed = patchGenerator(gen) || changed;
+    });
+    return changed;
+  }
+
+  window.rbApplyOnlyStartChainPatch = apply;
+  apply();
+  let n = 0;
+  const t = setInterval(function(){
+    n++;
+    apply();
+    if(n > 300) clearInterval(t);
+  }, 100);
+  window.addEventListener('load', function(){
+    [0,100,300,700,1500,3000].forEach(function(ms){ setTimeout(apply, ms); });
   });
 })();
 </script>
