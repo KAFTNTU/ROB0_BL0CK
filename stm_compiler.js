@@ -77,6 +77,7 @@ class Compiler {
         this.buf = [];     /* байти програми */
         this.errors = [];  /* попередження/помилки */
         this._warnedDisp = false; /* щоб не спамити лог */
+        this.servoAngles = Object.create(null); /* останні відомі кути каналів */
     }
 
     /* --- Базові emit --- */
@@ -208,20 +209,39 @@ class Compiler {
                 const map = { BASE:1, SHOULDER:2, ELBOW:3, GRIP:4 };
                 const ch = map[block.getFieldValue('SERVO') || 'BASE'] || 1;
                 const angle = this.staticNum(block.getInputTargetBlock('ANGLE'), 90);
-                this.emit(OP.SERVO_SET); this.emit(ch); this.emit(Math.max(0, Math.min(180, Math.round(angle))));
+                this.emitServoSet(ch, angle);
                 break;
             }
             case 'manip_servo_channel': {
                 const ch = parseInt(block.getFieldValue('CH') || '1');
                 const angle = this.staticNum(block.getInputTargetBlock('ANGLE'), 90);
-                this.emit(OP.SERVO_SET); this.emit(Math.max(1, Math.min(16, ch))); this.emit(Math.max(0, Math.min(180, Math.round(angle))));
+                this.emitServoSet(ch, angle);
+                break;
+            }
+            case 'manip_servo_timed': {
+                const ch = parseInt(block.getFieldValue('CH') || '1');
+                const target = this.staticNum(block.getInputTargetBlock('ANGLE'), 90);
+                const seconds = this.staticNum(block.getInputTargetBlock('SECONDS'), 1);
+                const from = Number.isFinite(this.servoAngles[ch]) ? this.servoAngles[ch] : 0;
+                this.emitServoRamp(ch, from, target, seconds);
+                break;
+            }
+            case 'manip_servo_from_to': {
+                const ch = parseInt(block.getFieldValue('CH') || '1');
+                const from = this.staticNum(block.getInputTargetBlock('FROM'), 0);
+                const to = this.staticNum(block.getInputTargetBlock('TO'), 90);
+                const seconds = this.staticNum(block.getInputTargetBlock('SECONDS'), 1);
+                this.emitServoRamp(ch, from, to, seconds, true);
                 break;
             }
             case 'manip_set4': {
                 this.emit(OP.SERVO4_SET);
                 ['BASE','SHOULDER','ELBOW','GRIP'].forEach(name => {
                     const a = this.staticNum(block.getInputTargetBlock(name), name === 'GRIP' ? 30 : 90);
-                    this.emit(Math.max(0, Math.min(180, Math.round(a))));
+                    const angle = Math.max(0, Math.min(180, Math.round(a)));
+                    this.emit(angle);
+                    const ch = { BASE:1, SHOULDER:2, ELBOW:3, GRIP:4 }[name];
+                    this.servoAngles[ch] = angle;
                 });
                 break;
             }
@@ -240,7 +260,10 @@ class Compiler {
                 };
                 const p = poses[block.getFieldValue('POSE') || 'HOME'] || poses.HOME;
                 this.emit(OP.SERVO4_SET);
-                for (const a of p) this.emit(a);
+                for (let i = 0; i < p.length; i++) {
+                    this.emit(p[i]);
+                    this.servoAngles[i + 1] = p[i];
+                }
                 break;
             }
             case 'manip_servo_smooth': {
@@ -249,7 +272,7 @@ class Compiler {
                 const map = { BASE:1, SHOULDER:2, ELBOW:3, GRIP:4 };
                 const ch = map[block.getFieldValue('SERVO') || 'BASE'] || 1;
                 const angle = this.staticNum(block.getInputTargetBlock('ANGLE'), 90);
-                this.emit(OP.SERVO_SET); this.emit(ch); this.emit(Math.max(0, Math.min(180, Math.round(angle))));
+                this.emitServoSet(ch, angle);
                 break;
             }
             case 'manip_servo_off': {
@@ -703,6 +726,35 @@ class Compiler {
     /* ================================================================
        Допоміжники
        ================================================================ */
+
+    emitServoSet(channel, angle) {
+        const ch = Math.max(1, Math.min(16, parseInt(channel, 10) || 1));
+        const a = Math.max(0, Math.min(180, Math.round(Number(angle) || 0)));
+        this.emit(OP.SERVO_SET); this.emit(ch); this.emit(a);
+        this.servoAngles[ch] = a;
+    }
+
+    emitServoRamp(channel, from, to, seconds, sendStart) {
+        const ch = Math.max(1, Math.min(16, parseInt(channel, 10) || 1));
+        const start = Math.max(0, Math.min(180, Math.round(Number(from) || 0)));
+        const target = Math.max(0, Math.min(180, Math.round(Number(to) || 0)));
+        const sec = Math.max(0, Number(seconds) || 0);
+
+        if (sendStart) this.emitServoSet(ch, start);
+        if (start === target || sec <= 0) {
+            this.emitServoSet(ch, target);
+            return;
+        }
+
+        // Кроки компілюються у SERVO_SET + PAUSE; один крок займає не менше 100 мс,
+        // щоб навіть два плавні переходи не переповнювали FRAM програми (509 байт).
+        const steps = Math.max(1, Math.min(Math.abs(target - start), Math.ceil(sec * 1000 / 100)));
+        for (let i = 1; i <= steps; i++) {
+            this.emit(OP.PAUSE);
+            this.emitMs(sec / steps);
+            this.emitServoSet(ch, start + (target - start) * i / steps);
+        }
+    }
 
     /* Повернути статичне числове значення з input (0-255) */
     compileValue(block, name) {

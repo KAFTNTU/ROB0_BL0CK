@@ -1777,6 +1777,17 @@ select, option{
     <field name="CH">1</field>
     <value name="ANGLE"><shadow type="math_number"><field name="NUM">90</field></shadow></value>
   </block>
+  <block type="manip_servo_timed">
+    <field name="CH">1</field>
+    <value name="ANGLE"><shadow type="math_number"><field name="NUM">45</field></shadow></value>
+    <value name="SECONDS"><shadow type="math_number"><field name="NUM">3</field></shadow></value>
+  </block>
+  <block type="manip_servo_from_to">
+    <field name="CH">1</field>
+    <value name="FROM"><shadow type="math_number"><field name="NUM">36</field></shadow></value>
+    <value name="TO"><shadow type="math_number"><field name="NUM">90</field></shadow></value>
+    <value name="SECONDS"><shadow type="math_number"><field name="NUM">3</field></shadow></value>
+  </block>
 </category>
 
         <category name="Дисплей" colour="#2563eb">
@@ -2997,7 +3008,8 @@ function a0_0x52c6(W,o){W-=348;const c=a0_0x54fe();let n=c[W];if(void 0===a0_0x5
   ]);
   const MOVE_TYPES = new Set([
     'start_hat','robot_stop','robot_move','robot_move_soft','robot_set_speed','robot_turn_timed',
-    'motor_single','go_home','track_action','start_line_action','joy_x','joy_y','manip_servo_channel'
+    'motor_single','go_home','track_action','start_line_action','joy_x','joy_y',
+    'manip_servo_channel','manip_servo_timed','manip_servo_from_to'
   ]);
 
   function applyColours(){
@@ -3179,6 +3191,7 @@ function a0_0x52c6(W,o){W-=348;const c=a0_0x54fe();let n=c[W];if(void 0===a0_0x5
   let running = false;
   let token = 0;
   let queue = Promise.resolve();
+  const servoAngles = Object.create(null);
 
   function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
 
@@ -3229,7 +3242,61 @@ function a0_0x52c6(W,o){W-=348;const c=a0_0x54fe();let n=c[W];if(void 0===a0_0x5
   window.sendServoPacket = function(channel, angle){
     channel = Math.max(1, Math.min(16, parseInt(channel,10) || 1));
     angle = Math.max(0, Math.min(180, parseInt(angle,10) || 0));
+    servoAngles[channel] = angle;
     return writeQueued(new Uint8Array([OP_SERVO, channel, angle]));
+  };
+
+  function clampAngle(value, fallback){
+    const n = Number(value);
+    return Math.max(0, Math.min(180, Number.isFinite(n) ? n : fallback));
+  }
+
+  async function moveServoSmooth(channel, from, to, seconds, myToken, sendStart){
+    channel = Math.max(1, Math.min(16, parseInt(channel, 10) || 1));
+    from = Math.round(clampAngle(from, 0));
+    to = Math.round(clampAngle(to, from));
+    const durationMs = Math.max(0, Number(seconds) * 1000 || 0);
+
+    if(sendStart){
+      if(!running || myToken !== token) return false;
+      await window.sendServoPacket(channel, from);
+      servoAngles[channel] = from;
+    }
+
+    const diff = to - from;
+    if(diff === 0 || durationMs <= 0){
+      if(running && myToken === token){
+        await window.sendServoPacket(channel, to);
+        servoAngles[channel] = to;
+      }
+      return running && myToken === token;
+    }
+
+    // Один крок не менше приблизно 50 мс, щоб BLE-черга не переповнювалась.
+    const steps = Math.max(1, Math.min(Math.abs(diff), Math.ceil(durationMs / 50)));
+    const startedAt = Date.now();
+    for(let i = 1; i <= steps; i++){
+      if(!running || myToken !== token) return false;
+      const angle = Math.round(from + diff * (i / steps));
+      await window.sendServoPacket(channel, angle);
+      servoAngles[channel] = angle;
+      const dueAt = startedAt + Math.round(durationMs * (i / steps));
+      const waitMs = dueAt - Date.now();
+      if(waitMs > 0) await sleep(waitMs);
+    }
+    return true;
+  }
+
+  window.rbMoveServoTimed = async function(channel, target, seconds){
+    const myToken = token;
+    const ch = Math.max(1, Math.min(16, parseInt(channel, 10) || 1));
+    const from = Number.isFinite(servoAngles[ch]) ? servoAngles[ch] : 0;
+    return moveServoSmooth(ch, from, target, seconds, myToken, false);
+  };
+
+  window.rbMoveServoFromTo = async function(channel, from, to, seconds){
+    const myToken = token;
+    return moveServoSmooth(channel, from, to, seconds, myToken, true);
   };
 
   window.rbSendPWM = function(pwm, angle){
@@ -3297,8 +3364,27 @@ function a0_0x52c6(W,o){W-=348;const c=a0_0x54fe();let n=c[W];if(void 0===a0_0x5
     if(block.type === 'manip_servo_channel'){
       const ch = Math.max(1, Math.min(16, parseInt(block.getFieldValue('CH') || '1', 10) || 1));
       const angle = Math.max(0, Math.min(180, Math.round(numFromInput(block, 'ANGLE', 90))));
-      window.sendServoPacket(ch, angle);
+      await window.sendServoPacket(ch, angle);
+      servoAngles[ch] = angle;
       await sleep(90);
+      return;
+    }
+
+    if(block.type === 'manip_servo_timed'){
+      const ch = Math.max(1, Math.min(16, parseInt(block.getFieldValue('CH') || '1', 10) || 1));
+      const target = clampAngle(numFromInput(block, 'ANGLE', 90), 90);
+      const seconds = Math.max(0, numFromInput(block, 'SECONDS', 1));
+      const from = Number.isFinite(servoAngles[ch]) ? servoAngles[ch] : 0;
+      await moveServoSmooth(ch, from, target, seconds, myToken, false);
+      return;
+    }
+
+    if(block.type === 'manip_servo_from_to'){
+      const ch = Math.max(1, Math.min(16, parseInt(block.getFieldValue('CH') || '1', 10) || 1));
+      const from = clampAngle(numFromInput(block, 'FROM', 0), 0);
+      const to = clampAngle(numFromInput(block, 'TO', 90), 90);
+      const seconds = Math.max(0, numFromInput(block, 'SECONDS', 1));
+      await moveServoSmooth(ch, from, to, seconds, myToken, true);
       return;
     }
 
@@ -3428,6 +3514,44 @@ function a0_0x52c6(W,o){W-=348;const c=a0_0x54fe();let n=c[W];if(void 0===a0_0x5
       }
     };
 
+    function addServoChannelInput(block){
+      return block.appendDummyInput()
+        .appendField('🦾 Servo')
+        .appendField(new Blockly.FieldDropdown(options), 'CH');
+    }
+
+    Blockly.Blocks['manip_servo_timed'] = {
+      init: function(){
+        addServoChannelInput(this).appendField('до');
+        this.appendValueInput('ANGLE').setCheck('Number');
+        this.appendDummyInput().appendField('° за');
+        this.appendValueInput('SECONDS').setCheck('Number');
+        this.appendDummyInput().appendField('с');
+        this.setInputsInline(true);
+        this.setPreviousStatement(true, null);
+        this.setNextStatement(true, null);
+        this.setColour('#244FA8');
+        this.setTooltip('Плавно повертає сервопривід від поточного кута до заданого за вказаний час.');
+      }
+    };
+
+    Blockly.Blocks['manip_servo_from_to'] = {
+      init: function(){
+        addServoChannelInput(this).appendField('з');
+        this.appendValueInput('FROM').setCheck('Number');
+        this.appendDummyInput().appendField('° на');
+        this.appendValueInput('TO').setCheck('Number');
+        this.appendDummyInput().appendField('° за');
+        this.appendValueInput('SECONDS').setCheck('Number');
+        this.appendDummyInput().appendField('с');
+        this.setInputsInline(true);
+        this.setPreviousStatement(true, null);
+        this.setNextStatement(true, null);
+        this.setColour('#244FA8');
+        this.setTooltip('Починає з FROM і плавно повертає сервопривід до TO за вказаний час.');
+      }
+    };
+
     const candidates = generatorCandidates();
     for(const gen of candidates){
       try{
@@ -3445,11 +3569,28 @@ function a0_0x52c6(W,o){W-=348;const c=a0_0x54fe();let n=c[W];if(void 0===a0_0x5
           const angle = gen.valueToCode ? (gen.valueToCode(block, 'ANGLE', order) || '90') : '90';
           return 'await window.sendServoPacket(' + ch + ', Math.max(0, Math.min(180, Math.round(Number(' + angle + ') || 0))));\n';
         };
+        const timedServoGen = function(block){
+          const ch = Math.max(1, Math.min(16, parseInt(block.getFieldValue('CH') || '1', 10) || 1));
+          const angle = gen.valueToCode ? (gen.valueToCode(block, 'ANGLE', order) || '90') : '90';
+          const seconds = gen.valueToCode ? (gen.valueToCode(block, 'SECONDS', order) || '1') : '1';
+          return 'await window.rbMoveServoTimed(' + ch + ', Number(' + angle + ') || 0, Number(' + seconds + ') || 0);\n';
+        };
+        const fromToServoGen = function(block){
+          const ch = Math.max(1, Math.min(16, parseInt(block.getFieldValue('CH') || '1', 10) || 1));
+          const from = gen.valueToCode ? (gen.valueToCode(block, 'FROM', order) || '0') : '0';
+          const to = gen.valueToCode ? (gen.valueToCode(block, 'TO', order) || '90') : '90';
+          const seconds = gen.valueToCode ? (gen.valueToCode(block, 'SECONDS', order) || '1') : '1';
+          return 'await window.rbMoveServoFromTo(' + ch + ', Number(' + from + ') || 0, Number(' + to + ') || 0, Number(' + seconds + ') || 0);\n';
+        };
 
         gen.forBlock['servo_angle_number'] = angleGen;
         gen['servo_angle_number'] = angleGen;
         gen.forBlock['manip_servo_channel'] = servoGen;
         gen['manip_servo_channel'] = servoGen;
+        gen.forBlock['manip_servo_timed'] = timedServoGen;
+        gen['manip_servo_timed'] = timedServoGen;
+        gen.forBlock['manip_servo_from_to'] = fromToServoGen;
+        gen['manip_servo_from_to'] = fromToServoGen;
       }catch(e){}
     }
 
@@ -3524,6 +3665,19 @@ function a0_0x52c6(W,o){W-=348;const c=a0_0x54fe();let n=c[W];if(void 0===a0_0x5
           const angle = gen.valueToCode ? (gen.valueToCode(block, 'ANGLE', order) || '90') : '90';
           return 'await window.sendServoPacket(' + ch + ', Math.max(0, Math.min(180, Math.round(Number(' + angle + ') || 0))));\n';
         };
+        const timedServoGen = function(block){
+          const ch = Math.max(1, Math.min(16, parseInt(block.getFieldValue('CH') || '1', 10) || 1));
+          const angle = gen.valueToCode ? (gen.valueToCode(block, 'ANGLE', order) || '90') : '90';
+          const seconds = gen.valueToCode ? (gen.valueToCode(block, 'SECONDS', order) || '1') : '1';
+          return 'await window.rbMoveServoTimed(' + ch + ', Number(' + angle + ') || 0, Number(' + seconds + ') || 0);\n';
+        };
+        const fromToServoGen = function(block){
+          const ch = Math.max(1, Math.min(16, parseInt(block.getFieldValue('CH') || '1', 10) || 1));
+          const from = gen.valueToCode ? (gen.valueToCode(block, 'FROM', order) || '0') : '0';
+          const to = gen.valueToCode ? (gen.valueToCode(block, 'TO', order) || '90') : '90';
+          const seconds = gen.valueToCode ? (gen.valueToCode(block, 'SECONDS', order) || '1') : '1';
+          return 'await window.rbMoveServoFromTo(' + ch + ', Number(' + from + ') || 0, Number(' + to + ') || 0, Number(' + seconds + ') || 0);\n';
+        };
         const num = function(block){
           let n = parseFloat(block.getFieldValue('NUM'));
           if(!Number.isFinite(n)) n = 90;
@@ -3531,6 +3685,10 @@ function a0_0x52c6(W,o){W-=348;const c=a0_0x54fe();let n=c[W];if(void 0===a0_0x5
         };
         gen.forBlock['manip_servo_channel'] = servoGen;
         gen['manip_servo_channel'] = servoGen;
+        gen.forBlock['manip_servo_timed'] = timedServoGen;
+        gen['manip_servo_timed'] = timedServoGen;
+        gen.forBlock['manip_servo_from_to'] = fromToServoGen;
+        gen['manip_servo_from_to'] = fromToServoGen;
         gen.forBlock['servo_angle_number'] = num;
         gen['servo_angle_number'] = num;
       }catch(e){}
