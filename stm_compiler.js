@@ -925,13 +925,19 @@ window.uploadToRobot = async function () {
     /* Блокуємо _send() display-кадрів поки йде завантаження програми
        (інакше disp_send може вставити свій PCMD_BEGIN між PCMD_END і PCMD_SAVE
         і PCMD_SAVE збереже display-дані замість програми) */
+    let kidsWorkspace = null;
     window._uploadBusy = true;
     try {
         if (window.PixelEngine && window.PixelEngine.flush) await window.PixelEngine.flush();
         /* --- Компіляція --- */
         _log('🔄 Компілюю програму...', 'info');
         const compiler = new Compiler();
-        const code     = compiler.compile(window.workspace);
+        if (window.kidsIsActive?.()) {
+            if (typeof window.kidsCreateStandardWorkspace !== 'function') throw new Error('Не вдалося перетворити дитячу програму. Онови сторінку.');
+            kidsWorkspace = window.kidsCreateStandardWorkspace({forFram:true});
+            _log('🧩 Дитячу програму перетворено на стандартні блоки для FRAM.', 'info');
+        }
+        const code     = compiler.compile(kidsWorkspace || window.workspace);
 
         if (compiler.errors.length > 0) {
             for (const e of compiler.errors) _log('⚠️ ' + e, 'err');
@@ -1003,6 +1009,8 @@ window.uploadToRobot = async function () {
         btn.classList.remove('uploading');
         icon.className = 'fa-solid fa-upload';
         btn.disabled   = false;
+    } finally {
+        if (kidsWorkspace) kidsWorkspace.dispose();
     }
 };
 

@@ -1035,9 +1035,11 @@
     let block;
     switch (node.type) {
       case 'forward': case 'back': case 'drive_time':
-        block = xmlBlock('robot_move_soft');
-        block.append(xmlNumber('TARGET', node.type === 'back' ? -60 : 60), xmlNumber('SEC', Number(value) || 1));
-        break;
+        block = xmlBlock('robot_move');
+        block.append(xmlNumber('L', node.type === 'back' ? -60 : 60), xmlNumber('R', node.type === 'back' ? -60 : 60));
+        const pause = xmlBlock('wait_seconds');
+        pause.append(xmlNumber('SECONDS', Math.max(0, Number(value) || 0)));
+        return [block, pause, xmlBlock('robot_stop')];
       case 'left': case 'right': case 'uturn_left': case 'uturn_right':
         block = xmlBlock('robot_turn_timed');
         block.append(xmlField('DIR', node.type === 'right' || node.type === 'uturn_right' ? 'RIGHT' : 'LEFT'), xmlNumber('SEC', node.type.startsWith('uturn_') ? 1 : Math.max(.1, Number(value) / 180)));
@@ -1051,14 +1053,14 @@
           xmlField('OP', node.type === 'line_color' && value !== 'white' ? 'GT' : 'LT'),
           xmlNumber('VAL', node.type === 'line_color' ? 50 : Number(value)));
         break;
-      case 'wait': block = xmlBlock('wait_seconds'); block.append(xmlNumber('SECONDS', Number(value) || 1)); break;
+      case 'wait': block = xmlBlock('wait_seconds'); block.append(xmlNumber('SECONDS', Math.max(0, Number(value) || 0))); break;
       case 'smile': block = xmlBlock('disp_smile'); block.append(xmlField('FACE', 'happy')); break;
       case 'say':
         return centeredTextBlocks(String(value ?? 'HI'));
       case 'clear': block = xmlBlock('disp_clear'); break;
       case 'repeat': case 'forever':
         block = xmlBlock(node.type === 'forever' ? 'loop_forever' : 'controls_repeat_ext');
-        if (node.type === 'repeat') block.append(xmlNumber('TIMES', Number(value) || 3));
+        if (node.type === 'repeat') block.append(xmlNumber('TIMES', Math.max(0, Math.round(Number(value) || 0))));
         if (node.children?.length) {
           const statement = document.createElement('statement');
           statement.setAttribute('name', 'DO');
@@ -1066,7 +1068,7 @@
           block.appendChild(statement);
         }
         break;
-      default: return [];
+      default: throw new Error('Невідомий дитячий блок: ' + node.type);
     }
     return node.type === 'smile' || node.type === 'say' || node.type === 'clear' ? [block, xmlBlock('disp_send')] : [block];
   }
@@ -1107,7 +1109,7 @@
         }
         previous = block;
       });
-      if (node.type === 'forever') break;
+      if (node.type === 'forever' || node.type === 'end') break;
     }
     return first;
   }
@@ -1124,15 +1126,36 @@
     });
   }
 
-  window.kidsRunProgram = function () {
-    const workspace = getWorkspace();
-    if (!workspace || !window.Blockly?.Xml) { alert('Редактор ще завантажується.'); return; }
+  window.kidsIsActive = () => kidsMode;
+  window.kidsGetStandardXml = function () {
+    if (!program.length || program[0].type !== 'start') throw new Error('Додай блок «Почати програму» на початок дитячої програми.');
     const xml = document.createElement('xml');
     const start = xmlBlock('start_hat');
     xml.appendChild(start);
     const first = xmlChain(program);
     if (first) { const next = document.createElement('next'); next.appendChild(first); start.appendChild(next); }
+    return xml;
+  };
+  window.kidsCreateStandardWorkspace = function (options = {}) {
+    if (options.forFram) {
+      const check = nodes => {
+        for (const node of nodes) {
+          if (['smile', 'say', 'clear'].includes(node.type)) throw new Error('Блок «' + defs[node.type].title + '» поки працює тільки при запуску з браузера, не у FRAM. Прибери його для запису в робота.');
+          if (node.children && (node.type !== 'repeat' || Number(node.param ?? defs.repeat.param) > 0)) check(node.children);
+          if (node.type === 'end' || node.type === 'forever') break;
+        }
+      };
+      check(program);
+    }
+    const temporary = new Blockly.Workspace();
+    try { Blockly.Xml.domToWorkspace(window.kidsGetStandardXml(), temporary); return temporary; }
+    catch (error) { temporary.dispose(); throw error; }
+  };
+  window.kidsRunProgram = function () {
+    const workspace = getWorkspace();
+    if (!workspace || !window.Blockly?.Xml) { alert('Редактор ще завантажується.'); return; }
     try {
+      const xml = window.kidsGetStandardXml();
       if (!normalWorkspaceBackup) normalWorkspaceBackup = Blockly.Xml.workspaceToDom(workspace);
       workspace.clear();
       Blockly.Xml.domToWorkspace(xml, workspace);
