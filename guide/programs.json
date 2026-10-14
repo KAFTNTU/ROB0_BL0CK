@@ -1,0 +1,226 @@
+[
+  {
+    "id": "01-first-drive",
+    "title": "Перша поїздка",
+    "group": "Перші програми",
+    "goal": "Навчитися запускати рух і зупиняти робота.",
+    "steps": [
+      "Під’єднай «Їхати» під «СТАРТ». Встанови L = 35 і R = 35.",
+      "Додай «Чекати» на 1 секунду, а під ним — «Стоп».",
+      "Перевір вільне місце перед роботом і запусти програму."
+    ],
+    "result": "Робот їде вперед приблизно секунду, потім зупиняє мотори.",
+    "change": "Зміни лише час на 0.5 секунди. Порівняй довжину поїздки.",
+    "note": "«Чекати» затримує наступну команду, але НЕ зупиняє мотори. Напрямок залежить від підключення та інверсії моторів.",
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"start_hat\" x=\"24\" y=\"24\"><next><block type=\"robot_move\"><value name=\"L\"><block type=\"math_number\"><field name=\"NUM\">35</field></block></value><value name=\"R\"><block type=\"math_number\"><field name=\"NUM\">35</field></block></value><next><block type=\"wait_seconds\"><value name=\"SECONDS\"><block type=\"math_number\"><field name=\"NUM\">1</field></block></value><next><block type=\"robot_stop\"></block></next></block></next></block></next></block></xml>",
+    "previewWidth": 215
+  },
+  {
+    "id": "02-backward",
+    "title": "Вперед і назад",
+    "group": "Перші програми",
+    "goal": "Зрозуміти додатну й від’ємну швидкість.",
+    "steps": [
+      "Збери рух вперед зі швидкістю 30 на 0.8 секунди.",
+      "Зупини робота і зроби паузу 0.4 секунди.",
+      "Додай рух зі швидкостями −30 та −30 на 0.8 секунди й «Стоп»."
+    ],
+    "result": "Робот їде вперед, робить паузу та повертається назад. Точне повернення до початкової точки не гарантується.",
+    "change": "Зміни тривалість руху назад. Чи повертається робот ближче до старту?",
+    "note": "",
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"start_hat\" x=\"24\" y=\"24\"><next><block type=\"robot_move\"><value name=\"L\"><block type=\"math_number\"><field name=\"NUM\">30</field></block></value><value name=\"R\"><block type=\"math_number\"><field name=\"NUM\">30</field></block></value><next><block type=\"wait_seconds\"><value name=\"SECONDS\"><block type=\"math_number\"><field name=\"NUM\">0.8</field></block></value><next><block type=\"robot_stop\"><next><block type=\"wait_seconds\"><value name=\"SECONDS\"><block type=\"math_number\"><field name=\"NUM\">0.4</field></block></value><next><block type=\"robot_move\"><value name=\"L\"><block type=\"math_number\"><field name=\"NUM\">-30</field></block></value><value name=\"R\"><block type=\"math_number\"><field name=\"NUM\">-30</field></block></value><next><block type=\"wait_seconds\"><value name=\"SECONDS\"><block type=\"math_number\"><field name=\"NUM\">0.8</field></block></value><next><block type=\"robot_stop\"></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></xml>",
+    "previewWidth": 215
+  },
+  {
+    "id": "03-turn",
+    "title": "Поворот і продовження руху",
+    "group": "Перші програми",
+    "goal": "Поєднати рух прямо та поворот за часом.",
+    "steps": [
+      "Додай поїздку вперед на 0.8 секунди та «Стоп».",
+      "Додай «Поворот», вибери «Праворуч» і 0.3 секунди.",
+      "Після повороту додай ще одну поїздку й фінальний «Стоп»."
+    ],
+    "result": "Робот проїжджає відрізок, повертає праворуч і продовжує рух.",
+    "change": "Вибери «Ліворуч». Потім підбери час для потрібного розвороту.",
+    "note": "Це поворот за часом, а не точний кут у градусах. 0.3 секунди — початкове значення для підбору на вашому шасі.",
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"start_hat\" x=\"24\" y=\"24\"><next><block type=\"robot_move\"><value name=\"L\"><block type=\"math_number\"><field name=\"NUM\">35</field></block></value><value name=\"R\"><block type=\"math_number\"><field name=\"NUM\">35</field></block></value><next><block type=\"wait_seconds\"><value name=\"SECONDS\"><block type=\"math_number\"><field name=\"NUM\">0.8</field></block></value><next><block type=\"robot_stop\"><next><block type=\"robot_turn_timed\"><field name=\"DIR\">RIGHT</field><value name=\"SEC\"><block type=\"math_number\"><field name=\"NUM\">0.3</field></block></value><next><block type=\"robot_move\"><value name=\"L\"><block type=\"math_number\"><field name=\"NUM\">35</field></block></value><value name=\"R\"><block type=\"math_number\"><field name=\"NUM\">35</field></block></value><next><block type=\"wait_seconds\"><value name=\"SECONDS\"><block type=\"math_number\"><field name=\"NUM\">0.8</field></block></value><next><block type=\"robot_stop\"></block></next></block></next></block></next></block></next></block></next></block></next></block></next></block></xml>",
+    "previewWidth": 403
+  },
+  {
+    "id": "04-soft-start",
+    "title": "Плавний розгін",
+    "group": "Перші програми",
+    "goal": "Порівняти звичайний запуск і плавну зміну швидкості.",
+    "steps": [
+      "Під «СТАРТ» постав «Плавний старт»: ціль 40, час 2 секунди.",
+      "Додай «Чекати» на 1 секунду та «Стоп».",
+      "Порівняй із першою поїздкою, залишивши однакове вільне місце."
+    ],
+    "result": "Швидкість поступово зростає до 40. Потім робот ще секунду рухається з цією швидкістю й зупиняється.",
+    "change": "Зменш час розгону до 1 секунди.",
+    "note": "Коли розгін завершився, рух не припиняється автоматично. Для зупинки потрібен «Стоп».",
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"start_hat\" x=\"24\" y=\"24\"><next><block type=\"robot_move_soft\"><value name=\"TARGET\"><block type=\"math_number\"><field name=\"NUM\">40</field></block></value><value name=\"SEC\"><block type=\"math_number\"><field name=\"NUM\">2</field></block></value><next><block type=\"wait_seconds\"><value name=\"SECONDS\"><block type=\"math_number\"><field name=\"NUM\">1</field></block></value><next><block type=\"robot_stop\"></block></next></block></next></block></next></block></xml>",
+    "previewWidth": 387
+  },
+  {
+    "id": "05-repeat",
+    "title": "Три короткі поїздки",
+    "group": "Повторення",
+    "goal": "Замінити повторювані команди одним циклом.",
+    "steps": [
+      "Постав блок «Повторити» і введи 3.",
+      "Всередину вклади «Їхати», «Чекати 0.4», «Стоп» і «Чекати 0.5».",
+      "Перевір, що вкладені блоки знаходяться саме всередині циклу."
+    ],
+    "result": "Робот тричі виконує коротку поїздку з паузами.",
+    "change": "Зміни кількість повторень із 3 на 5. Порахуй поїздки.",
+    "note": "",
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"start_hat\" x=\"24\" y=\"24\"><next><block type=\"controls_repeat_ext\"><value name=\"TIMES\"><block type=\"math_number\"><field name=\"NUM\">3</field></block></value><statement name=\"DO\"><block type=\"robot_move\"><value name=\"L\"><block type=\"math_number\"><field name=\"NUM\">30</field></block></value><value name=\"R\"><block type=\"math_number\"><field name=\"NUM\">30</field></block></value><next><block type=\"wait_seconds\"><value name=\"SECONDS\"><block type=\"math_number\"><field name=\"NUM\">0.4</field></block></value><next><block type=\"robot_stop\"><next><block type=\"wait_seconds\"><value name=\"SECONDS\"><block type=\"math_number\"><field name=\"NUM\">0.5</field></block></value></block></next></block></next></block></next></block></statement><next><block type=\"robot_stop\"></block></next></block></next></block></xml>",
+    "previewWidth": 305
+  },
+  {
+    "id": "06-route",
+    "title": "Маршрут із чотирьох сторін",
+    "group": "Повторення",
+    "goal": "Використати цикл для повторення руху й повороту.",
+    "steps": [
+      "Встанови 4 повторення.",
+      "Всередину вклади поїздку на 0.8 секунди, «Стоп» і поворот праворуч.",
+      "Підбери тривалість повороту на вільному майданчику."
+    ],
+    "result": "Чотири однакові відрізки з поворотами утворюють замкнений або близький до нього маршрут після калібрування.",
+    "change": "Спробуй налаштувати поворот приблизно на 90°, щоб отримати квадрат.",
+    "note": "Без підбору часу це не точний квадрат: впливають заряд, покриття, швидкість і конструкція робота.",
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"start_hat\" x=\"24\" y=\"24\"><next><block type=\"controls_repeat_ext\"><value name=\"TIMES\"><block type=\"math_number\"><field name=\"NUM\">4</field></block></value><statement name=\"DO\"><block type=\"robot_move\"><value name=\"L\"><block type=\"math_number\"><field name=\"NUM\">30</field></block></value><value name=\"R\"><block type=\"math_number\"><field name=\"NUM\">30</field></block></value><next><block type=\"wait_seconds\"><value name=\"SECONDS\"><block type=\"math_number\"><field name=\"NUM\">0.8</field></block></value><next><block type=\"robot_stop\"><next><block type=\"robot_turn_timed\"><field name=\"DIR\">RIGHT</field><value name=\"SEC\"><block type=\"math_number\"><field name=\"NUM\">0.3</field></block></value></block></next></block></next></block></next></block></statement><next><block type=\"robot_stop\"></block></next></block></next></block></xml>",
+    "previewWidth": 492
+  },
+  {
+    "id": "07-display-text",
+    "title": "Привіт на дисплеї",
+    "group": "Дисплей і дані",
+    "goal": "Показати текст через буфер дисплея.",
+    "steps": [
+      "Додай «Очистити екран».",
+      "Додай «Текст», введи «Привіт», координати X = 24, Y = 24.",
+      "Додай «Відправити на екран» після малювання."
+    ],
+    "result": "На дисплеї з’являється напис «Привіт».",
+    "change": "Зміни напис і координати, щоб знайти зручне розташування.",
+    "note": "Полотно дисплея має 128 × 64 пікселі. Допустимі координати: X від 0 до 127, Y від 0 до 63. Цей приклад не обчислює автоматичне центрування.",
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"start_hat\" x=\"24\" y=\"24\"><next><block type=\"disp_clear\"><next><block type=\"disp_text\"><field name=\"TXT\">Привіт</field><field name=\"SIZE\">small</field><value name=\"X\"><block type=\"math_number\"><field name=\"NUM\">24</field></block></value><value name=\"Y\"><block type=\"math_number\"><field name=\"NUM\">24</field></block></value><next><block type=\"disp_send\"></block></next></block></next></block></next></block></xml>",
+    "previewWidth": 430
+  },
+  {
+    "id": "08-sensor-screen",
+    "title": "Покази датчика на екрані",
+    "group": "Дисплей і дані",
+    "goal": "Спочатку побачити покази датчика, а вже потім вибирати поріг.",
+    "steps": [
+      "Підключи датчик відстані до порту 1 або зміни порт у блоці.",
+      "У поле числа встав блок датчика: «Відстань», порт 1.",
+      "Повторюй очищення, текст, число, відправлення та паузу 0.2 секунди."
+    ],
+    "result": "За 20 оновлень видно, як значення змінюється, коли наближається предмет.",
+    "change": "Запиши покази далеко й близько. Обери поріг між ними.",
+    "note": "Число датчика не слід автоматично вважати сантиметрами. Одиниці та напрямок зміни залежать від датчика й прошивки.",
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"start_hat\" x=\"24\" y=\"24\"><next><block type=\"controls_repeat_ext\"><value name=\"TIMES\"><block type=\"math_number\"><field name=\"NUM\">20</field></block></value><statement name=\"DO\"><block type=\"disp_clear\"><next><block type=\"disp_text\"><field name=\"TXT\">Датчик</field><field name=\"SIZE\">small</field><value name=\"X\"><block type=\"math_number\"><field name=\"NUM\">0</field></block></value><value name=\"Y\"><block type=\"math_number\"><field name=\"NUM\">0</field></block></value><next><block type=\"disp_number\"><value name=\"VAL\"><block type=\"sensor_get\"><field name=\"TYPE\">DIST</field><field name=\"SENS\">0</field></block></value><value name=\"X\"><block type=\"math_number\"><field name=\"NUM\">0</field></block></value><value name=\"Y\"><block type=\"math_number\"><field name=\"NUM\">22</field></block></value><next><block type=\"disp_send\"><next><block type=\"wait_seconds\"><value name=\"SECONDS\"><block type=\"math_number\"><field name=\"NUM\">0.2</field></block></value></block></next></block></next></block></next></block></next></block></statement></block></next></block></xml>",
+    "previewWidth": 617
+  },
+  {
+    "id": "09-obstacle",
+    "title": "Зупинка перед перешкодою",
+    "group": "Датчики та умови",
+    "goal": "Рухатися до спрацювання датчика, але не довше 5 секунд.",
+    "steps": [
+      "Перевір покази датчика вправою 8. У цьому прикладі умовно «близько» — значення менше 20.",
+      "Скинь таймер і запусти рух на швидкості 25.",
+      "Цикл триває, поки предмет НЕ близько ТА таймер менше 5 секунд. Після циклу стоїть «Стоп»."
+    ],
+    "result": "Робот зупиняється при виконанні умови «близько» або після 5 секунд.",
+    "change": "Підстав свій поріг. Якщо показ зростає біля предмета, заміни < на > у порівнянні датчика.",
+    "note": "Першу перевірку зроби з піднятими колесами. Тайм-аут обмежує очікування, але не гарантує захисту від зіткнення при неправильному датчику або порозі.",
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"start_hat\" x=\"24\" y=\"24\"><next><block type=\"timer_reset\"><next><block type=\"robot_move\"><value name=\"L\"><block type=\"math_number\"><field name=\"NUM\">25</field></block></value><value name=\"R\"><block type=\"math_number\"><field name=\"NUM\">25</field></block></value><next><block type=\"controls_whileUntil\"><field name=\"MODE\">WHILE</field><value name=\"BOOL\"><block type=\"logic_operation\"><field name=\"OP\">AND</field><value name=\"A\"><block type=\"logic_negate\"><value name=\"BOOL\"><block type=\"logic_compare\"><field name=\"OP\">LT</field><value name=\"A\"><block type=\"sensor_get\"><field name=\"TYPE\">DIST</field><field name=\"SENS\">0</field></block></value><value name=\"B\"><block type=\"math_number\"><field name=\"NUM\">20</field></block></value></block></value></block></value><value name=\"B\"><block type=\"logic_compare\"><field name=\"OP\">LT</field><value name=\"A\"><block type=\"timer_get\"></block></value><value name=\"B\"><block type=\"math_number\"><field name=\"NUM\">5</field></block></value></block></value></block></value><statement name=\"DO\"><block type=\"wait_seconds\"><value name=\"SECONDS\"><block type=\"math_number\"><field name=\"NUM\">0.03</field></block></value></block></statement><next><block type=\"robot_stop\"></block></next></block></next></block></next></block></next></block></xml>",
+    "previewWidth": 1122
+  },
+  {
+    "id": "10-touch",
+    "title": "Кнопка запускає поїздку",
+    "group": "Датчики та умови",
+    "goal": "Чекати на натискання датчика дотику перед запуском.",
+    "steps": [
+      "Підключи датчик дотику до порту 1. Перевір, що відпущений датчик дає 0, натиснутий — значення більше 0.",
+      "Програма чекає натискання, але не довше 10 секунд.",
+      "У блоці «Якщо» поїздка запускається лише тоді, коли датчик натиснутий."
+    ],
+    "result": "Після натискання робот робить коротку поїздку. Без натискання поїздка не почнеться.",
+    "change": "Зміни тривалість очікування або тривалість поїздки.",
+    "note": "Не використовуй цю схему як аварійну зупинку: тут дотик запускає рух.",
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"start_hat\" x=\"24\" y=\"24\"><next><block type=\"timer_reset\"><next><block type=\"controls_whileUntil\"><field name=\"MODE\">WHILE</field><value name=\"BOOL\"><block type=\"logic_operation\"><field name=\"OP\">AND</field><value name=\"A\"><block type=\"logic_compare\"><field name=\"OP\">EQ</field><value name=\"A\"><block type=\"sensor_get\"><field name=\"TYPE\">TOUCH</field><field name=\"SENS\">0</field></block></value><value name=\"B\"><block type=\"math_number\"><field name=\"NUM\">0</field></block></value></block></value><value name=\"B\"><block type=\"logic_compare\"><field name=\"OP\">LT</field><value name=\"A\"><block type=\"timer_get\"></block></value><value name=\"B\"><block type=\"math_number\"><field name=\"NUM\">10</field></block></value></block></value></block></value><statement name=\"DO\"><block type=\"wait_seconds\"><value name=\"SECONDS\"><block type=\"math_number\"><field name=\"NUM\">0.03</field></block></value></block></statement><next><block type=\"controls_if\"><value name=\"IF0\"><block type=\"logic_compare\"><field name=\"OP\">GT</field><value name=\"A\"><block type=\"sensor_get\"><field name=\"TYPE\">TOUCH</field><field name=\"SENS\">0</field></block></value><value name=\"B\"><block type=\"math_number\"><field name=\"NUM\">0</field></block></value></block></value><statement name=\"DO0\"><block type=\"robot_move\"><value name=\"L\"><block type=\"math_number\"><field name=\"NUM\">25</field></block></value><value name=\"R\"><block type=\"math_number\"><field name=\"NUM\">25</field></block></value><next><block type=\"wait_seconds\"><value name=\"SECONDS\"><block type=\"math_number\"><field name=\"NUM\">0.5</field></block></value><next><block type=\"robot_stop\"></block></next></block></next></block></statement><next><block type=\"robot_stop\"></block></next></block></next></block></next></block></next></block></xml>",
+    "previewWidth": 1049
+  },
+  {
+    "id": "11-line",
+    "title": "Пошук краю лінії",
+    "group": "Датчики та умови",
+    "goal": "Показати просте підрулювання за одним датчиком поверхні.",
+    "steps": [
+      "Виміряй покази над чорною та білою поверхнею, обери поріг між ними.",
+      "Постав датчик біля краю контрастної лінії. У прикладі поріг умовно 50.",
+      "Якщо показ менше порога — L = 20, R = 35; інакше — L = 35, R = 20. Через 5 секунд програма завершується."
+    ],
+    "result": "Робот чергує підрулювання, намагаючись триматися краю лінії.",
+    "change": "Якщо робот відвертає від лінії, поміняй місцями швидкості у гілках або зміни знак порівняння.",
+    "note": "Значення 50 не є універсальним. Ця навчальна схема потребує калібрування порога, розміщення датчика й напрямків руху.",
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"start_hat\" x=\"24\" y=\"24\"><next><block type=\"timer_reset\"><next><block type=\"controls_whileUntil\"><field name=\"MODE\">WHILE</field><value name=\"BOOL\"><block type=\"logic_compare\"><field name=\"OP\">LT</field><value name=\"A\"><block type=\"timer_get\"></block></value><value name=\"B\"><block type=\"math_number\"><field name=\"NUM\">5</field></block></value></block></value><statement name=\"DO\"><block type=\"controls_if\"><mutation else=\"1\"/><value name=\"IF0\"><block type=\"logic_compare\"><field name=\"OP\">LT</field><value name=\"A\"><block type=\"sensor_get\"><field name=\"TYPE\">LIGHT</field><field name=\"SENS\">0</field></block></value><value name=\"B\"><block type=\"math_number\"><field name=\"NUM\">50</field></block></value></block></value><statement name=\"DO0\"><block type=\"robot_move\"><value name=\"L\"><block type=\"math_number\"><field name=\"NUM\">20</field></block></value><value name=\"R\"><block type=\"math_number\"><field name=\"NUM\">35</field></block></value></block></statement><statement name=\"ELSE\"><block type=\"robot_move\"><value name=\"L\"><block type=\"math_number\"><field name=\"NUM\">35</field></block></value><value name=\"R\"><block type=\"math_number\"><field name=\"NUM\">20</field></block></value></block></statement><next><block type=\"wait_seconds\"><value name=\"SECONDS\"><block type=\"math_number\"><field name=\"NUM\">0.03</field></block></value></block></next></block></statement><next><block type=\"robot_stop\"></block></next></block></next></block></next></block></xml>",
+    "previewWidth": 608
+  },
+  {
+    "id": "12-counter",
+    "title": "Лічильник повторень",
+    "group": "Змінні та математика",
+    "goal": "Зберігати число в змінній і змінювати його в циклі.",
+    "steps": [
+      "Створи змінну «лічильник» та встанови її в 0.",
+      "У циклі на 5 повторень збільшуй змінну на 1.",
+      "Очисть екран, покажи значення змінної, відправ зображення і зачекай 0.7 секунди."
+    ],
+    "result": "На екрані послідовно з’являються числа від 1 до 5.",
+    "change": "Заміни зміну на +2. Які числа отримаєш?",
+    "note": "",
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><variables><variable id=\"guide-counter\">лічильник</variable></variables><block type=\"start_hat\" x=\"24\" y=\"24\"><next><block type=\"variables_set\"><field name=\"VAR\" id=\"guide-counter\">лічильник</field><value name=\"VALUE\"><block type=\"math_number\"><field name=\"NUM\">0</field></block></value><next><block type=\"controls_repeat_ext\"><value name=\"TIMES\"><block type=\"math_number\"><field name=\"NUM\">5</field></block></value><statement name=\"DO\"><block type=\"math_change\"><field name=\"VAR\" id=\"guide-counter\">лічильник</field><value name=\"DELTA\"><block type=\"math_number\"><field name=\"NUM\">1</field></block></value><next><block type=\"disp_clear\"><next><block type=\"disp_number\"><value name=\"VAL\"><block type=\"variables_get\"><field name=\"VAR\" id=\"guide-counter\">лічильник</field></block></value><value name=\"X\"><block type=\"math_number\"><field name=\"NUM\">56</field></block></value><value name=\"Y\"><block type=\"math_number\"><field name=\"NUM\">24</field></block></value><next><block type=\"disp_send\"><next><block type=\"wait_seconds\"><value name=\"SECONDS\"><block type=\"math_number\"><field name=\"NUM\">0.7</field></block></value></block></next></block></next></block></next></block></next></block></statement></block></next></block></next></block></xml>",
+    "previewWidth": 489
+  },
+  {
+    "id": "13-math",
+    "title": "Обчислення на дисплеї",
+    "group": "Змінні та математика",
+    "goal": "Вставити арифметичний вираз у поле числа.",
+    "steps": [
+      "Додай очищення екрана й текст «30 + 12 =».",
+      "У вхід «Число» встав арифметичний блок 30 + 12.",
+      "Заверши блоком «Відправити на екран»."
+    ],
+    "result": "На екрані видно підпис і результат 42.",
+    "change": "Заміни додавання на множення. Не забудь змінити підпис.",
+    "note": "",
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"start_hat\" x=\"24\" y=\"24\"><next><block type=\"disp_clear\"><next><block type=\"disp_text\"><field name=\"TXT\">30 + 12 =</field><field name=\"SIZE\">small</field><value name=\"X\"><block type=\"math_number\"><field name=\"NUM\">0</field></block></value><value name=\"Y\"><block type=\"math_number\"><field name=\"NUM\">0</field></block></value><next><block type=\"disp_number\"><value name=\"VAL\"><block type=\"math_arithmetic\"><field name=\"OP\">ADD</field><value name=\"A\"><block type=\"math_number\"><field name=\"NUM\">30</field></block></value><value name=\"B\"><block type=\"math_number\"><field name=\"NUM\">12</field></block></value></block></value><value name=\"X\"><block type=\"math_number\"><field name=\"NUM\">0</field></block></value><value name=\"Y\"><block type=\"math_number\"><field name=\"NUM\">22</field></block></value><next><block type=\"disp_send\"></block></next></block></next></block></next></block></next></block></xml>",
+    "previewWidth": 450
+  },
+  {
+    "id": "14-forever",
+    "title": "Напис з’являється і зникає",
+    "group": "Нескінченний цикл",
+    "goal": "Побачити нескінченний цикл без руху моторів.",
+    "steps": [
+      "Додай «Повторювати завжди».",
+      "Всередині покажи напис, зачекай 0.5 секунди, очисть і відправ порожній екран, знову зачекай 0.5 секунди.",
+      "Запусти й заверши кнопкою зупинки програми."
+    ],
+    "result": "Напис блимає, доки користувач не зупинить виконання.",
+    "change": "Зміни обидві паузи на 1 секунду.",
+    "note": "Блоки після нескінченного циклу не виконаються. Завершуй цю програму кнопкою зупинки редактора.",
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"start_hat\" x=\"24\" y=\"24\"><next><block type=\"loop_forever\"><statement name=\"DO\"><block type=\"disp_clear\"><next><block type=\"disp_text\"><field name=\"TXT\">Привіт</field><field name=\"SIZE\">small</field><value name=\"X\"><block type=\"math_number\"><field name=\"NUM\">24</field></block></value><value name=\"Y\"><block type=\"math_number\"><field name=\"NUM\">24</field></block></value><next><block type=\"disp_send\"><next><block type=\"wait_seconds\"><value name=\"SECONDS\"><block type=\"math_number\"><field name=\"NUM\">0.5</field></block></value><next><block type=\"disp_clear\"><next><block type=\"disp_send\"><next><block type=\"wait_seconds\"><value name=\"SECONDS\"><block type=\"math_number\"><field name=\"NUM\">0.5</field></block></value></block></next></block></next></block></next></block></next></block></next></block></next></block></statement></block></next></block></xml>",
+    "previewWidth": 538
+  }
+]

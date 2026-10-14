@@ -1,0 +1,1 @@
+<xml xmlns="https://developers.google.com/blockly/xml"><block type="num_show_convert"><field name="VAL">1010</field><field name="FROM">BIN</field><field name="TO">DEC</field></block></xml>

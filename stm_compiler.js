@@ -123,7 +123,7 @@ class Compiler {
        Головна функція: компілювати workspace
        ================================================================ */
     compile(workspace) {
-        const starts = workspace.getBlocksByType('start_hat', false);
+        const starts = workspace.getBlocksByType('start_hat', false).filter(b => !b.isEnabled || b.isEnabled());
         if (!starts || starts.length === 0) {
             this.errors.push('Немає блоку "Старт"!');
             return null;
@@ -137,7 +137,7 @@ class Compiler {
         }
         _log('📋 Блоки: ' + (dbgChain.length ? dbgChain.join(' → ') : '(немає!)'), 'info');
 
-        this.compileStmt(starts[0].getNextBlock());
+        for (const start of starts) this.compileStmt(start.getNextBlock());
         this.emit(OP.END);
         return new Uint8Array(this.buf);
     }
@@ -147,6 +147,9 @@ class Compiler {
        ================================================================ */
     compileStmt(block) {
         if (!block) return;
+        if ((block.isEnabled && !block.isEnabled()) || (block.getInheritedDisabled && block.getInheritedDisabled())) {
+            this.compileStmt(block.getNextBlock()); return;
+        }
 
         switch (block.type) {
 
@@ -161,9 +164,11 @@ class Compiler {
             case 'robot_move_soft': {
                 const t = this.staticNum(block.getInputTargetBlock('TARGET'), 100);
                 const s = this.staticNum(block.getInputTargetBlock('SEC'), 1);
-                this.emit(OP.DRIVE);
-                this.emitI8(t); this.emitI8(t);
-                this.emitMs(s);
+                const steps = Math.max(1, Math.min(40, Math.ceil(Math.max(0, s) * 20)));
+                for (let i = 1; i <= steps; i++) {
+                    this.emit(OP.DRIVE_SET); this.emitI8(t * i / steps); this.emitI8(t * i / steps);
+                    if (s > 0) { this.emit(OP.PAUSE); this.emitMs(s / steps); }
+                }
                 break;
             }
             case 'robot_turn_timed': {
@@ -284,15 +289,15 @@ class Compiler {
             /* ---- Очікування ---- */
             case 'wait_seconds': {
                 /* ВИПРАВЛЕНО: PAUSE чекає без зупинки моторів (WAIT зупиняв) */
-                const sec = this.staticNum(block.getInputTargetBlock('SECONDS'), 1)
-                         || this.staticNum(block.getInputTargetBlock('SEC'), 1);
+                const sec = this.staticNum(block.getInputTargetBlock('SECONDS') || block.getInputTargetBlock('SEC'), 1);
                 this.emit(OP.PAUSE);
                 this.emitMs(sec);
                 break;
             }
             case 'wait_until_sensor': {
                 /* Компілюємо як: while NOT(cond) { loop } */
-                const sens  = parseInt(block.getFieldValue('SENS') || '1') - 1; /* ВИПРАВЛЕНО: 0-індекс */
+                /* SENS dropdown stores 0..3 for the displayed ports 1..4. */
+                const sens  = Math.max(0, Math.min(3, parseInt(block.getFieldValue('SENS') || '0', 10) || 0));
                 const opStr = block.getFieldValue('OP') || 'LT';
                 const val   = this.staticNum(block.getInputTargetBlock('VAL'), 50);
 
@@ -345,9 +350,10 @@ class Compiler {
 
             /* ---- Цикл: repeat N разів ---- */
             case 'controls_repeat_ext': {
-                const count = Math.max(1, Math.round(
+                const count = Math.max(0, Math.round(
                     this.staticNum(block.getInputTargetBlock('TIMES'), 1)
                 ));
+                if (!count) break;
                 this.emit(OP.REPEAT_START);
                 this.emit16(count);
                 const bodyStart = this.pc(); /* REPEAT_START зберігає цю адресу автоматично */
@@ -395,24 +401,22 @@ class Compiler {
             }
 
             case 'loop_repeat_pause': {
-                const count = Math.max(1, Math.round(
+                const count = Math.max(0, Math.round(
                     this.staticNum(block.getInputTargetBlock('TIMES'), 1)
                 ));
-                const pause = this.staticNum(block.getInputTargetBlock('PAUSE'), 0);
-                this.emit(OP.REPEAT_START);
-                this.emit16(count);
-                this.compileStmt(block.getInputTargetBlock('DO'));
-                if (pause > 0) {
-                    this.emit(OP.WAIT);
-                    this.emitMs(pause);
+                const pause = this.staticNum(block.getInputTargetBlock('SEC'), 0);
+                if (count > 1000) { this.errors.push('Забагато повторів із паузою (максимум 1000).'); break; }
+                for (let i = 0; i < count; i++) {
+                    this.compileStmt(block.getInputTargetBlock('DO'));
+                    if (pause > 0 && i < count - 1) { this.emit(OP.PAUSE); this.emitMs(pause); }
                 }
-                this.emit(OP.REPEAT_END);
                 break;
             }
 
             default:
                 /* Спробувати компілювати як вираз (блоки дисплея, анімації тощо) */
                 if (block.type.startsWith('disp_')) {
+                    this.errors.push('Блок ' + block.type + ' доступний тільки під час запуску з браузера, не у FRAM.');
                     /* дисплейні блоки ігноруємо для FRAM */
                     if (!this._warnedDisp) {
                         _log('ℹ️ Дисплейні блоки не зберігаються у FRAM (тільки для живого екрана).', 'info');
@@ -421,6 +425,7 @@ class Compiler {
                 } else if (block.type.startsWith('game_') || block.type.startsWith('sprite_')) {
                     this.compileExpr(block);
                 } else {
+                    this.errors.push('Автономний режим не підтримує блок: ' + block.type);
                     _log('⚠️ Компілятор: невідомий блок "' + block.type + '" — пропущено', 'err');
                 }
                 break;
@@ -441,6 +446,7 @@ class Compiler {
 
         if (block.type.startsWith('disp_')) {
             /* дисплейні блоки ігноруємо для FRAM-байткоду */
+            this.errors.push('Дисплейний вираз ' + block.type + ' не підтримується у FRAM.');
             return;
         }
 
@@ -484,13 +490,19 @@ class Compiler {
 
             case 'sensor_get': {
                 /* ВИПРАВЛЕНО: блок показує "1..4", STM очікує 0-індекс */
-                const id = parseInt(block.getFieldValue('SENS') || '1') - 1;
+                const id = parseInt(block.getFieldValue('SENS') ?? '0', 10);
                 this.emit(OP.PUSH_SENSOR); this.emit(id & 3);
                 break;
             }
 
             case 'math_arithmetic': {
                 const op = block.getFieldValue('OP') || 'ADD';
+                if (op === 'POWER') {
+                    const number = this.constantNumber(block);
+                    if (Number.isFinite(number)) { this.emit(OP.PUSH_CONST); this.emit16(number); }
+                    else { this.errors.push('Степінь зі змінним значенням не підтримується у FRAM.'); this.emit(OP.PUSH_CONST); this.emit16(0); }
+                    break;
+                }
                 this.compileExpr(block.getInputTargetBlock('A'));
                 this.compileExpr(block.getInputTargetBlock('B'));
                 const opmap = { ADD: OP.ADD, MINUS: OP.SUB, MULTIPLY: OP.MUL, DIVIDE: OP.DIV };
@@ -718,7 +730,9 @@ class Compiler {
             }
 
             default:
-                this.emit(OP.PUSH_CONST); this.emit16(0);
+                { const number = this.constantNumber(block);
+                  if (!Number.isFinite(number)) this.errors.push('Автономний режим не підтримує вираз: ' + block.type);
+                  this.emit(OP.PUSH_CONST); this.emit16(Number.isFinite(number) ? number : 0); }
                 break;
         }
     }
@@ -768,10 +782,29 @@ class Compiler {
     }
 
     /* Статично обчислити числовий блок (тільки math_number) */
+    constantNumber(block) {
+        if (!block) return NaN;
+        const get = name => this.constantNumber(block.getInputTargetBlock(name));
+        if (['math_number','math_number_limited','servo_angle_number'].includes(block.type)) return Number(block.getFieldValue('NUM'));
+        const op = block.getFieldValue('OP');
+        switch (block.type) {
+          case 'math_arithmetic': { const a=get('A'),b=get('B'); return ({ADD:()=>a+b,MINUS:()=>a-b,MULTIPLY:()=>a*b,DIVIDE:()=>a/b,POWER:()=>a**b}[op]||(()=>NaN))(); }
+          case 'math_single': { const x=get('NUM'); return ({ROOT:()=>Math.sqrt(x),ABS:()=>Math.abs(x),NEG:()=>-x,LN:()=>Math.log(x),LOG10:()=>Math.log10(x),EXP:()=>Math.exp(x),POW10:()=>10**x}[op]||(()=>NaN))(); }
+          case 'math_path_vt': return get('V')*get('T');
+          case 'math_pythagoras': return Math.hypot(get('A'),get('B'));
+          case 'math_radius_from_diameter': return get('D')/2;
+          case 'math_diameter_from_radius': return get('R')*2;
+          case 'math_rect_perimeter': return 2*(get('W')+get('H'));
+          case 'num_from_bin': return parseInt(block.getFieldValue('VAL'),2);
+          case 'num_from_hex': return parseInt(block.getFieldValue('VAL'),16);
+          default: return NaN;
+        }
+    }
     staticNum(block, def) {
         if (!block) return def;
-        if (block.type === 'math_number' || block.type === 'math_number_limited' || block.type === 'servo_angle_number')
-            return parseFloat(block.getFieldValue('NUM') || String(def));
+        const number = this.constantNumber(block);
+        if (Number.isFinite(number)) return number;
+        this.errors.push('Динамічний числовий вхід не підтримується у FRAM: ' + block.type);
         /* ВИПРАВЛЕНО bug #7: попередження якщо блок не числовий */
         if (typeof _log === 'function')
             _log('⚠️ staticNum: блок "' + block.type + '" не числовий — дефолт ' + def, 'err');
@@ -809,21 +842,16 @@ async function sendPkt(bytes) {
     /* characteristic може бути в window або треба шукати через sendRawPacket */
     const chr = window.characteristic;
     if (chr) {
-        try {
-            await chr.writeValue(slipEncode(bytes));
-        } catch (e) {
-            console.error('BLE write:', e);
-        }
+        await chr.writeValue(slipEncode(bytes));
         return;
     }
     /* Fallback: використати sendRawPacket якщо characteristic не в window */
     /* ВИПРАВЛЕНО: слати SLIP-кадр, а не raw байти */
-    if (typeof window.sendRawPacket === 'function') {
-        try { await window.sendRawPacket(slipEncode(bytes)); } catch(e) {
-            /* якщо SLIP не пройшов — спробувати raw як останній варіант */
-            try { await window.sendRawPacket(new Uint8Array(bytes)); } catch(e2) {}
-        }
+    if (typeof window.sendRawPacket === 'function' && window.IoTBridge?.isRemoteReady?.()) {
+        await window.sendRawPacket(slipEncode(bytes));
+        return;
     }
+    throw new Error('Немає підключеного транспорту для завантаження.');
 }
 
 /* ВИПРАВЛЕНО: адаптивний розмір чанку. BLE MTU зазвичай 20 байт.
@@ -873,9 +901,7 @@ function _log(msg, type) {
 window.uploadToRobot = async function () {
     /* isConnected може бути локальна змінна (в тому ж scope що і characteristic)
        або window.isConnected якщо експортована */
-    const _connected = window.isConnected || 
-                       (window.characteristic != null) || 
-                       window.isSimulating;
+    const _connected = (window.characteristic != null) || window.IoTBridge?.isRemoteReady?.();
     if (!_connected) {
         const dbg = 'window.isConnected=' + window.isConnected +
                     ', characteristic=' + (window.characteristic ? 'ok' : 'null') +
@@ -901,6 +927,7 @@ window.uploadToRobot = async function () {
         і PCMD_SAVE збереже display-дані замість програми) */
     window._uploadBusy = true;
     try {
+        if (window.PixelEngine && window.PixelEngine.flush) await window.PixelEngine.flush();
         /* --- Компіляція --- */
         _log('🔄 Компілюю програму...', 'info');
         const compiler = new Compiler();
@@ -908,6 +935,7 @@ window.uploadToRobot = async function () {
 
         if (compiler.errors.length > 0) {
             for (const e of compiler.errors) _log('⚠️ ' + e, 'err');
+            throw new Error([...new Set(compiler.errors)].join('\n'));
         }
 
         if (!code || code.length === 0) {

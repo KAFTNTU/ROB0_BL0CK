@@ -16,6 +16,12 @@ let   _sprites = {};        /* id → {x,y,w,h,pixels} */
 let   _sendBusy = false;
 let   _lastFrameSig = null; /* анти-мерехтіння: не шлемо однаковий кадр */
 let   _lastChr = null;
+let _txQueue = Promise.resolve();
+function _enqueueTx(task) {
+    const result = _txQueue.then(task);
+    _txQueue = result.catch(() => {});
+    return result;
+}
 
 /* --- Joystick: читаємо з браузерного ноба --- */
 function _joyDir() {
@@ -87,7 +93,7 @@ async function _sendHUD(){
     _lastFrameSig = null; /* після HUD наступний кадр треба надіслати заново */
     const SEND=0xC0,ESC=0xDB,TEND=0xDC,TESC=0xDD;
     function slip(d){const o=[];for(const b of d){if(b===SEND)o.push(ESC,TEND);else if(b===ESC)o.push(ESC,TESC);else o.push(b);}o.push(SEND);return new Uint8Array(o);}
-    async function wr(b){try{await window.characteristic.writeValue(slip(b));}catch(e){console.warn(e);}await new Promise(r=>setTimeout(r,12));}
+    async function wr(b){await window.characteristic.writeValue(slip(b));await new Promise(r=>setTimeout(r,12));}
     await wr([0xA0]);
     await wr([0xB0,0x5E]); /* OP_DISP_HUD */
     await wr([0xA1]);
@@ -106,20 +112,20 @@ function _showRleSizeWarning(sz){
     _rleSizeWarnTimer=setTimeout(()=>{d.remove();_rleSizeWarnTimer=null;},4000);
 }
 /* --- Надіслати на STM32 --- */
-async function _send(){
-    if(!window.characteristic||_sendBusy) return;
+async function _send(frame){
+    if(window._uploadBusy) throw new Error('Триває завантаження програми; передавання кадру призупинено.');
+    if(!window.characteristic) throw new Error('Дисплей: Bluetooth не підключено.');
     if(window.characteristic!==_lastChr){ _lastFrameSig=null; _lastChr=window.characteristic; }
     _sendBusy=true;
     try{
         /* Спочатку намалювати всі спрайти */
-        const snap=_buf.slice();
+        const buffer=frame || _buf.slice();
         Object.values(_sprites).forEach(sp=>{
             for(let r=0;r<sp.h;r++) for(let c=0;c<sp.w;c++)
-                if(sp.pixels[r*sp.w+c]) _set(sp.x+c,sp.y+r,1);
+                if(sp.pixels[r*sp.w+c] && sp.x+c>=0 && sp.x+c<W && sp.y+r>=0 && sp.y+r<H) buffer[(sp.y+r)*W+sp.x+c]=1;
         });
 
-        const rle=_rle(_buf);
-        _buf.set(snap); /* відновити буфер без спрайтів */
+        const rle=_rle(buffer);
         if(rle.length>2045){
             console.warn('RLE занадто великий: '+rle.length+' байт (макс 2045). Зображення буде обрізане!');
             _showRleSizeWarning(rle.length);
@@ -129,7 +135,7 @@ async function _send(){
 
         const SEND=0xC0,ESC=0xDB,TEND=0xDC,TESC=0xDD;
         function slip(d){const o=[];for(const b of d){if(b===SEND)o.push(ESC,TEND);else if(b===ESC)o.push(ESC,TESC);else o.push(b);}o.push(SEND);return new Uint8Array(o);}
-        async function wr(b){try{await window.characteristic.writeValue(slip(b));}catch(e){console.warn(e);}await new Promise(r=>setTimeout(r,12));}
+        async function wr(b){await window.characteristic.writeValue(slip(b));await new Promise(r=>setTimeout(r,12));}
 
         await wr([0xA0]);
         const pay=[0x58,(rle.length>>8)&0xFF,rle.length&0xFF,...rle];
@@ -189,9 +195,11 @@ window.PixelEngine = {
     saveFrame(i){ if(i>=0&&i<10)_frames[i].set(_buf); },
     loadFrame(i){ if(i>=0&&i<10)_buf.set(_frames[i]); },
     joyDir:_joyDir, joyAxis:_joyAxis,
-    sendFrame:_send,
-    showHUD(){ _sendHUD(); },
+    sendFrame(){ const frame=_buf.slice(); return _enqueueTx(()=>_send(frame)); },
+    flush(){ return _txQueue; },
+    showHUD(){ return _enqueueTx(()=>{ if(window._uploadBusy) throw new Error('Триває завантаження програми.'); return _sendHUD(); }); },
     startTick:_startTick, stopTick:_stopTick,
+    isTicking(){ return !!_tickCb; },
     score(v){ _gs+=v|0; }, getScore(){ return _gs; }, resetScore(){ _gs=0; },
     spriteSet:_spriteSet, spriteMove:_spriteMove,
     spriteCollide:_spriteCollide, spriteEdge:_spriteEdge,
@@ -836,7 +844,8 @@ Blockly.fieldRegistry.register('field_paint_grid',FieldPaintGrid);
     let lastIdx=-1;
 
     function pixels(){ return Array.prototype.slice.call(field.pixels||[]); }
-    function remember(){ history.push(pixels()); if(history.length>50) history.shift(); future=[]; }
+    function snapshot(){ return {pixels:pixels(),scale}; }
+    function remember(){ history.push(snapshot()); if(history.length>50) history.shift(); future=[]; }
     function commit(next, sc){ setPixels(field,next,sc||scale); scale=field.scale; draw(); }
     function closeMenus(){ root.querySelectorAll('.rb-oled-drop').forEach(d=>d.classList.remove('open')); }
 
@@ -1048,9 +1057,9 @@ Blockly.fieldRegistry.register('field_paint_grid',FieldPaintGrid);
       }else if(act==='clear'){
         remember(); commit(new Array(dims(scale).cols*dims(scale).rows).fill(0),scale); closeMenus();
       }else if(act==='undo'){
-        const prev=history.pop(); if(prev){ future.push(pixels()); commit(prev,scale); }
+        const prev=history.pop(); if(prev){ future.push(snapshot()); commit(prev.pixels,prev.scale); }
       }else if(act==='redo'){
-        const nx=future.pop(); if(nx){ history.push(pixels()); commit(nx,scale); }
+        const nx=future.pop(); if(nx){ history.push(snapshot()); commit(nx.pixels,nx.scale); }
       }else if(act==='photo'){
         if(field._openCropModal) field._openCropModal();
         setTimeout(()=>{ try{ draw(); }catch(_){} },300);
@@ -3482,7 +3491,7 @@ Blockly.fieldRegistry.register('field_paint_grid',FieldPaintGrid);
   function isPainterField(field){
     try{
       const t = field && field.sourceBlock_ && field.sourceBlock_.type;
-      return t === 'disp_paint' || t === 'disp_anim_frame';
+      return t === 'disp_paint' || t === 'disp_anim_frame' || t === 'disp_animation';
     }catch(_){ return false; }
   }
 
@@ -3586,7 +3595,7 @@ Blockly.fieldRegistry.register('field_paint_grid',FieldPaintGrid);
   function isPaintField(field){
     try {
       const t = field && field.sourceBlock_ && field.sourceBlock_.type;
-      return t === 'disp_paint' || t === 'disp_anim_frame';
+      return t === 'disp_paint' || t === 'disp_anim_frame' || t === 'disp_animation';
     } catch(_) {
       return false;
     }
@@ -3658,8 +3667,12 @@ Blockly.fieldRegistry.register('field_paint_grid',FieldPaintGrid);
       const ws = window.workspace || (window.Blockly && Blockly.getMainWorkspace && Blockly.getMainWorkspace());
       if (!ws || !ws.getAllBlocks) return;
       ws.getAllBlocks(false).forEach(block => {
-        const f = block.getField && block.getField('GRID');
-        if (f) commitField(f);
+        if(block.type === 'disp_animation') {
+          block.inputList.forEach(input => input.fieldRow.forEach(f => { if(f.name && f.name.startsWith('GRID')) commitField(f); }));
+        } else {
+          const f = block.getField && block.getField('GRID');
+          if (f) commitField(f);
+        }
       });
     } catch(_) {}
   }
@@ -4205,7 +4218,7 @@ window._updateBatDisplayBlocks = function() {
   if (window.__rbOledPainterForceValueFix) return;
   window.__rbOledPainterForceValueFix = true;
   function isPaintField(f){
-    try{ return f && f.sourceBlock_ && (f.sourceBlock_.type === 'disp_paint' || f.sourceBlock_.type === 'disp_anim_frame'); }
+    try{ return f && f.sourceBlock_ && (f.sourceBlock_.type === 'disp_paint' || f.sourceBlock_.type === 'disp_anim_frame' || f.sourceBlock_.type === 'disp_animation'); }
     catch(e){ return false; }
   }
   function currentValue(f){

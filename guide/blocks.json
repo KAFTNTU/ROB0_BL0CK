@@ -1,0 +1,4042 @@
+[
+  {
+    "id": "block-start_hat",
+    "type": "start_hat",
+    "category": "Рух",
+    "title": "Старт",
+    "does": "Початок сценарію. Блоки під ним виконуються після запуску.",
+    "fields": [],
+    "output": false,
+    "how": [
+      "Ставиться один раз зверху програми.",
+      "Під’єднуй під нього інші блоки послідовно."
+    ],
+    "example": "Старт → їхати → якщо умова → стоп.",
+    "note": "",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"start_hat\"></block></xml>",
+    "previewWidth": 120,
+    "outputType": ""
+  },
+  {
+    "id": "block-robot_stop",
+    "type": "robot_stop",
+    "category": "Рух",
+    "title": "Стоп моторів",
+    "does": "Надсилає нульову швидкість моторам, після чого сценарій продовжується.",
+    "fields": [],
+    "output": false,
+    "how": [],
+    "example": "Їхати → чекати 1 секунду → стоп.",
+    "note": "Не завершує всю програму й не зупиняє автоматично нескінченний цикл.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"robot_stop\"></block></xml>",
+    "previewWidth": 107,
+    "outputType": ""
+  },
+  {
+    "id": "block-robot_move",
+    "type": "robot_move",
+    "category": "Рух",
+    "title": "Рух (L / R)",
+    "does": "Керує лівою і правою стороною приводу. Однаково — прямо, різні — поворот.",
+    "fields": [
+      {
+        "key": "L",
+        "name": "Ліва швидкість",
+        "kind": "value",
+        "meaning": "Швидкість лівої сторони від −100 до 100. Знак задає напрям обертання."
+      },
+      {
+        "key": "R",
+        "name": "Права швидкість",
+        "kind": "value",
+        "meaning": "Швидкість правої сторони від −100 до 100. Знак задає напрям обертання."
+      }
+    ],
+    "output": false,
+    "how": [
+      "L=80, R=80 → прямо вперед.",
+      "L=-60, R=-60 → назад.",
+      "L=80, R=30 → плавний поворот вправо."
+    ],
+    "example": "Їхати прямо і трохи підрулювати різницею між L і R.",
+    "note": "Команда руху діє, доки її не змінено. Додай очікування та явний «Стоп». Напрям залежить від інверсії моторів.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"robot_move\">\n        <value name=\"L\"><shadow type=\"math_number_limited\"><field name=\"NUM\">100</field></shadow></value>\n        <value name=\"R\"><shadow type=\"math_number_limited\"><field name=\"NUM\">100</field></shadow></value>\n    </block></xml>",
+    "previewWidth": 115,
+    "outputType": ""
+  },
+  {
+    "id": "block-robot_move_soft",
+    "type": "robot_move_soft",
+    "category": "Рух",
+    "title": "Плавний старт",
+    "does": "Поступово нарощує команду від нуля до заданої швидкості за вказаний час.",
+    "fields": [
+      {
+        "key": "TARGET",
+        "name": "Цільова швидкість",
+        "kind": "value",
+        "meaning": "Швидкість, до якої робот поступово розганяється."
+      },
+      {
+        "key": "SEC",
+        "name": "Час у секундах",
+        "kind": "value",
+        "meaning": "Тривалість у секундах. Наприклад, 0.5 — половина секунди."
+      }
+    ],
+    "output": false,
+    "how": [],
+    "example": "До 40 за 2 секунди → чекати 1 → стоп.",
+    "note": "У поточній реалізації розгін починається від нуля, не від виміряної поточної швидкості. Після завершення рух триває.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"robot_move_soft\">\n        <value name=\"TARGET\"><shadow type=\"math_number_limited\"><field name=\"NUM\">100</field></shadow></value>\n        <value name=\"SEC\"><shadow type=\"math_number\"><field name=\"NUM\">1</field></shadow></value>\n    </block></xml>",
+    "previewWidth": 383,
+    "outputType": ""
+  },
+  {
+    "id": "block-robot_set_speed",
+    "type": "robot_set_speed",
+    "category": "Рух",
+    "title": "Множник швидкості",
+    "does": "Установлює відсотковий множник для команд руху, які його використовують.",
+    "fields": [
+      {
+        "key": "SPEED",
+        "name": "Швидкість",
+        "kind": "value",
+        "meaning": "Відсоток від заданої швидкості: 50% удвічі зменшує команду руху, 100% залишає її без зміни."
+      }
+    ],
+    "output": false,
+    "how": [],
+    "example": "Швидкість 50% → їхати 80/80 дає 40/40.",
+    "note": "Не вважай це універсальним апаратним обмеженням: поворот за часом використовує власні значення швидкості.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"robot_set_speed\">\n        <value name=\"SPEED\"><shadow type=\"math_number_limited\"><field name=\"NUM\">50</field></shadow></value>\n    </block></xml>",
+    "previewWidth": 226,
+    "outputType": ""
+  },
+  {
+    "id": "block-robot_turn_timed",
+    "type": "robot_turn_timed",
+    "category": "Рух",
+    "title": "Поворот на час",
+    "does": "Повертає LEFT/RIGHT протягом SEC секунд.",
+    "fields": [
+      {
+        "key": "DIR",
+        "name": "Напрямок",
+        "kind": "field",
+        "value": "LEFT",
+        "options": [
+          [
+            "Ліворуч ⬅️",
+            "LEFT"
+          ],
+          [
+            "Праворуч ➡️",
+            "RIGHT"
+          ]
+        ],
+        "meaning": "Обери потрібний напрямок у списку."
+      },
+      {
+        "key": "SEC",
+        "name": "Час у секундах",
+        "kind": "value",
+        "meaning": "Тривалість у секундах. Наприклад, 0.5 — половина секунди."
+      }
+    ],
+    "output": false,
+    "how": [
+      "Малі значення (0.2–0.6с) — легка корекція.",
+      "Після повороту часто додають рух прямо."
+    ],
+    "example": "Їхати → повернути RIGHT 0.4с → їхати далі.",
+    "note": "Час повороту не гарантує точного кута. Після повороту реалізація надсилає зупинку.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"robot_turn_timed\">\n        <field name=\"DIR\">LEFT</field>\n        <value name=\"SEC\"><shadow type=\"math_number\"><field name=\"NUM\">0.5</field></shadow></value>\n    </block></xml>",
+    "previewWidth": 387,
+    "outputType": ""
+  },
+  {
+    "id": "block-motor_single",
+    "type": "motor_single",
+    "category": "Рух",
+    "title": "Один мотор",
+    "does": "Керує одним вибраним мотором — зручно для тесту підключення.",
+    "fields": [
+      {
+        "key": "MOTOR",
+        "name": "Мотор",
+        "kind": "field",
+        "value": "1",
+        "options": [
+          [
+            "A",
+            "1"
+          ],
+          [
+            "B",
+            "2"
+          ],
+          [
+            "C",
+            "3"
+          ],
+          [
+            "D",
+            "4"
+          ]
+        ],
+        "meaning": "Обери мотор, якому надсилається команда."
+      },
+      {
+        "key": "SPEED",
+        "name": "Швидкість",
+        "kind": "value",
+        "meaning": "Задана швидкість. Для моторів використовуй значення від −100 до 100."
+      }
+    ],
+    "output": false,
+    "how": [
+      "Зручно для перевірки підключення: A/B/C/D крутяться чи ні.",
+      "Якщо мотор крутиться не в той бік — міняй інверсію або дроти.",
+      "Після тесту не забудь зупинити мотор (speed=0 або Стоп)."
+    ],
+    "example": "Протестувати M1..M4 на 30% і перевірити напрям.",
+    "note": "",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"motor_single\">\n        <value name=\"SPEED\"><shadow type=\"math_number_limited\"><field name=\"NUM\">100</field></shadow></value>\n    </block></xml>",
+    "previewWidth": 275,
+    "outputType": ""
+  },
+  {
+    "id": "block-go_home",
+    "type": "go_home",
+    "category": "Рух",
+    "title": "Додому (назад по маршруту)",
+    "does": "Пробує повернути робота назад тим самим шляхом: бере історію рухів/пауз і відтворює її у зворотному порядку (швидкості з мінусом).",
+    "fields": [],
+    "output": false,
+    "how": [
+      "Працює тільки якщо до цього були рухи/паузи (програма щось робила).",
+      "Точність залежить від покриття і пробуксовки: на килимі/слизькому може збитися.",
+      "Добре як “повернутися назад”, якщо заїхав не туди."
+    ],
+    "example": "Проїхати вперед → повернути → Додому (назад по маршруту).",
+    "note": "Це відтворення записаних команд у зворотному напрямку, не навігація за координатами. Точне повернення не гарантується.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"go_home\"></block></xml>",
+    "previewWidth": 197,
+    "outputType": ""
+  },
+  {
+    "id": "block-track_action",
+    "type": "track_action",
+    "category": "Рух",
+    "title": "Дія на трасі",
+    "does": "Заготовка спеціальної дії для траси. У поточній версії алгоритм не реалізовано.",
+    "fields": [],
+    "output": false,
+    "how": [],
+    "example": "Замість цього склади потрібну дію з руху, датчика, умови та зупинки.",
+    "note": "Не використовуй як готовий автопілот: запуск повідомляє про відсутню реалізацію.",
+    "unsupported": true,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"track_action\"></block></xml>",
+    "previewWidth": 162,
+    "outputType": ""
+  },
+  {
+    "id": "block-start_line_action",
+    "type": "start_line_action",
+    "category": "Рух",
+    "title": "Дія на старті",
+    "does": "Заготовка дії на стартовій лінії. Готової поведінки зараз немає.",
+    "fields": [],
+    "output": false,
+    "how": [],
+    "example": "Перевір значення датчика через порівняння й виконай потрібну команду в «Якщо».",
+    "note": "Це не робоча команда автоматичного старту.",
+    "unsupported": true,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"start_line_action\"></block></xml>",
+    "previewWidth": 169,
+    "outputType": ""
+  },
+  {
+    "id": "block-joy_x",
+    "type": "joy_x",
+    "category": "Рух",
+    "title": "Джойстик X",
+    "does": "Повертає числове положення горизонтальної осі джойстика.",
+    "fields": [],
+    "output": true,
+    "how": [],
+    "example": "Встав у формулу підрулювання або порівняй із 0.",
+    "note": "Значення залежить від активного пульта; це не координата робота на підлозі.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"joy_x\"></block></xml>",
+    "previewWidth": 171,
+    "outputType": "Number"
+  },
+  {
+    "id": "block-joy_y",
+    "type": "joy_y",
+    "category": "Рух",
+    "title": "Джойстик Y",
+    "does": "Повертає числове положення вертикальної осі джойстика.",
+    "fields": [],
+    "output": true,
+    "how": [],
+    "example": "Використай як вхід для керування швидкістю.",
+    "note": "Це положення органа керування, а не виміряна швидкість моторів.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"joy_y\"></block></xml>",
+    "previewWidth": 170,
+    "outputType": "Number"
+  },
+  {
+    "id": "block-manip_servo_channel",
+    "type": "manip_servo_channel",
+    "category": "Рух",
+    "title": "Сервопривід на кут",
+    "does": "Надсилає вибраному каналу сервопривода команду встановити кут.",
+    "fields": [
+      {
+        "key": "CH",
+        "name": "Канал сервопривода",
+        "kind": "field",
+        "value": "1",
+        "options": [
+          [
+            "PWM0",
+            "1"
+          ],
+          [
+            "PWM1",
+            "2"
+          ],
+          [
+            "PWM2",
+            "3"
+          ],
+          [
+            "PWM3",
+            "4"
+          ],
+          [
+            "PWM4",
+            "5"
+          ],
+          [
+            "PWM5",
+            "6"
+          ],
+          [
+            "PWM6",
+            "7"
+          ],
+          [
+            "PWM7",
+            "8"
+          ],
+          [
+            "PWM8",
+            "9"
+          ],
+          [
+            "PWM9",
+            "10"
+          ],
+          [
+            "PWM10",
+            "11"
+          ],
+          [
+            "PWM11",
+            "12"
+          ],
+          [
+            "PWM12",
+            "13"
+          ],
+          [
+            "PWM13",
+            "14"
+          ],
+          [
+            "PWM14",
+            "15"
+          ],
+          [
+            "PWM15",
+            "16"
+          ]
+        ],
+        "meaning": "Обери канал підключеного сервопривода: PWM0…PWM15."
+      },
+      {
+        "key": "ANGLE",
+        "name": "Кут у градусах",
+        "kind": "value",
+        "meaning": "Потрібний кут сервопривода у градусах. Враховуй межі механізму."
+      }
+    ],
+    "output": false,
+    "how": [],
+    "example": "PWM0, кут 90°.",
+    "note": "Потрібні сумісна прошивка й підключений драйвер. Не задавай кут за механічними межами механізму.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"manip_servo_channel\">\n    <field name=\"CH\">1</field>\n    <value name=\"ANGLE\"><shadow type=\"math_number\"><field name=\"NUM\">90</field></shadow></value>\n  </block></xml>",
+    "previewWidth": 306,
+    "outputType": ""
+  },
+  {
+    "id": "block-manip_servo_timed",
+    "type": "manip_servo_timed",
+    "category": "Рух",
+    "title": "Сервопривід: повернути плавно",
+    "does": "Плавно повертає вибраний сервопривід від поточного кута до заданого за вказаний час.",
+    "fields": [
+      {
+        "key": "CH",
+        "name": "Канал сервопривода",
+        "kind": "field",
+        "value": "1",
+        "options": [
+          [
+            "PWM0",
+            "1"
+          ],
+          [
+            "PWM1",
+            "2"
+          ],
+          [
+            "PWM2",
+            "3"
+          ],
+          [
+            "PWM3",
+            "4"
+          ],
+          [
+            "PWM4",
+            "5"
+          ],
+          [
+            "PWM5",
+            "6"
+          ],
+          [
+            "PWM6",
+            "7"
+          ],
+          [
+            "PWM7",
+            "8"
+          ],
+          [
+            "PWM8",
+            "9"
+          ],
+          [
+            "PWM9",
+            "10"
+          ],
+          [
+            "PWM10",
+            "11"
+          ],
+          [
+            "PWM11",
+            "12"
+          ],
+          [
+            "PWM12",
+            "13"
+          ],
+          [
+            "PWM13",
+            "14"
+          ],
+          [
+            "PWM14",
+            "15"
+          ],
+          [
+            "PWM15",
+            "16"
+          ]
+        ],
+        "meaning": "Обери канал підключеного сервопривода: PWM0…PWM15."
+      },
+      {
+        "key": "ANGLE",
+        "name": "Кут у градусах",
+        "kind": "value",
+        "meaning": "Потрібний кут сервопривода у градусах. Враховуй межі механізму."
+      },
+      {
+        "key": "SECONDS",
+        "name": "Час у секундах",
+        "kind": "value",
+        "meaning": "Тривалість у секундах. Наприклад, 3 — три секунди."
+      }
+    ],
+    "output": false,
+    "how": [
+      "Наприклад: кут 45° за 3 секунди.",
+      "Поточний кут береться з попередньої команди; якщо його ще не було — з 0°.",
+      "Плавність формується малими кроками через BLE."
+    ],
+    "example": "PWM0 → 45° за 3 секунди.",
+    "note": "Поточний кут оцінюється за попередньою командою, не вимірюється датчиком положення. Потрібна сумісна прошивка.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"manip_servo_timed\">\n    <field name=\"CH\">1</field>\n    <value name=\"ANGLE\"><shadow type=\"math_number\"><field name=\"NUM\">45</field></shadow></value>\n    <value name=\"SECONDS\"><shadow type=\"math_number\"><field name=\"NUM\">3</field></shadow></value>\n  </block></xml>",
+    "previewWidth": 385,
+    "outputType": ""
+  },
+  {
+    "id": "block-manip_servo_from_to",
+    "type": "manip_servo_from_to",
+    "category": "Рух",
+    "title": "Сервопривід: від кута до кута",
+    "does": "Спочатку задає початковий кут, потім плавно повертає сервопривід до іншого кута за вказаний час.",
+    "fields": [
+      {
+        "key": "CH",
+        "name": "Канал сервопривода",
+        "kind": "field",
+        "value": "1",
+        "options": [
+          [
+            "PWM0",
+            "1"
+          ],
+          [
+            "PWM1",
+            "2"
+          ],
+          [
+            "PWM2",
+            "3"
+          ],
+          [
+            "PWM3",
+            "4"
+          ],
+          [
+            "PWM4",
+            "5"
+          ],
+          [
+            "PWM5",
+            "6"
+          ],
+          [
+            "PWM6",
+            "7"
+          ],
+          [
+            "PWM7",
+            "8"
+          ],
+          [
+            "PWM8",
+            "9"
+          ],
+          [
+            "PWM9",
+            "10"
+          ],
+          [
+            "PWM10",
+            "11"
+          ],
+          [
+            "PWM11",
+            "12"
+          ],
+          [
+            "PWM12",
+            "13"
+          ],
+          [
+            "PWM13",
+            "14"
+          ],
+          [
+            "PWM14",
+            "15"
+          ],
+          [
+            "PWM15",
+            "16"
+          ]
+        ],
+        "meaning": "Обери канал підключеного сервопривода: PWM0…PWM15."
+      },
+      {
+        "key": "FROM",
+        "name": "Початковий кут у градусах",
+        "kind": "value",
+        "meaning": "Кут, який сервопривід спочатку має прийняти."
+      },
+      {
+        "key": "TO",
+        "name": "Кінцевий кут у градусах",
+        "kind": "value",
+        "meaning": "Кут, до якого сервопривід має перейти."
+      },
+      {
+        "key": "SECONDS",
+        "name": "Час у секундах",
+        "kind": "value",
+        "meaning": "Тривалість у секундах. Наприклад, 3 — три секунди."
+      }
+    ],
+    "output": false,
+    "how": [
+      "Наприклад: з 36° на 90° за 3 секунди.",
+      "Підходить, коли потрібно явно вказати обидва кути незалежно від попередніх блоків."
+    ],
+    "example": "PWM0 → з 36° на 90° за 3 секунди.",
+    "note": "Початковий кут задається одразу; лише перехід від нього до кінцевого розтягується в часі.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"manip_servo_from_to\">\n    <field name=\"CH\">1</field>\n    <value name=\"FROM\"><shadow type=\"math_number\"><field name=\"NUM\">36</field></shadow></value>\n    <value name=\"TO\"><shadow type=\"math_number\"><field name=\"NUM\">90</field></shadow></value>\n    <value name=\"SECONDS\"><shadow type=\"math_number\"><field name=\"NUM\">3</field></shadow></value>\n  </block></xml>",
+    "previewWidth": 460,
+    "outputType": ""
+  },
+  {
+    "id": "block-disp_paint",
+    "type": "disp_paint",
+    "category": "Дисплей",
+    "title": "Намальоване зображення",
+    "does": "Переносить малюнок із піксельного редактора блоку в буфер дисплея.",
+    "fields": [
+      {
+        "key": "GRID",
+        "name": "Малюнок",
+        "kind": "field",
+        "value": "Малюнок у піксельному редакторі",
+        "meaning": "Натисни на малюнок, щоб відкрити піксельний редактор і намалювати зображення."
+      }
+    ],
+    "output": false,
+    "how": [],
+    "example": "Намалюй значок → цей блок → «Відправити на екран».",
+    "note": "Саме заповнення буфера не замінює відправлення. Полотно дисплея: 128 × 64 пікселі, X = 0…127, Y = 0…63. Малювання змінює буфер; для показу використовуй «Відправити на екран», якщо команда сама не відправляє зображення.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"disp_paint\"></block></xml>",
+    "previewWidth": 1084,
+    "outputType": ""
+  },
+  {
+    "id": "block-disp_clear",
+    "type": "disp_clear",
+    "category": "Дисплей",
+    "title": "Очистити екран",
+    "does": "Вимикає всі пікселі в буфері зображення.",
+    "fields": [],
+    "output": false,
+    "how": [],
+    "example": "Очистити → текст → відправити.",
+    "note": "Щоб очистився фізичний дисплей, відправ порожній буфер. Полотно дисплея: 128 × 64 пікселі, X = 0…127, Y = 0…63. Малювання змінює буфер; для показу використовуй «Відправити на екран», якщо команда сама не відправляє зображення.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"disp_clear\"></block></xml>",
+    "previewWidth": 193,
+    "outputType": ""
+  },
+  {
+    "id": "block-disp_send",
+    "type": "disp_send",
+    "category": "Дисплей",
+    "title": "Відправити на екран",
+    "does": "Передає поточне зображення з буфера на дисплей робота.",
+    "fields": [],
+    "output": false,
+    "how": [],
+    "example": "Очистити → коло → відправити на екран.",
+    "note": "Потрібні зв’язок і підтримка дисплея прошивкою. Не вставляй відправлення після кожного окремого пікселя. Полотно дисплея: 128 × 64 пікселі, X = 0…127, Y = 0…63. Малювання змінює буфер; для показу використовуй «Відправити на екран», якщо команда сама не відправляє зображення.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"disp_send\"></block></xml>",
+    "previewWidth": 232,
+    "outputType": ""
+  },
+  {
+    "id": "block-disp_hud",
+    "type": "disp_hud",
+    "category": "Дисплей",
+    "title": "Стандартний екран",
+    "does": "Повертає стандартний екран телеметрії замість власного зображення.",
+    "fields": [],
+    "output": false,
+    "how": [],
+    "example": "Після завершення малювання поверни стандартний екран.",
+    "note": "Склад показів залежить від підтримки контролера. Полотно дисплея: 128 × 64 пікселі, X = 0…127, Y = 0…63. Малювання змінює буфер; для показу використовуй «Відправити на екран», якщо команда сама не відправляє зображення.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"disp_hud\"></block></xml>",
+    "previewWidth": 220,
+    "outputType": ""
+  },
+  {
+    "id": "block-disp_text",
+    "type": "disp_text",
+    "category": "Дисплей",
+    "title": "Текст на дисплеї",
+    "does": "Малює введений текст у буфері, починаючи з координат X та Y.",
+    "fields": [
+      {
+        "key": "X",
+        "name": "Горизонтальна координата",
+        "kind": "value",
+        "meaning": "Положення по горизонталі: більше число — правіше. На дисплеї використовуй 0…127."
+      },
+      {
+        "key": "TXT",
+        "name": "Напис",
+        "kind": "field",
+        "value": "Привіт",
+        "meaning": "Напис, який має з’явитися на дисплеї."
+      },
+      {
+        "key": "SIZE",
+        "name": "Розмір тексту",
+        "kind": "field",
+        "value": "small",
+        "options": [
+          [
+            "малий",
+            "small"
+          ],
+          [
+            "великий",
+            "big"
+          ]
+        ],
+        "meaning": "Малий або великий розмір напису."
+      },
+      {
+        "key": "Y",
+        "name": "Вертикальна координата",
+        "kind": "value",
+        "meaning": "Положення по вертикалі: більше число — нижче. На дисплеї використовуй 0…63."
+      }
+    ],
+    "output": false,
+    "how": [],
+    "example": "Текст «Привіт», X = 24, Y = 24 → відправити.",
+    "note": "Це координати лівого верхнього кута напису. Автоматичного центрування тут немає; довгий текст може вийти за край. Полотно дисплея: 128 × 64 пікселі, X = 0…127, Y = 0…63. Малювання змінює буфер; для показу використовуй «Відправити на екран», якщо команда сама не відправляє зображення.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"disp_text\">\n    <field name=\"TXT\">Привіт</field><field name=\"SIZE\">small</field>\n    <value name=\"X\"><shadow type=\"math_number\"><field name=\"NUM\">0</field></shadow></value>\n    <value name=\"Y\"><shadow type=\"math_number\"><field name=\"NUM\">0</field></shadow></value>\n  </block></xml>",
+    "previewWidth": 414,
+    "outputType": ""
+  },
+  {
+    "id": "block-disp_number",
+    "type": "disp_number",
+    "category": "Дисплей",
+    "title": "Число на дисплеї",
+    "does": "Малює числовий результат у заданій позиції. Поточна реалізація округлює число до цілого.",
+    "fields": [
+      {
+        "key": "VAL",
+        "name": "Значення",
+        "kind": "value",
+        "meaning": "Число або результат іншого блоку, з яким працює ця команда."
+      },
+      {
+        "key": "X",
+        "name": "Горизонтальна координата",
+        "kind": "value",
+        "meaning": "Положення по горизонталі: більше число — правіше. На дисплеї використовуй 0…127."
+      },
+      {
+        "key": "Y",
+        "name": "Вертикальна координата",
+        "kind": "value",
+        "meaning": "Положення по вертикалі: більше число — нижче. На дисплеї використовуй 0…63."
+      }
+    ],
+    "output": false,
+    "how": [],
+    "example": "У значення встав 30 + 12, потім відправ зображення.",
+    "note": "Для оновлення показів повторюй малювання й відправлення в циклі. Полотно дисплея: 128 × 64 пікселі, X = 0…127, Y = 0…63. Малювання змінює буфер; для показу використовуй «Відправити на екран», якщо команда сама не відправляє зображення.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"disp_number\">\n    <value name=\"VAL\"><shadow type=\"math_number\"><field name=\"NUM\">0</field></shadow></value>\n    <value name=\"X\"><shadow type=\"math_number\"><field name=\"NUM\">0</field></shadow></value>\n    <value name=\"Y\"><shadow type=\"math_number\"><field name=\"NUM\">0</field></shadow></value>\n  </block></xml>",
+    "previewWidth": 298,
+    "outputType": ""
+  },
+  {
+    "id": "block-disp_sensor_value",
+    "type": "disp_sensor_value",
+    "category": "Дисплей",
+    "title": "Показ датчика на дисплеї",
+    "does": "Малює поточний показ вибраного сенсорного каналу або батареї.",
+    "fields": [
+      {
+        "key": "X",
+        "name": "Горизонтальна координата",
+        "kind": "value",
+        "meaning": "Положення по горизонталі: більше число — правіше. На дисплеї використовуй 0…127."
+      },
+      {
+        "key": "SENSOR",
+        "name": "Канал показу",
+        "kind": "field",
+        "value": "0",
+        "options": [
+          [
+            "S0",
+            "0"
+          ],
+          [
+            "S1",
+            "1"
+          ],
+          [
+            "S2",
+            "2"
+          ],
+          [
+            "S3",
+            "3"
+          ],
+          [
+            "батарея %",
+            "bat"
+          ]
+        ],
+        "meaning": "Який показ потрібно намалювати на дисплеї."
+      },
+      {
+        "key": "Y",
+        "name": "Вертикальна координата",
+        "kind": "value",
+        "meaning": "Положення по вертикалі: більше число — нижче. На дисплеї використовуй 0…63."
+      }
+    ],
+    "output": false,
+    "how": [],
+    "example": "Вибери S0, X = 0, Y = 20 → відправити.",
+    "note": "S0…S3 — внутрішні індекси чотирьох каналів. Для батареї можливий запасний показ напруги, якщо відсоток недоступний. Полотно дисплея: 128 × 64 пікселі, X = 0…127, Y = 0…63. Малювання змінює буфер; для показу використовуй «Відправити на екран», якщо команда сама не відправляє зображення.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"disp_sensor_value\">\n    <field name=\"SENSOR\">0</field>\n    <value name=\"X\"><shadow type=\"math_number\"><field name=\"NUM\">0</field></shadow></value>\n    <value name=\"Y\"><shadow type=\"math_number\"><field name=\"NUM\">20</field></shadow></value>\n  </block></xml>",
+    "previewWidth": 322,
+    "outputType": ""
+  },
+  {
+    "id": "block-disp_smile",
+    "type": "disp_smile",
+    "category": "Дисплей",
+    "title": "Смайл",
+    "does": "Малює обличчя в центрі дисплея.",
+    "fields": [
+      {
+        "key": "FACE",
+        "name": "Обличчя",
+        "kind": "field",
+        "value": "happy",
+        "options": [
+          [
+            "😊",
+            "happy"
+          ],
+          [
+            "😢",
+            "sad"
+          ],
+          [
+            "⚡",
+            "bolt"
+          ],
+          [
+            "❓",
+            "question"
+          ],
+          [
+            "✓",
+            "check"
+          ]
+        ],
+        "meaning": "Обери вигляд обличчя."
+      }
+    ],
+    "output": false,
+    "how": [],
+    "example": "Очистити → усміхнений смайл → відправити.",
+    "note": "У реалізації окремо намальовано усмішку й сум; інші пункти списку використовують нейтральний рот, а не окремі значки блискавки чи питання. Полотно дисплея: 128 × 64 пікселі, X = 0…127, Y = 0…63. Малювання змінює буфер; для показу використовуй «Відправити на екран», якщо команда сама не відправляє зображення.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"disp_smile\"><field name=\"FACE\">happy</field></block></xml>",
+    "previewWidth": 185,
+    "outputType": ""
+  },
+  {
+    "id": "block-disp_pixel_on",
+    "type": "disp_pixel_on",
+    "category": "Дисплей",
+    "title": "Увімкнути піксель",
+    "does": "Вмикає одну точку зображення за координатами X та Y.",
+    "fields": [
+      {
+        "key": "X",
+        "name": "Горизонтальна координата",
+        "kind": "value",
+        "meaning": "Положення по горизонталі: більше число — правіше. На дисплеї використовуй 0…127."
+      },
+      {
+        "key": "Y",
+        "name": "Вертикальна координата",
+        "kind": "value",
+        "meaning": "Положення по вертикалі: більше число — нижче. На дисплеї використовуй 0…63."
+      }
+    ],
+    "output": false,
+    "how": [],
+    "example": "X = 64, Y = 32 → відправити.",
+    "note": "Полотно дисплея: 128 × 64 пікселі, X = 0…127, Y = 0…63. Малювання змінює буфер; для показу використовуй «Відправити на екран», якщо команда сама не відправляє зображення.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"disp_pixel_on\">\n    <value name=\"X\"><shadow type=\"math_number\"><field name=\"NUM\">64</field></shadow></value>\n    <value name=\"Y\"><shadow type=\"math_number\"><field name=\"NUM\">32</field></shadow></value>\n  </block></xml>",
+    "previewWidth": 254,
+    "outputType": ""
+  },
+  {
+    "id": "block-disp_pixel_off",
+    "type": "disp_pixel_off",
+    "category": "Дисплей",
+    "title": "Стерти піксель",
+    "does": "Вимикає точку за координатами X та Y.",
+    "fields": [
+      {
+        "key": "X",
+        "name": "Горизонтальна координата",
+        "kind": "value",
+        "meaning": "Положення по горизонталі: більше число — правіше. На дисплеї використовуй 0…127."
+      },
+      {
+        "key": "Y",
+        "name": "Вертикальна координата",
+        "kind": "value",
+        "meaning": "Положення по вертикалі: більше число — нижче. На дисплеї використовуй 0…63."
+      }
+    ],
+    "output": false,
+    "how": [],
+    "example": "Стерти X = 64, Y = 32 → відправити.",
+    "note": "Полотно дисплея: 128 × 64 пікселі, X = 0…127, Y = 0…63. Малювання змінює буфер; для показу використовуй «Відправити на екран», якщо команда сама не відправляє зображення.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"disp_pixel_off\">\n    <value name=\"X\"><shadow type=\"math_number\"><field name=\"NUM\">64</field></shadow></value>\n    <value name=\"Y\"><shadow type=\"math_number\"><field name=\"NUM\">32</field></shadow></value>\n  </block></xml>",
+    "previewWidth": 242,
+    "outputType": ""
+  },
+  {
+    "id": "block-disp_pixel_get",
+    "type": "disp_pixel_get",
+    "category": "Дисплей",
+    "title": "Піксель увімкнений",
+    "does": "Перевіряє точку в локальному буфері та повертає істину або хибу.",
+    "fields": [
+      {
+        "key": "X",
+        "name": "Горизонтальна координата",
+        "kind": "value",
+        "meaning": "Положення по горизонталі: більше число — правіше. На дисплеї використовуй 0…127."
+      },
+      {
+        "key": "Y",
+        "name": "Вертикальна координата",
+        "kind": "value",
+        "meaning": "Положення по вертикалі: більше число — нижче. На дисплеї використовуй 0…63."
+      }
+    ],
+    "output": true,
+    "how": [],
+    "example": "Якщо піксель у X = 64, Y = 32 є — збільшити рахунок.",
+    "note": "Не читає фізичний екран контролера; перевіряє буфер редактора. Полотно дисплея: 128 × 64 пікселі, X = 0…127, Y = 0…63. Малювання змінює буфер; для показу використовуй «Відправити на екран», якщо команда сама не відправляє зображення.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"disp_pixel_get\">\n    <value name=\"X\"><shadow type=\"math_number\"><field name=\"NUM\">64</field></shadow></value>\n    <value name=\"Y\"><shadow type=\"math_number\"><field name=\"NUM\">32</field></shadow></value>\n  </block></xml>",
+    "previewWidth": 272,
+    "outputType": "Boolean"
+  },
+  {
+    "id": "block-disp_line",
+    "type": "disp_line",
+    "category": "Дисплей",
+    "title": "Намалювати лінію",
+    "does": "Малює відрізок між двома точками у буфері дисплея.",
+    "fields": [
+      {
+        "key": "X1",
+        "name": "X початкової точки",
+        "kind": "value",
+        "meaning": "Горизонтальна координата початку відрізка."
+      },
+      {
+        "key": "Y1",
+        "name": "Y початкової точки",
+        "kind": "value",
+        "meaning": "Вертикальна координата початку відрізка."
+      },
+      {
+        "key": "X2",
+        "name": "X кінцевої точки",
+        "kind": "value",
+        "meaning": "Горизонтальна координата кінця відрізка."
+      },
+      {
+        "key": "Y2",
+        "name": "Y кінцевої точки",
+        "kind": "value",
+        "meaning": "Вертикальна координата кінця відрізка."
+      }
+    ],
+    "output": false,
+    "how": [],
+    "example": "Від (0, 0) до (127, 63) → відправити.",
+    "note": "Полотно дисплея: 128 × 64 пікселі, X = 0…127, Y = 0…63. Малювання змінює буфер; для показу використовуй «Відправити на екран», якщо команда сама не відправляє зображення.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"disp_line\">\n    <value name=\"X1\"><shadow type=\"math_number\"><field name=\"NUM\">0</field></shadow></value>\n    <value name=\"Y1\"><shadow type=\"math_number\"><field name=\"NUM\">0</field></shadow></value>\n    <value name=\"X2\"><shadow type=\"math_number\"><field name=\"NUM\">127</field></shadow></value>\n    <value name=\"Y2\"><shadow type=\"math_number\"><field name=\"NUM\">63</field></shadow></value>\n  </block></xml>",
+    "previewWidth": 420,
+    "outputType": ""
+  },
+  {
+    "id": "block-disp_rect",
+    "type": "disp_rect",
+    "category": "Дисплей",
+    "title": "Прямокутник",
+    "does": "Малює контур або залитий прямокутник: X, Y — початок, W — ширина, H — висота.",
+    "fields": [
+      {
+        "key": "X",
+        "name": "Горизонтальна координата",
+        "kind": "value",
+        "meaning": "Положення по горизонталі: більше число — правіше. На дисплеї використовуй 0…127."
+      },
+      {
+        "key": "FILL",
+        "name": "Контур або заливка",
+        "kind": "field",
+        "value": "0",
+        "options": [
+          [
+            "контур",
+            "0"
+          ],
+          [
+            "залитий",
+            "1"
+          ]
+        ],
+        "meaning": "Контур малює тільки край, заливка — усю внутрішню область."
+      },
+      {
+        "key": "Y",
+        "name": "Вертикальна координата",
+        "kind": "value",
+        "meaning": "Положення по вертикалі: більше число — нижче. На дисплеї використовуй 0…63."
+      },
+      {
+        "key": "W",
+        "name": "Ширина",
+        "kind": "value",
+        "meaning": "Ширина фігури. На дисплеї вимірюється у пікселях."
+      },
+      {
+        "key": "H",
+        "name": "Висота",
+        "kind": "value",
+        "meaning": "Висота фігури. На дисплеї вимірюється у пікселях."
+      }
+    ],
+    "output": false,
+    "how": [],
+    "example": "X = 10, Y = 10, W = 30, H = 20 → відправити.",
+    "note": "Полотно дисплея: 128 × 64 пікселі, X = 0…127, Y = 0…63. Малювання змінює буфер; для показу використовуй «Відправити на екран», якщо команда сама не відправляє зображення.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"disp_rect\">\n    <value name=\"X\"><shadow type=\"math_number\"><field name=\"NUM\">10</field></shadow></value>\n    <value name=\"Y\"><shadow type=\"math_number\"><field name=\"NUM\">10</field></shadow></value>\n    <value name=\"W\"><shadow type=\"math_number\"><field name=\"NUM\">30</field></shadow></value>\n    <value name=\"H\"><shadow type=\"math_number\"><field name=\"NUM\">20</field></shadow></value>\n  </block></xml>",
+    "previewWidth": 566,
+    "outputType": ""
+  },
+  {
+    "id": "block-disp_circle",
+    "type": "disp_circle",
+    "category": "Дисплей",
+    "title": "Коло",
+    "does": "Малює контур або залите коло з указаним центром і радіусом.",
+    "fields": [
+      {
+        "key": "CX",
+        "name": "X центра",
+        "kind": "value",
+        "meaning": "Горизонтальна координата центра кола, від 0 до 127."
+      },
+      {
+        "key": "FILL",
+        "name": "Контур або заливка",
+        "kind": "field",
+        "value": "0",
+        "options": [
+          [
+            "контур",
+            "0"
+          ],
+          [
+            "залитий",
+            "1"
+          ]
+        ],
+        "meaning": "Контур малює тільки край, заливка — усю внутрішню область."
+      },
+      {
+        "key": "CY",
+        "name": "Y центра",
+        "kind": "value",
+        "meaning": "Вертикальна координата центра кола, від 0 до 63."
+      },
+      {
+        "key": "R",
+        "name": "Радіус",
+        "kind": "value",
+        "meaning": "Радіус кола або значення для розрахунку радіуса."
+      }
+    ],
+    "output": false,
+    "how": [],
+    "example": "Центр (64, 32), радіус 15 → відправити.",
+    "note": "R тут означає радіус, а не правий мотор. Полотно дисплея: 128 × 64 пікселі, X = 0…127, Y = 0…63. Малювання змінює буфер; для показу використовуй «Відправити на екран», якщо команда сама не відправляє зображення.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"disp_circle\">\n    <value name=\"CX\"><shadow type=\"math_number\"><field name=\"NUM\">64</field></shadow></value>\n    <value name=\"CY\"><shadow type=\"math_number\"><field name=\"NUM\">32</field></shadow></value>\n    <value name=\"R\"><shadow type=\"math_number\"><field name=\"NUM\">15</field></shadow></value>\n  </block></xml>",
+    "previewWidth": 423,
+    "outputType": ""
+  },
+  {
+    "id": "block-disp_fill",
+    "type": "disp_fill",
+    "category": "Дисплей",
+    "title": "Заповнити екран",
+    "does": "Вмикає всі пікселі буфера дисплея.",
+    "fields": [],
+    "output": false,
+    "how": [],
+    "example": "Заповнити → відправити → чекати → очистити → відправити.",
+    "note": "Полотно дисплея: 128 × 64 пікселі, X = 0…127, Y = 0…63. Малювання змінює буфер; для показу використовуй «Відправити на екран», якщо команда сама не відправляє зображення.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"disp_fill\"></block></xml>",
+    "previewWidth": 193,
+    "outputType": ""
+  },
+  {
+    "id": "block-disp_random_pixels",
+    "type": "disp_random_pixels",
+    "category": "Дисплей",
+    "title": "Випадкові пікселі",
+    "does": "Вмикає точки у випадкових позиціях.",
+    "fields": [
+      {
+        "key": "N",
+        "name": "Кількість точок",
+        "kind": "value",
+        "meaning": "Скільки випадкових точок спробувати ввімкнути."
+      }
+    ],
+    "output": false,
+    "how": [],
+    "example": "Очистити → випадкові пікселі 50 → відправити.",
+    "note": "Випадкові позиції можуть повторюватися; кількість різних увімкнених точок може бути меншою за N. Полотно дисплея: 128 × 64 пікселі, X = 0…127, Y = 0…63. Малювання змінює буфер; для показу використовуй «Відправити на екран», якщо команда сама не відправляє зображення.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"disp_random_pixels\">\n    <value name=\"N\"><shadow type=\"math_number\"><field name=\"NUM\">50</field></shadow></value>\n  </block></xml>",
+    "previewWidth": 254,
+    "outputType": ""
+  },
+  {
+    "id": "block-disp_anim_frame",
+    "type": "disp_anim_frame",
+    "category": "Дисплей",
+    "title": "Намалювати кадр",
+    "does": "Переносить малюнок блоку в буфер та зберігає його під вибраним номером кадру.",
+    "fields": [
+      {
+        "key": "IDX",
+        "name": "Номер кадру",
+        "kind": "field",
+        "value": "0",
+        "options": [
+          [
+            "1",
+            "0"
+          ],
+          [
+            "2",
+            "1"
+          ],
+          [
+            "3",
+            "2"
+          ],
+          [
+            "4",
+            "3"
+          ],
+          [
+            "5",
+            "4"
+          ],
+          [
+            "6",
+            "5"
+          ],
+          [
+            "7",
+            "6"
+          ],
+          [
+            "8",
+            "7"
+          ],
+          [
+            "9",
+            "8"
+          ],
+          [
+            "10",
+            "9"
+          ]
+        ],
+        "meaning": "Під яким номером зберегти або відкрити кадр."
+      },
+      {
+        "key": "GRID",
+        "name": "Малюнок",
+        "kind": "field",
+        "value": "Малюнок у піксельному редакторі",
+        "meaning": "Натисни на малюнок, щоб відкрити піксельний редактор і намалювати зображення."
+      }
+    ],
+    "output": false,
+    "how": [],
+    "example": "Намалюй перший кадр, потім другий; запусти анімацію 1–2.",
+    "note": "Збереження кадру не запускає відтворення. Полотно дисплея: 128 × 64 пікселі, X = 0…127, Y = 0…63. Малювання змінює буфер; для показу використовуй «Відправити на екран», якщо команда сама не відправляє зображення. Залишай сторінку редактора відкритою під час роботи.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"disp_anim_frame\"><field name=\"IDX\">0</field></block></xml>",
+    "previewWidth": 1169,
+    "outputType": ""
+  },
+  {
+    "id": "block-disp_anim_save",
+    "type": "disp_anim_save",
+    "category": "Дисплей",
+    "title": "Зберегти екран у кадр",
+    "does": "Запам’ятовує поточний буфер як кадр анімації.",
+    "fields": [
+      {
+        "key": "IDX",
+        "name": "Номер кадру",
+        "kind": "field",
+        "value": "0",
+        "options": [
+          [
+            "1",
+            "0"
+          ],
+          [
+            "2",
+            "1"
+          ],
+          [
+            "3",
+            "2"
+          ],
+          [
+            "4",
+            "3"
+          ],
+          [
+            "5",
+            "4"
+          ],
+          [
+            "6",
+            "5"
+          ],
+          [
+            "7",
+            "6"
+          ],
+          [
+            "8",
+            "7"
+          ],
+          [
+            "9",
+            "8"
+          ],
+          [
+            "10",
+            "9"
+          ]
+        ],
+        "meaning": "Під яким номером зберегти або відкрити кадр."
+      }
+    ],
+    "output": false,
+    "how": [],
+    "example": "Намалюй коло → зберегти у кадр 1.",
+    "note": "Полотно дисплея: 128 × 64 пікселі, X = 0…127, Y = 0…63. Малювання змінює буфер; для показу використовуй «Відправити на екран», якщо команда сама не відправляє зображення. Залишай сторінку редактора відкритою під час роботи.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"disp_anim_save\"><field name=\"IDX\">0</field></block></xml>",
+    "previewWidth": 303,
+    "outputType": ""
+  },
+  {
+    "id": "block-disp_anim_load",
+    "type": "disp_anim_load",
+    "category": "Дисплей",
+    "title": "Кадр на екран",
+    "does": "Відновлює збережений кадр у буфері.",
+    "fields": [
+      {
+        "key": "IDX",
+        "name": "Номер кадру",
+        "kind": "field",
+        "value": "0",
+        "options": [
+          [
+            "1",
+            "0"
+          ],
+          [
+            "2",
+            "1"
+          ],
+          [
+            "3",
+            "2"
+          ],
+          [
+            "4",
+            "3"
+          ],
+          [
+            "5",
+            "4"
+          ],
+          [
+            "6",
+            "5"
+          ],
+          [
+            "7",
+            "6"
+          ],
+          [
+            "8",
+            "7"
+          ],
+          [
+            "9",
+            "8"
+          ],
+          [
+            "10",
+            "9"
+          ]
+        ],
+        "meaning": "Під яким номером зберегти або відкрити кадр."
+      }
+    ],
+    "output": false,
+    "how": [],
+    "example": "Кадр 1 → екран → відправити.",
+    "note": "Кадр потрібно попередньо зберегти. Полотно дисплея: 128 × 64 пікселі, X = 0…127, Y = 0…63. Малювання змінює буфер; для показу використовуй «Відправити на екран», якщо команда сама не відправляє зображення. Залишай сторінку редактора відкритою під час роботи.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"disp_anim_load\"><field name=\"IDX\">0</field></block></xml>",
+    "previewWidth": 233,
+    "outputType": ""
+  },
+  {
+    "id": "block-disp_anim_play",
+    "type": "disp_anim_play",
+    "category": "Дисплей",
+    "title": "Відтворити анімацію",
+    "does": "Запускає періодичну зміну збережених кадрів і їх відправлення на екран.",
+    "fields": [
+      {
+        "key": "MS",
+        "name": "Інтервал у мілісекундах",
+        "kind": "value",
+        "meaning": "Інтервал у мілісекундах. 1000 мс дорівнює 1 секунді."
+      },
+      {
+        "key": "FROM",
+        "name": "Перший кадр",
+        "kind": "field",
+        "value": "0",
+        "options": [
+          [
+            "1",
+            "0"
+          ],
+          [
+            "2",
+            "1"
+          ],
+          [
+            "3",
+            "2"
+          ],
+          [
+            "4",
+            "3"
+          ],
+          [
+            "5",
+            "4"
+          ],
+          [
+            "6",
+            "5"
+          ],
+          [
+            "7",
+            "6"
+          ],
+          [
+            "8",
+            "7"
+          ],
+          [
+            "9",
+            "8"
+          ],
+          [
+            "10",
+            "9"
+          ]
+        ],
+        "meaning": "Номер першого кадру анімації."
+      },
+      {
+        "key": "TO",
+        "name": "Останній кадр",
+        "kind": "field",
+        "value": "1",
+        "options": [
+          [
+            "1",
+            "0"
+          ],
+          [
+            "2",
+            "1"
+          ],
+          [
+            "3",
+            "2"
+          ],
+          [
+            "4",
+            "3"
+          ],
+          [
+            "5",
+            "4"
+          ],
+          [
+            "6",
+            "5"
+          ],
+          [
+            "7",
+            "6"
+          ],
+          [
+            "8",
+            "7"
+          ],
+          [
+            "9",
+            "8"
+          ],
+          [
+            "10",
+            "9"
+          ]
+        ],
+        "meaning": "Номер останнього кадру анімації."
+      }
+    ],
+    "output": false,
+    "how": [],
+    "example": "Кадри 1–2, інтервал 200 мс.",
+    "note": "Використовує спільний механізм періодичного оновлення з ігровим циклом: одночасне незалежне відтворення не передбачене. Полотно дисплея: 128 × 64 пікселі, X = 0…127, Y = 0…63. Малювання змінює буфер; для показу використовуй «Відправити на екран», якщо команда сама не відправляє зображення. Залишай сторінку редактора відкритою під час роботи.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"disp_anim_play\">\n    <value name=\"MS\"><shadow type=\"math_number\"><field name=\"NUM\">200</field></shadow></value>\n  </block></xml>",
+    "previewWidth": 455,
+    "outputType": ""
+  },
+  {
+    "id": "block-disp_anim_stop",
+    "type": "disp_anim_stop",
+    "category": "Дисплей",
+    "title": "Зупинити анімацію",
+    "does": "Зупиняє періодичне оновлення кадрів.",
+    "fields": [],
+    "output": false,
+    "how": [],
+    "example": "Анімація → чекати 3 секунди → зупинити анімацію.",
+    "note": "Зупиняє спільний механізм оновлення, тому впливає також на ігровий цикл. Полотно дисплея: 128 × 64 пікселі, X = 0…127, Y = 0…63. Малювання змінює буфер; для показу використовуй «Відправити на екран», якщо команда сама не відправляє зображення. Залишай сторінку редактора відкритою під час роботи.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"disp_anim_stop\"></block></xml>",
+    "previewWidth": 213,
+    "outputType": ""
+  },
+  {
+    "id": "block-game_loop",
+    "type": "game_loop",
+    "category": "Дисплей",
+    "title": "Ігровий цикл",
+    "does": "Реєструє вкладені команди для періодичного виконання кожні N мілісекунд.",
+    "fields": [
+      {
+        "key": "MS",
+        "name": "Інтервал у мілісекундах",
+        "kind": "value",
+        "meaning": "Інтервал у мілісекундах. 1000 мс дорівнює 1 секунді."
+      },
+      {
+        "key": "DO",
+        "name": "Вкладені дії",
+        "kind": "statement",
+        "meaning": "Перетягни сюди команди, які виконуються всередині конструкції."
+      }
+    ],
+    "output": false,
+    "how": [],
+    "example": "Кожні 100 мс: стерти спрайт → рухати → намалювати → відправити.",
+    "note": "Це фоновий цикл. Наступний блок виконується після запуску циклу, а не після завершення гри. Два такі цикли не є незалежними. Полотно дисплея: 128 × 64 пікселі, X = 0…127, Y = 0…63. Малювання змінює буфер; для показу використовуй «Відправити на екран», якщо команда сама не відправляє зображення. Залишай сторінку редактора відкритою під час роботи.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"game_loop\">\n    <value name=\"MS\"><shadow type=\"math_number\"><field name=\"NUM\">100</field></shadow></value>\n  </block></xml>",
+    "previewWidth": 188,
+    "outputType": ""
+  },
+  {
+    "id": "block-game_stop",
+    "type": "game_stop",
+    "category": "Дисплей",
+    "title": "Зупинити гру",
+    "does": "Зупиняє спільний періодичний ігровий механізм.",
+    "fields": [],
+    "output": false,
+    "how": [],
+    "example": "Ігровий цикл → чекати 5 секунд → зупинити гру.",
+    "note": "Не замінює «Стоп» для моторів. Полотно дисплея: 128 × 64 пікселі, X = 0…127, Y = 0…63. Малювання змінює буфер; для показу використовуй «Відправити на екран», якщо команда сама не відправляє зображення. Залишай сторінку редактора відкритою під час роботи.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"game_stop\"></block></xml>",
+    "previewWidth": 165,
+    "outputType": ""
+  },
+  {
+    "id": "block-sprite_create",
+    "type": "sprite_create",
+    "category": "Дисплей",
+    "title": "Створити спрайт",
+    "does": "Створює об’єкт із номером, координатами та прямокутним розміром.",
+    "fields": [
+      {
+        "key": "ID",
+        "name": "Номер спрайта",
+        "kind": "value",
+        "meaning": "Номер потрібного спрайта. Використовуй однаковий номер для створення, руху й малювання того самого об’єкта."
+      },
+      {
+        "key": "X",
+        "name": "Горизонтальна координата",
+        "kind": "value",
+        "meaning": "Положення по горизонталі: більше число — правіше. На дисплеї використовуй 0…127."
+      },
+      {
+        "key": "Y",
+        "name": "Вертикальна координата",
+        "kind": "value",
+        "meaning": "Положення по вертикалі: більше число — нижче. На дисплеї використовуй 0…63."
+      },
+      {
+        "key": "W",
+        "name": "Ширина",
+        "kind": "value",
+        "meaning": "Ширина фігури. На дисплеї вимірюється у пікселях."
+      },
+      {
+        "key": "H",
+        "name": "Висота",
+        "kind": "value",
+        "meaning": "Висота фігури. На дисплеї вимірюється у пікселях."
+      }
+    ],
+    "output": false,
+    "how": [],
+    "example": "Спрайт 1 у (60, 28), розмір 8 × 8 → намалювати 1 → відправити.",
+    "note": "Створення об’єкта саме по собі не малює його. Полотно дисплея: 128 × 64 пікселі, X = 0…127, Y = 0…63. Малювання змінює буфер; для показу використовуй «Відправити на екран», якщо команда сама не відправляє зображення. Залишай сторінку редактора відкритою під час роботи.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"sprite_create\">\n    <value name=\"ID\"><shadow type=\"math_number\"><field name=\"NUM\">1</field></shadow></value>\n    <value name=\"X\"><shadow type=\"math_number\"><field name=\"NUM\">60</field></shadow></value>\n    <value name=\"Y\"><shadow type=\"math_number\"><field name=\"NUM\">28</field></shadow></value>\n    <value name=\"W\"><shadow type=\"math_number\"><field name=\"NUM\">8</field></shadow></value>\n    <value name=\"H\"><shadow type=\"math_number\"><field name=\"NUM\">8</field></shadow></value>\n  </block></xml>",
+    "previewWidth": 501,
+    "outputType": ""
+  },
+  {
+    "id": "block-sprite_move",
+    "type": "sprite_move",
+    "category": "Дисплей",
+    "title": "Перемістити спрайт",
+    "does": "Додає зміщення dX та dY до поточних координат спрайта.",
+    "fields": [
+      {
+        "key": "ID",
+        "name": "Номер спрайта",
+        "kind": "value",
+        "meaning": "Номер потрібного спрайта. Використовуй однаковий номер для створення, руху й малювання того самого об’єкта."
+      },
+      {
+        "key": "DX",
+        "name": "Горизонтальне зміщення",
+        "kind": "value",
+        "meaning": "Зміщення вправо або вліво. Від’ємне число рухає вліво."
+      },
+      {
+        "key": "DY",
+        "name": "Вертикальне зміщення",
+        "kind": "value",
+        "meaning": "Зміщення вниз або вгору. Від’ємне число рухає вгору."
+      }
+    ],
+    "output": false,
+    "how": [],
+    "example": "Спрайт 1: dX = 1, dY = 0 — один піксель праворуч.",
+    "note": "Спочатку створи спрайт. Стирай старе зображення перед рухом, якщо не потрібен слід. Полотно дисплея: 128 × 64 пікселі, X = 0…127, Y = 0…63. Малювання змінює буфер; для показу використовуй «Відправити на екран», якщо команда сама не відправляє зображення. Залишай сторінку редактора відкритою під час роботи.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"sprite_move\">\n    <value name=\"ID\"><shadow type=\"math_number\"><field name=\"NUM\">1</field></shadow></value>\n    <value name=\"DX\"><shadow type=\"math_number\"><field name=\"NUM\">1</field></shadow></value>\n    <value name=\"DY\"><shadow type=\"math_number\"><field name=\"NUM\">0</field></shadow></value>\n  </block></xml>",
+    "previewWidth": 338,
+    "outputType": ""
+  },
+  {
+    "id": "block-sprite_setpos",
+    "type": "sprite_setpos",
+    "category": "Дисплей",
+    "title": "Поставити спрайт",
+    "does": "Задає нові абсолютні координати спрайта.",
+    "fields": [
+      {
+        "key": "ID",
+        "name": "Номер спрайта",
+        "kind": "value",
+        "meaning": "Номер потрібного спрайта. Використовуй однаковий номер для створення, руху й малювання того самого об’єкта."
+      },
+      {
+        "key": "X",
+        "name": "Горизонтальна координата",
+        "kind": "value",
+        "meaning": "Положення по горизонталі: більше число — правіше. На дисплеї використовуй 0…127."
+      },
+      {
+        "key": "Y",
+        "name": "Вертикальна координата",
+        "kind": "value",
+        "meaning": "Положення по вертикалі: більше число — нижче. На дисплеї використовуй 0…63."
+      }
+    ],
+    "output": false,
+    "how": [],
+    "example": "Спрайт 1 у X = 64, Y = 32.",
+    "note": "Відрізняється від зміщення: X = 64 означає позицію, а не рух на 64 точки. Полотно дисплея: 128 × 64 пікселі, X = 0…127, Y = 0…63. Малювання змінює буфер; для показу використовуй «Відправити на екран», якщо команда сама не відправляє зображення. Залишай сторінку редактора відкритою під час роботи.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"sprite_setpos\">\n    <value name=\"ID\"><shadow type=\"math_number\"><field name=\"NUM\">1</field></shadow></value>\n    <value name=\"X\"><shadow type=\"math_number\"><field name=\"NUM\">64</field></shadow></value>\n    <value name=\"Y\"><shadow type=\"math_number\"><field name=\"NUM\">32</field></shadow></value>\n  </block></xml>",
+    "previewWidth": 350,
+    "outputType": ""
+  },
+  {
+    "id": "block-sprite_getx",
+    "type": "sprite_getx",
+    "category": "Дисплей",
+    "title": "Координата X спрайта",
+    "does": "Повертає горизонтальну координату спрайта як число.",
+    "fields": [
+      {
+        "key": "ID",
+        "name": "Номер спрайта",
+        "kind": "value",
+        "meaning": "Номер потрібного спрайта. Використовуй однаковий номер для створення, руху й малювання того самого об’єкта."
+      }
+    ],
+    "output": true,
+    "how": [],
+    "example": "Якщо X спрайта 1 > 100 — змінити напрямок.",
+    "note": "Для нествореного спрайта повертається 0. Полотно дисплея: 128 × 64 пікселі, X = 0…127, Y = 0…63. Малювання змінює буфер; для показу використовуй «Відправити на екран», якщо команда сама не відправляє зображення. Залишай сторінку редактора відкритою під час роботи.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"sprite_getx\">\n    <value name=\"ID\"><shadow type=\"math_number\"><field name=\"NUM\">1</field></shadow></value>\n  </block></xml>",
+    "previewWidth": 155,
+    "outputType": "Number"
+  },
+  {
+    "id": "block-sprite_gety",
+    "type": "sprite_gety",
+    "category": "Дисплей",
+    "title": "Координата Y спрайта",
+    "does": "Повертає вертикальну координату спрайта як число.",
+    "fields": [
+      {
+        "key": "ID",
+        "name": "Номер спрайта",
+        "kind": "value",
+        "meaning": "Номер потрібного спрайта. Використовуй однаковий номер для створення, руху й малювання того самого об’єкта."
+      }
+    ],
+    "output": true,
+    "how": [],
+    "example": "Підстав Y спрайта 1 у блок показу числа.",
+    "note": "Для нествореного спрайта повертається 0. Полотно дисплея: 128 × 64 пікселі, X = 0…127, Y = 0…63. Малювання змінює буфер; для показу використовуй «Відправити на екран», якщо команда сама не відправляє зображення. Залишай сторінку редактора відкритою під час роботи.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"sprite_gety\">\n    <value name=\"ID\"><shadow type=\"math_number\"><field name=\"NUM\">1</field></shadow></value>\n  </block></xml>",
+    "previewWidth": 154,
+    "outputType": "Number"
+  },
+  {
+    "id": "block-sprite_collide",
+    "type": "sprite_collide",
+    "category": "Дисплей",
+    "title": "Зіткнення спрайтів",
+    "does": "Перевіряє перетин прямокутних областей двох створених спрайтів.",
+    "fields": [
+      {
+        "key": "A",
+        "name": "Номер першого спрайта",
+        "kind": "value",
+        "meaning": "Номер створеного спрайта, який потрібно перевірити на зіткнення."
+      },
+      {
+        "key": "B",
+        "name": "Номер другого спрайта",
+        "kind": "value",
+        "meaning": "Номер створеного спрайта, який потрібно перевірити на зіткнення."
+      }
+    ],
+    "output": true,
+    "how": [],
+    "example": "Якщо спрайт 1 торкається 2 — додати 1 очко.",
+    "note": "Це зіткнення об’єктів на дисплеї, а не фізичних роботів. Полотно дисплея: 128 × 64 пікселі, X = 0…127, Y = 0…63. Малювання змінює буфер; для показу використовуй «Відправити на екран», якщо команда сама не відправляє зображення. Залишай сторінку редактора відкритою під час роботи.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"sprite_collide\">\n    <value name=\"A\"><shadow type=\"math_number\"><field name=\"NUM\">1</field></shadow></value>\n    <value name=\"B\"><shadow type=\"math_number\"><field name=\"NUM\">2</field></shadow></value>\n  </block></xml>",
+    "previewWidth": 365,
+    "outputType": "Boolean"
+  },
+  {
+    "id": "block-sprite_edge",
+    "type": "sprite_edge",
+    "category": "Дисплей",
+    "title": "Спрайт торкається краю",
+    "does": "Перевіряє, чи прямокутний спрайт досяг межі дисплея.",
+    "fields": [
+      {
+        "key": "ID",
+        "name": "Номер спрайта",
+        "kind": "value",
+        "meaning": "Номер потрібного спрайта. Використовуй однаковий номер для створення, руху й малювання того самого об’єкта."
+      }
+    ],
+    "output": true,
+    "how": [],
+    "example": "Якщо спрайт 1 торкається краю — повернути його до центру.",
+    "note": "Полотно дисплея: 128 × 64 пікселі, X = 0…127, Y = 0…63. Малювання змінює буфер; для показу використовуй «Відправити на екран», якщо команда сама не відправляє зображення. Залишай сторінку редактора відкритою під час роботи.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"sprite_edge\">\n    <value name=\"ID\"><shadow type=\"math_number\"><field name=\"NUM\">1</field></shadow></value>\n  </block></xml>",
+    "previewWidth": 291,
+    "outputType": "Boolean"
+  },
+  {
+    "id": "block-sprite_draw",
+    "type": "sprite_draw",
+    "category": "Дисплей",
+    "title": "Намалювати спрайт",
+    "does": "Заповнює прямокутну область спрайта ввімкненими пікселями.",
+    "fields": [
+      {
+        "key": "ID",
+        "name": "Номер спрайта",
+        "kind": "value",
+        "meaning": "Номер потрібного спрайта. Використовуй однаковий номер для створення, руху й малювання того самого об’єкта."
+      }
+    ],
+    "output": false,
+    "how": [],
+    "example": "Створити 1 → намалювати 1 → відправити.",
+    "note": "У цій реалізації спрайт малюється прямокутником, не довільною картинкою. Полотно дисплея: 128 × 64 пікселі, X = 0…127, Y = 0…63. Малювання змінює буфер; для показу використовуй «Відправити на екран», якщо команда сама не відправляє зображення. Залишай сторінку редактора відкритою під час роботи.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"sprite_draw\">\n    <value name=\"ID\"><shadow type=\"math_number\"><field name=\"NUM\">1</field></shadow></value>\n  </block></xml>",
+    "previewWidth": 231,
+    "outputType": ""
+  },
+  {
+    "id": "block-sprite_erase",
+    "type": "sprite_erase",
+    "category": "Дисплей",
+    "title": "Стерти спрайт",
+    "does": "Вимикає пікселі в поточній прямокутній області спрайта.",
+    "fields": [
+      {
+        "key": "ID",
+        "name": "Номер спрайта",
+        "kind": "value",
+        "meaning": "Номер потрібного спрайта. Використовуй однаковий номер для створення, руху й малювання того самого об’єкта."
+      }
+    ],
+    "output": false,
+    "how": [],
+    "example": "Стерти 1 → рухати 1 → намалювати 1 → відправити.",
+    "note": "Може стерти фон або інший об’єкт у тій самій області. Полотно дисплея: 128 × 64 пікселі, X = 0…127, Y = 0…63. Малювання змінює буфер; для показу використовуй «Відправити на екран», якщо команда сама не відправляє зображення. Залишай сторінку редактора відкритою під час роботи.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"sprite_erase\">\n    <value name=\"ID\"><shadow type=\"math_number\"><field name=\"NUM\">1</field></shadow></value>\n  </block></xml>",
+    "previewWidth": 183,
+    "outputType": ""
+  },
+  {
+    "id": "block-game_joy_is",
+    "type": "game_joy_is",
+    "category": "Дисплей",
+    "title": "Перевірити напрям джойстика",
+    "does": "Повертає істину, якщо джойстик має вибраний напрямок.",
+    "fields": [
+      {
+        "key": "DIR",
+        "name": "Напрямок",
+        "kind": "field",
+        "value": "up",
+        "options": [
+          [
+            "↑ вгору",
+            "up"
+          ],
+          [
+            "↓ вниз",
+            "down"
+          ],
+          [
+            "← ліво",
+            "left"
+          ],
+          [
+            "→ право",
+            "right"
+          ],
+          [
+            "● центр",
+            "center"
+          ]
+        ],
+        "meaning": "Обери потрібний напрямок у списку."
+      }
+    ],
+    "output": true,
+    "how": [],
+    "example": "Якщо напрямок «праворуч» — рухати спрайт на 1 по X.",
+    "note": "Полотно дисплея: 128 × 64 пікселі, X = 0…127, Y = 0…63. Малювання змінює буфер; для показу використовуй «Відправити на екран», якщо команда сама не відправляє зображення. Залишай сторінку редактора відкритою під час роботи.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"game_joy_is\"><field name=\"DIR\">up</field></block></xml>",
+    "previewWidth": 190,
+    "outputType": "Boolean"
+  },
+  {
+    "id": "block-game_joy_dir",
+    "type": "game_joy_dir",
+    "category": "Дисплей",
+    "title": "Напрям джойстика",
+    "does": "Повертає назву напрямку: up, down, left, right або center.",
+    "fields": [],
+    "output": true,
+    "how": [],
+    "example": "Збережи напрям у змінній або використай його в доступному текстовому порівнянні.",
+    "note": "Це текст, а не число. Полотно дисплея: 128 × 64 пікселі, X = 0…127, Y = 0…63. Малювання змінює буфер; для показу використовуй «Відправити на екран», якщо команда сама не відправляє зображення. Залишай сторінку редактора відкритою під час роботи.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"game_joy_dir\"></block></xml>",
+    "previewWidth": 157,
+    "outputType": "String"
+  },
+  {
+    "id": "block-game_joy_axis",
+    "type": "game_joy_axis",
+    "category": "Дисплей",
+    "title": "Вісь ігрового джойстика",
+    "does": "Повертає числове значення вибраної осі X або Y у межах −100…100.",
+    "fields": [
+      {
+        "key": "AXIS",
+        "name": "Вісь",
+        "kind": "field",
+        "value": "x",
+        "options": [
+          [
+            "X (ліво/право)",
+            "x"
+          ],
+          [
+            "Y (вгору/вниз)",
+            "y"
+          ]
+        ],
+        "meaning": "X — горизонтальна вісь джойстика, Y — вертикальна."
+      }
+    ],
+    "output": true,
+    "how": [],
+    "example": "Поділи значення X на 20 і використай для зміщення спрайта.",
+    "note": "Полотно дисплея: 128 × 64 пікселі, X = 0…127, Y = 0…63. Малювання змінює буфер; для показу використовуй «Відправити на екран», якщо команда сама не відправляє зображення. Залишай сторінку редактора відкритою під час роботи.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"game_joy_axis\"><field name=\"AXIS\">x</field></block></xml>",
+    "previewWidth": 358,
+    "outputType": "Number"
+  },
+  {
+    "id": "block-game_score_add",
+    "type": "game_score_add",
+    "category": "Дисплей",
+    "title": "Додати до рахунку",
+    "does": "Додає задане число до спільного рахунку гри.",
+    "fields": [
+      {
+        "key": "VAL",
+        "name": "Скільки очок додати",
+        "kind": "value",
+        "meaning": "Число, яке додається до рахунку гри."
+      }
+    ],
+    "output": false,
+    "how": [],
+    "example": "Додати 1 після зіткнення з ціллю.",
+    "note": "В умові, що довго істинна, команда може додавати очки кожного проходу циклу. Полотно дисплея: 128 × 64 пікселі, X = 0…127, Y = 0…63. Малювання змінює буфер; для показу використовуй «Відправити на екран», якщо команда сама не відправляє зображення. Залишай сторінку редактора відкритою під час роботи.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"game_score_add\">\n    <value name=\"VAL\"><shadow type=\"math_number\"><field name=\"NUM\">1</field></shadow></value>\n  </block></xml>",
+    "previewWidth": 199,
+    "outputType": ""
+  },
+  {
+    "id": "block-game_score_get",
+    "type": "game_score_get",
+    "category": "Дисплей",
+    "title": "Рахунок гри",
+    "does": "Повертає накопичений рахунок як число.",
+    "fields": [],
+    "output": true,
+    "how": [],
+    "example": "Число на дисплеї = рахунок → відправити.",
+    "note": "Полотно дисплея: 128 × 64 пікселі, X = 0…127, Y = 0…63. Малювання змінює буфер; для показу використовуй «Відправити на екран», якщо команда сама не відправляє зображення. Залишай сторінку редактора відкритою під час роботи.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"game_score_get\"></block></xml>",
+    "previewWidth": 143,
+    "outputType": "Number"
+  },
+  {
+    "id": "block-game_score_reset",
+    "type": "game_score_reset",
+    "category": "Дисплей",
+    "title": "Скинути рахунок",
+    "does": "Установлює спільний рахунок гри в 0.",
+    "fields": [],
+    "output": false,
+    "how": [],
+    "example": "Перед запуском ігрового циклу скинь рахунок.",
+    "note": "Полотно дисплея: 128 × 64 пікселі, X = 0…127, Y = 0…63. Малювання змінює буфер; для показу використовуй «Відправити на екран», якщо команда сама не відправляє зображення. Залишай сторінку редактора відкритою під час роботи.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"game_score_reset\"></block></xml>",
+    "previewWidth": 202,
+    "outputType": ""
+  },
+  {
+    "id": "block-game_random",
+    "type": "game_random",
+    "category": "Дисплей",
+    "title": "Випадкове число для гри",
+    "does": "Повертає випадкове ціле число від мінімуму до максимуму включно.",
+    "fields": [
+      {
+        "key": "MIN",
+        "name": "Мінімум",
+        "kind": "value",
+        "meaning": "Нижня межа діапазону."
+      },
+      {
+        "key": "MAX",
+        "name": "Максимум",
+        "kind": "value",
+        "meaning": "Верхня межа діапазону."
+      }
+    ],
+    "output": true,
+    "how": [],
+    "example": "Випадкове X від 0 до 119 для спрайта шириною 8.",
+    "note": "Мінімум не повинен перевищувати максимум. Полотно дисплея: 128 × 64 пікселі, X = 0…127, Y = 0…63. Малювання змінює буфер; для показу використовуй «Відправити на екран», якщо команда сама не відправляє зображення. Залишай сторінку редактора відкритою під час роботи.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"game_random\">\n    <value name=\"MIN\"><shadow type=\"math_number\"><field name=\"NUM\">0</field></shadow></value>\n    <value name=\"MAX\"><shadow type=\"math_number\"><field name=\"NUM\">127</field></shadow></value>\n  </block></xml>",
+    "previewWidth": 295,
+    "outputType": "Number"
+  },
+  {
+    "id": "block-game_clamp",
+    "type": "game_clamp",
+    "category": "Дисплей",
+    "title": "Обмежити значення",
+    "does": "Повертає число в межах мінімуму та максимуму.",
+    "fields": [
+      {
+        "key": "VAL",
+        "name": "Значення",
+        "kind": "value",
+        "meaning": "Число або результат іншого блоку, з яким працює ця команда."
+      },
+      {
+        "key": "MIN",
+        "name": "Мінімум",
+        "kind": "value",
+        "meaning": "Нижня межа діапазону."
+      },
+      {
+        "key": "MAX",
+        "name": "Максимум",
+        "kind": "value",
+        "meaning": "Верхня межа діапазону."
+      }
+    ],
+    "output": true,
+    "how": [],
+    "example": "Обмежити X мінімум 0 максимум 119.",
+    "note": "Для спрайта враховуй його ширину та висоту, а не лише край дисплея. Полотно дисплея: 128 × 64 пікселі, X = 0…127, Y = 0…63. Малювання змінює буфер; для показу використовуй «Відправити на екран», якщо команда сама не відправляє зображення. Залишай сторінку редактора відкритою під час роботи.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"game_clamp\">\n    <value name=\"VAL\"><shadow type=\"math_number\"><field name=\"NUM\">64</field></shadow></value>\n    <value name=\"MIN\"><shadow type=\"math_number\"><field name=\"NUM\">0</field></shadow></value>\n    <value name=\"MAX\"><shadow type=\"math_number\"><field name=\"NUM\">127</field></shadow></value>\n  </block></xml>",
+    "previewWidth": 364,
+    "outputType": "Number"
+  },
+  {
+    "id": "block-controls_if",
+    "type": "controls_if",
+    "category": "Логіка",
+    "title": "Якщо",
+    "does": "Виконує вкладені дії лише за істинної умови. Варіант «Інакше» виконує альтернативну гілку, а «Інакше якщо» перевіряє додаткову умову.",
+    "fields": [
+      {
+        "key": "IF0",
+        "name": "Перша умова",
+        "kind": "value",
+        "meaning": "Умова першої гілки. Якщо вона істинна, виконуються її вкладені команди."
+      },
+      {
+        "key": "DO0",
+        "name": "Дії при істинній умові",
+        "kind": "statement",
+        "meaning": "Перетягни сюди команди, які виконуються всередині конструкції."
+      }
+    ],
+    "output": false,
+    "how": [],
+    "example": "Якщо значення датчика менше порога — «Стоп».",
+    "note": "Умова перевіряється в момент виконання, а не постійно. Для постійної реакції потрібен цикл.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"controls_if\"></block></xml>",
+    "previewWidth": 188,
+    "outputType": ""
+  },
+  {
+    "id": "block-controls_if-1",
+    "type": "controls_if",
+    "category": "Логіка",
+    "title": "Якщо з додатковою умовою",
+    "does": "Виконує вкладені дії лише за істинної умови. Варіант «Інакше» виконує альтернативну гілку, а «Інакше якщо» перевіряє додаткову умову.",
+    "fields": [
+      {
+        "key": "IF0",
+        "name": "Перша умова",
+        "kind": "value",
+        "meaning": "Умова першої гілки. Якщо вона істинна, виконуються її вкладені команди."
+      },
+      {
+        "key": "DO0",
+        "name": "Дії при істинній умові",
+        "kind": "statement",
+        "meaning": "Перетягни сюди команди, які виконуються всередині конструкції."
+      },
+      {
+        "key": "IF1",
+        "name": "Додаткова умова",
+        "kind": "value",
+        "meaning": "Додаткова умова. Перевіряється, коли попередня не виконалася."
+      },
+      {
+        "key": "DO1",
+        "name": "Дії додаткової гілки",
+        "kind": "statement",
+        "meaning": "Перетягни сюди команди, які виконуються всередині конструкції."
+      }
+    ],
+    "output": false,
+    "how": [],
+    "example": "Якщо значення датчика менше порога — «Стоп».",
+    "note": "Умова перевіряється в момент виконання, а не постійно. Для постійної реакції потрібен цикл.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"controls_if\">\n      <mutation elseif=\"1\"></mutation>\n    </block></xml>",
+    "previewWidth": 222,
+    "outputType": ""
+  },
+  {
+    "id": "block-controls_if-2",
+    "type": "controls_if",
+    "category": "Логіка",
+    "title": "Якщо та інакше",
+    "does": "Виконує вкладені дії лише за істинної умови. Варіант «Інакше» виконує альтернативну гілку, а «Інакше якщо» перевіряє додаткову умову.",
+    "fields": [
+      {
+        "key": "IF0",
+        "name": "Перша умова",
+        "kind": "value",
+        "meaning": "Умова першої гілки. Якщо вона істинна, виконуються її вкладені команди."
+      },
+      {
+        "key": "DO0",
+        "name": "Дії при істинній умові",
+        "kind": "statement",
+        "meaning": "Перетягни сюди команди, які виконуються всередині конструкції."
+      },
+      {
+        "key": "ELSE",
+        "name": "Дії інакше",
+        "kind": "statement",
+        "meaning": "Перетягни сюди команди, які виконуються всередині конструкції."
+      }
+    ],
+    "output": false,
+    "how": [],
+    "example": "Якщо значення датчика менше порога — «Стоп».",
+    "note": "Умова перевіряється в момент виконання, а не постійно. Для постійної реакції потрібен цикл.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"controls_if\">\n      <mutation else=\"1\"></mutation>\n    </block></xml>",
+    "previewWidth": 188,
+    "outputType": ""
+  },
+  {
+    "id": "block-sensor_get",
+    "type": "sensor_get",
+    "category": "Логіка",
+    "title": "Значення датчика",
+    "does": "Повертає останній отриманий числовий показ вибраного порту. Тип у списку допомагає позначити призначення датчика.",
+    "fields": [
+      {
+        "key": "TYPE",
+        "name": "Тип датчика",
+        "kind": "field",
+        "value": "DIST",
+        "options": [
+          [
+            "📏 Відстань",
+            "DIST"
+          ],
+          [
+            "💡 Світло",
+            "LIGHT"
+          ],
+          [
+            "👆 Дотик",
+            "TOUCH"
+          ]
+        ],
+        "meaning": "Познач, який датчик використовується на цьому порту."
+      },
+      {
+        "key": "SENS",
+        "name": "Порт датчика",
+        "kind": "field",
+        "value": "0",
+        "options": [
+          [
+            "1",
+            "0"
+          ],
+          [
+            "2",
+            "1"
+          ],
+          [
+            "3",
+            "2"
+          ],
+          [
+            "4",
+            "3"
+          ]
+        ],
+        "meaning": "Номер порту потрібного датчика."
+      }
+    ],
+    "output": true,
+    "how": [],
+    "example": "Порт 1 < підібраного порога → зупинитися.",
+    "note": "Діапазон, одиниці та напрямок зміни залежать від датчика й прошивки. Не припускай, що це сантиметри або готовий колір.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"sensor_get\"></block></xml>",
+    "previewWidth": 282,
+    "outputType": "Number"
+  },
+  {
+    "id": "block-logic_boolean",
+    "type": "logic_boolean",
+    "category": "Логіка",
+    "title": "Істина або хиба",
+    "does": "Повертає постійне логічне значення.",
+    "fields": [
+      {
+        "key": "BOOL",
+        "name": "Логічна умова",
+        "kind": "field",
+        "value": "TRUE",
+        "options": [
+          [
+            "істина",
+            "TRUE"
+          ],
+          [
+            "хибність",
+            "FALSE"
+          ]
+        ],
+        "meaning": "Обери постійне значення «істина» або «хиба»."
+      }
+    ],
+    "output": true,
+    "how": [],
+    "example": "Встав «істина» в умову, щоб перевірити виконання гілки.",
+    "note": "",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"logic_boolean\"></block></xml>",
+    "previewWidth": 152,
+    "outputType": "Boolean"
+  },
+  {
+    "id": "block-logic_compare",
+    "type": "logic_compare",
+    "category": "Логіка",
+    "title": "Порівняння",
+    "does": "Порівнює два значення та повертає істину або хибу.",
+    "fields": [
+      {
+        "key": "A",
+        "name": "Перше значення",
+        "kind": "value",
+        "meaning": "Перше значення для обчислення або порівняння."
+      },
+      {
+        "key": "B",
+        "name": "Друге значення",
+        "kind": "value",
+        "meaning": "Друге значення для обчислення або порівняння."
+      },
+      {
+        "key": "OP",
+        "name": "Операція",
+        "kind": "field",
+        "value": "EQ",
+        "options": [
+          [
+            "=",
+            "EQ"
+          ],
+          [
+            "≠",
+            "NEQ"
+          ],
+          [
+            "‏<",
+            "LT"
+          ],
+          [
+            "‏≤",
+            "LTE"
+          ],
+          [
+            "‏>",
+            "GT"
+          ],
+          [
+            "‏≥",
+            "GTE"
+          ]
+        ],
+        "meaning": "Обери потрібну операцію у списку."
+      }
+    ],
+    "output": true,
+    "how": [],
+    "example": "Датчик < 20 вставити в умову «Якщо».",
+    "note": "",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"logic_compare\">\n      <value name=\"A\"><shadow type=\"math_number\"><field name=\"NUM\">0</field></shadow></value>\n      <value name=\"B\"><shadow type=\"math_number\"><field name=\"NUM\">0</field></shadow></value>\n    </block></xml>",
+    "previewWidth": 215,
+    "outputType": "Boolean"
+  },
+  {
+    "id": "block-logic_operation",
+    "type": "logic_operation",
+    "category": "Логіка",
+    "title": "І та АБО",
+    "does": "Поєднує дві умови: «та» вимагає обидві істинні, «або» — хоча б одну.",
+    "fields": [
+      {
+        "key": "A",
+        "name": "Перше значення",
+        "kind": "value",
+        "meaning": "Перше значення для обчислення або порівняння."
+      },
+      {
+        "key": "B",
+        "name": "Друге значення",
+        "kind": "value",
+        "meaning": "Друге значення для обчислення або порівняння."
+      },
+      {
+        "key": "OP",
+        "name": "Операція",
+        "kind": "field",
+        "value": "AND",
+        "options": [
+          [
+            "та",
+            "AND"
+          ],
+          [
+            "або",
+            "OR"
+          ]
+        ],
+        "meaning": "Обери потрібну операцію у списку."
+      }
+    ],
+    "output": true,
+    "how": [],
+    "example": "Датчик далеко ТА таймер < 5.",
+    "note": "",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"logic_operation\"></block></xml>",
+    "previewWidth": 208,
+    "outputType": "Boolean"
+  },
+  {
+    "id": "block-logic_negate",
+    "type": "logic_negate",
+    "category": "Логіка",
+    "title": "НЕ",
+    "does": "Змінює істину на хибу й навпаки.",
+    "fields": [
+      {
+        "key": "BOOL",
+        "name": "Логічна умова",
+        "kind": "value",
+        "meaning": "Умова для перевірки. Встав сюди порівняння або інший логічний блок."
+      }
+    ],
+    "output": true,
+    "how": [],
+    "example": "НЕ «перешкода близько» — можна продовжувати перевірку руху.",
+    "note": "",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"logic_negate\"></block></xml>",
+    "previewWidth": 131,
+    "outputType": "Boolean"
+  },
+  {
+    "id": "block-logic_edge_detect",
+    "type": "logic_edge_detect",
+    "category": "Логіка",
+    "title": "Сигнал став активним",
+    "does": "Виявляє перехід умови з хиби в істину. Стан пам’ятається окремо для цього блоку.",
+    "fields": [
+      {
+        "key": "VAL",
+        "name": "Значення",
+        "kind": "value",
+        "meaning": "Число або результат іншого блоку, з яким працює ця команда."
+      }
+    ],
+    "output": true,
+    "how": [],
+    "example": "У циклі: якщо сигнал став активним — змінити лічильник на 1.",
+    "note": "Для нового спрацювання умова має спочатку стати хибною. Перевіряй блок регулярно.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"logic_edge_detect\"></block></xml>",
+    "previewWidth": 471,
+    "outputType": "Boolean"
+  },
+  {
+    "id": "block-logic_schmitt",
+    "type": "logic_schmitt",
+    "category": "Логіка",
+    "title": "Тригер із двома порогами",
+    "does": "Повертає стійку логічну ознаку: вмикає її вище HIGH, вимикає нижче LOW, між порогами зберігає стан.",
+    "fields": [
+      {
+        "key": "HIGH",
+        "name": "Верхній поріг увімкнення",
+        "kind": "value",
+        "meaning": "Вище цього значення ознака вмикається."
+      },
+      {
+        "key": "LOW",
+        "name": "Нижній поріг вимкнення",
+        "kind": "value",
+        "meaning": "Нижче цього значення ознака вимикається."
+      },
+      {
+        "key": "VAL",
+        "name": "Значення",
+        "kind": "value",
+        "meaning": "Число або результат іншого блоку, з яким працює ця команда."
+      }
+    ],
+    "output": true,
+    "how": [],
+    "example": "HIGH = 60, LOW = 30: 70 вмикає, 45 зберігає стан, 20 вимикає.",
+    "note": "Нижній поріг повинен бути меншим за верхній. Це гістерезис, а не усереднення числа.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"logic_schmitt\">\n      <value name=\"HIGH\"><shadow type=\"math_number\"><field name=\"NUM\">60</field></shadow></value>\n      <value name=\"LOW\"><shadow type=\"math_number\"><field name=\"NUM\">30</field></shadow></value>\n      <value name=\"VAL\"><shadow type=\"math_number\"><field name=\"NUM\">0</field></shadow></value>\n    </block></xml>",
+    "previewWidth": 434,
+    "outputType": "Boolean"
+  },
+  {
+    "id": "block-loop_forever",
+    "type": "loop_forever",
+    "category": "Цикли",
+    "title": "Повторювати завжди",
+    "does": "Без кінця повторює вкладені команди до зупинки програми користувачем.",
+    "fields": [
+      {
+        "key": "DO",
+        "name": "Вкладені дії",
+        "kind": "statement",
+        "meaning": "Перетягни сюди команди, які виконуються всередині конструкції."
+      }
+    ],
+    "output": false,
+    "how": [],
+    "example": "Завжди: показати напис → чекати → очистити → чекати.",
+    "note": "Команди після такого циклу недосяжні. Не покладайся на «Стоп», розташований після нього.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"loop_forever\"></block></xml>",
+    "previewWidth": 242,
+    "outputType": ""
+  },
+  {
+    "id": "block-controls_repeat_ext",
+    "type": "controls_repeat_ext",
+    "category": "Цикли",
+    "title": "Повторити N разів",
+    "does": "Виконує вкладені команди задану кількість разів і переходить до наступного блоку.",
+    "fields": [
+      {
+        "key": "TIMES",
+        "name": "Кількість повторень",
+        "kind": "value",
+        "meaning": "Скільки разів виконати вкладені команди."
+      },
+      {
+        "key": "DO",
+        "name": "Вкладені дії",
+        "kind": "statement",
+        "meaning": "Перетягни сюди команди, які виконуються всередині конструкції."
+      }
+    ],
+    "output": false,
+    "how": [],
+    "example": "Повторити 3 рази: їхати → чекати → стоп.",
+    "note": "Переконайся, що команди вкладено всередину циклу.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"controls_repeat_ext\"><value name=\"TIMES\"><shadow type=\"math_number\"><field name=\"NUM\">4</field></shadow></value></block></xml>",
+    "previewWidth": 223,
+    "outputType": ""
+  },
+  {
+    "id": "block-loop_repeat_pause",
+    "type": "loop_repeat_pause",
+    "category": "Цикли",
+    "title": "Повторити з паузою",
+    "does": "Виконує вкладені команди N разів, роблячи паузу між повтореннями.",
+    "fields": [
+      {
+        "key": "TIMES",
+        "name": "Кількість повторень",
+        "kind": "value",
+        "meaning": "Скільки разів виконати вкладені команди."
+      },
+      {
+        "key": "SEC",
+        "name": "Час у секундах",
+        "kind": "value",
+        "meaning": "Тривалість у секундах. Наприклад, 0.5 — половина секунди."
+      },
+      {
+        "key": "DO",
+        "name": "Вкладені дії",
+        "kind": "statement",
+        "meaning": "Перетягни сюди команди, які виконуються всередині конструкції."
+      }
+    ],
+    "output": false,
+    "how": [],
+    "example": "4 рази: коротка поїздка й «Стоп», пауза між поїздками 0.5 с.",
+    "note": "Після останнього повторення додаткова пауза не виконується.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"loop_repeat_pause\">\n                <value name=\"TIMES\"><shadow type=\"math_number\"><field name=\"NUM\">4</field></shadow></value>\n                <value name=\"SEC\"><shadow type=\"math_number\"><field name=\"NUM\">0.5</field></shadow></value>\n            </block></xml>",
+    "previewWidth": 398,
+    "outputType": ""
+  },
+  {
+    "id": "block-loop_every_seconds",
+    "type": "loop_every_seconds",
+    "category": "Цикли",
+    "title": "Кожні N секунд",
+    "does": "Повторює вкладені команди в періодичному нескінченному циклі.",
+    "fields": [
+      {
+        "key": "SEC",
+        "name": "Час у секундах",
+        "kind": "value",
+        "meaning": "Тривалість у секундах. Наприклад, 0.5 — половина секунди."
+      },
+      {
+        "key": "DO",
+        "name": "Вкладені дії",
+        "kind": "statement",
+        "meaning": "Перетягни сюди команди, які виконуються всередині конструкції."
+      }
+    ],
+    "output": false,
+    "how": [],
+    "example": "Кожну секунду оновлювати показ датчика.",
+    "note": "Завершуй кнопкою зупинки. Тривалі вкладені дії можуть змінювати фактичну періодичність.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"loop_every_seconds\">\n                <value name=\"SEC\"><shadow type=\"math_number\"><field name=\"NUM\">1</field></shadow></value>\n            </block></xml>",
+    "previewWidth": 188,
+    "outputType": ""
+  },
+  {
+    "id": "block-controls_whileUntil",
+    "type": "controls_whileUntil",
+    "category": "Цикли",
+    "title": "Повторювати поки або доки",
+    "does": "У режимі «поки» повторює за істинної умови; у режимі «доки» — поки умова не стане істинною.",
+    "fields": [
+      {
+        "key": "BOOL",
+        "name": "Логічна умова",
+        "kind": "value",
+        "meaning": "Умова для перевірки. Встав сюди порівняння або інший логічний блок."
+      },
+      {
+        "key": "MODE",
+        "name": "Режим циклу",
+        "kind": "field",
+        "value": "WHILE",
+        "options": [
+          [
+            "повторювати поки",
+            "WHILE"
+          ],
+          [
+            "повторювати, доки не",
+            "UNTIL"
+          ]
+        ],
+        "meaning": "«Поки» повторює за істинної умови; «доки» — до її істинності."
+      },
+      {
+        "key": "DO",
+        "name": "Вкладені дії",
+        "kind": "statement",
+        "meaning": "Перетягни сюди команди, які виконуються всередині конструкції."
+      }
+    ],
+    "output": false,
+    "how": [],
+    "example": "Поки таймер < 5: перевіряти датчик.",
+    "note": "Без зміни умови може працювати нескінченно. Додай паузу й обмеження часу.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"controls_whileUntil\"></block></xml>",
+    "previewWidth": 324,
+    "outputType": ""
+  },
+  {
+    "id": "block-controls_for",
+    "type": "controls_for",
+    "category": "Цикли",
+    "title": "Цикл із лічильником",
+    "does": "Змінює лічильник від початкового до кінцевого значення із заданим кроком і виконує тіло на кожному кроці.",
+    "fields": [
+      {
+        "key": "FROM",
+        "name": "Початок діапазону",
+        "kind": "value",
+        "meaning": "Початкове значення діапазону."
+      },
+      {
+        "key": "VAR",
+        "name": "Змінна",
+        "kind": "field",
+        "value": "i",
+        "options": [
+          [
+            "i",
+            "fy|~V[fX7/(=}Wss!l;h"
+          ]
+        ],
+        "meaning": "Обери змінну, значення якої потрібно змінити або використати."
+      },
+      {
+        "key": "TO",
+        "name": "Кінець діапазону",
+        "kind": "value",
+        "meaning": "Кінцеве значення діапазону."
+      },
+      {
+        "key": "BY",
+        "name": "Крок",
+        "kind": "value",
+        "meaning": "На скільки змінюється лічильник після кожного повторення. Не задавай нуль."
+      },
+      {
+        "key": "DO",
+        "name": "Вкладені дії",
+        "kind": "statement",
+        "meaning": "Перетягни сюди команди, які виконуються всередині конструкції."
+      }
+    ],
+    "output": false,
+    "how": [],
+    "example": "i від 1 до 5 через 1: показати i.",
+    "note": "Крок не повинен бути нульовим.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"controls_for\">\n                <value name=\"FROM\"><shadow type=\"math_number\"><field name=\"NUM\">1</field></shadow></value>\n                <value name=\"TO\"><shadow type=\"math_number\"><field name=\"NUM\">10</field></shadow></value>\n                <value name=\"BY\"><shadow type=\"math_number\"><field name=\"NUM\">1</field></shadow></value>\n            </block></xml>",
+    "previewWidth": 435,
+    "outputType": ""
+  },
+  {
+    "id": "block-count_laps",
+    "type": "count_laps",
+    "category": "Цикли",
+    "title": "Лічити кола",
+    "does": "Чекає N переходів датчика першого порту через умову значення > 60, рахуючи новий вхід на мітку.",
+    "fields": [
+      {
+        "key": "LAPS",
+        "name": "Кількість перетинів мітки",
+        "kind": "value",
+        "meaning": "Скільки перетинів стартової мітки потрібно дочекатися."
+      }
+    ],
+    "output": false,
+    "how": [],
+    "example": "Рух уже запущено → лічити 3 кола → стоп.",
+    "note": "Порт 1 і поріг 60 задані реалізацією. Блок сам не веде робота по трасі й не вимірює геометричні кола.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"count_laps\">\n                 <value name=\"LAPS\"><shadow type=\"math_number\"><field name=\"NUM\">3</field></shadow></value>\n             </block></xml>",
+    "previewWidth": 237,
+    "outputType": ""
+  },
+  {
+    "id": "block-math_number",
+    "type": "math_number",
+    "category": "Математика",
+    "title": "Число",
+    "does": "Числова константа. Підставляється у поля швидкості, пороги, час.",
+    "fields": [
+      {
+        "key": "NUM",
+        "name": "Число",
+        "kind": "field",
+        "value": "0",
+        "meaning": "Число, яке використовується в програмі."
+      }
+    ],
+    "output": true,
+    "how": [
+      "Змінюй число і дивись як змінюється поведінка."
+    ],
+    "example": "SPEED=50, SEC=0.5, поріг=20 — це все числа.",
+    "note": "",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"math_number\"><field name=\"NUM\">0</field></block></xml>",
+    "previewWidth": 76,
+    "outputType": "Number"
+  },
+  {
+    "id": "block-math_arithmetic",
+    "type": "math_arithmetic",
+    "category": "Математика",
+    "title": "Арифметика",
+    "does": "Обчислює суму, різницю, добуток, частку або степінь двох чисел залежно від операції.",
+    "fields": [
+      {
+        "key": "A",
+        "name": "Перше значення",
+        "kind": "value",
+        "meaning": "Перше значення для обчислення або порівняння."
+      },
+      {
+        "key": "B",
+        "name": "Друге значення",
+        "kind": "value",
+        "meaning": "Друге значення для обчислення або порівняння."
+      },
+      {
+        "key": "OP",
+        "name": "Операція",
+        "kind": "field",
+        "value": "ADD",
+        "options": [
+          [
+            "+",
+            "ADD"
+          ],
+          [
+            "-",
+            "MINUS"
+          ],
+          [
+            "×",
+            "MULTIPLY"
+          ],
+          [
+            "÷",
+            "DIVIDE"
+          ],
+          [
+            "^",
+            "POWER"
+          ]
+        ],
+        "meaning": "Обери потрібну операцію у списку."
+      }
+    ],
+    "output": true,
+    "how": [],
+    "example": "30 + 12 = 42; 2 у степені 3 = 8.",
+    "note": "Не діли на нуль. Результат можна вставити в числовий вхід іншого блоку.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"math_arithmetic\">\n                <value name=\"A\"><shadow type=\"math_number\"><field name=\"NUM\">1</field></shadow></value>\n                <value name=\"B\"><shadow type=\"math_number\"><field name=\"NUM\">1</field></shadow></value>\n            </block></xml>",
+    "previewWidth": 180,
+    "outputType": "Number"
+  },
+  {
+    "id": "block-math_single",
+    "type": "math_single",
+    "category": "Математика",
+    "title": "Математична функція",
+    "does": "Застосовує вибрану функцію до одного числа: модуль, корінь та інші доступні операції.",
+    "fields": [
+      {
+        "key": "NUM",
+        "name": "Число",
+        "kind": "value",
+        "meaning": "Число, яке використовується в програмі."
+      },
+      {
+        "key": "OP",
+        "name": "Операція",
+        "kind": "field",
+        "value": "ROOT",
+        "options": [
+          [
+            "квадратний корінь",
+            "ROOT"
+          ],
+          [
+            "модуль",
+            "ABS"
+          ],
+          [
+            "-",
+            "NEG"
+          ],
+          [
+            "ln",
+            "LN"
+          ],
+          [
+            "log10",
+            "LOG10"
+          ],
+          [
+            "e^",
+            "EXP"
+          ],
+          [
+            "10^",
+            "POW10"
+          ]
+        ],
+        "meaning": "Обери потрібну операцію у списку."
+      }
+    ],
+    "output": true,
+    "how": [],
+    "example": "Модуль −3 = 3; корінь 9 = 3.",
+    "note": "Корінь із від’ємного числа та інші недопустимі аргументи не дадуть звичайного числового результату.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"math_single\">\n                <value name=\"NUM\"><shadow type=\"math_number\"><field name=\"NUM\">9</field></shadow></value>\n            </block></xml>",
+    "previewWidth": 277,
+    "outputType": "Number"
+  },
+  {
+    "id": "block-math_speed_cms",
+    "type": "math_speed_cms",
+    "category": "Математика",
+    "title": "Калібрована швидкість",
+    "does": "Повертає збережену оцінку швидкості у см/с після калібрування по мітках.",
+    "fields": [],
+    "output": true,
+    "how": [],
+    "example": "Після калібрування підстав у формулу шляху v × t.",
+    "note": "Це останній результат калібрування, не постійне вимірювання швидкості. До калібрування не використовуй як достовірну швидкість.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"math_speed_cms\"></block></xml>",
+    "previewWidth": 213,
+    "outputType": "Number"
+  },
+  {
+    "id": "block-math_path_vt",
+    "type": "math_path_vt",
+    "category": "Математика",
+    "title": "Довжина шляху (v·t)",
+    "does": "Рахує пройдену відстань за формулою s = v * t.",
+    "fields": [
+      {
+        "key": "V",
+        "name": "Швидкість у см/с",
+        "kind": "value",
+        "meaning": "Швидкість руху у сантиметрах за секунду."
+      },
+      {
+        "key": "T",
+        "name": "Час у секундах",
+        "kind": "value",
+        "meaning": "Скільки секунд триває рух."
+      }
+    ],
+    "output": false,
+    "how": [
+      "Візьми v з «Швидкість (см/с)» (після калібрування).",
+      "t можна взяти з «Таймер (с)»."
+    ],
+    "example": "Їхати поки (v*t) < R, де R — радіус.",
+    "note": "Результат v × t — оцінка при сталому v, не показ енкодера. Узгоджуй одиниці вимірювання.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"math_path_vt\">\n                <value name=\"V\"><shadow type=\"math_number\"><field name=\"NUM\">20</field></shadow></value>\n                <value name=\"T\"><shadow type=\"math_number\"><field name=\"NUM\">1</field></shadow></value>\n            </block></xml>",
+    "previewWidth": 403,
+    "outputType": "Number"
+  },
+  {
+    "id": "block-math_pythagoras",
+    "type": "math_pythagoras",
+    "category": "Математика",
+    "title": "Діагональ (Піфагор)",
+    "does": "Рахує діагональ прямокутника: c = √(a² + b²).",
+    "fields": [
+      {
+        "key": "A",
+        "name": "Перший катет",
+        "kind": "value",
+        "meaning": "Довжина однієї з двох перпендикулярних сторін. Використовуй однакові одиниці вимірювання."
+      },
+      {
+        "key": "B",
+        "name": "Другий катет",
+        "kind": "value",
+        "meaning": "Довжина однієї з двох перпендикулярних сторін. Використовуй однакові одиниці вимірювання."
+      }
+    ],
+    "output": true,
+    "how": [
+      "Корисно, коли знаєш два перпендикулярні відрізки і хочеш відстань по прямій."
+    ],
+    "example": "Проїхали a вперед і b вбік → скільки це по прямій.",
+    "note": "",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"math_pythagoras\">\n                <value name=\"A\"><shadow type=\"math_number\"><field name=\"NUM\">3</field></shadow></value>\n                <value name=\"B\"><shadow type=\"math_number\"><field name=\"NUM\">4</field></shadow></value>\n            </block></xml>",
+    "previewWidth": 360,
+    "outputType": "Number"
+  },
+  {
+    "id": "block-math_radius_from_diameter",
+    "type": "math_radius_from_diameter",
+    "category": "Математика",
+    "title": "Радіус",
+    "does": "Переводить діаметр у радіус: r = d / 2.",
+    "fields": [
+      {
+        "key": "D",
+        "name": "Діаметр",
+        "kind": "value",
+        "meaning": "Діаметр, з якого обчислюється радіус."
+      }
+    ],
+    "output": true,
+    "how": [
+      "Потрібно коли в тебе є діаметр, а обмеження/умова зручніша у радіусі."
+    ],
+    "example": "Обмежити рух: не їхати далі ніж r.",
+    "note": "",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"math_radius_from_diameter\">\n                <value name=\"D\"><shadow type=\"math_number\"><field name=\"NUM\">10</field></shadow></value>\n            </block></xml>",
+    "previewWidth": 170,
+    "outputType": "Number"
+  },
+  {
+    "id": "block-math_diameter_from_radius",
+    "type": "math_diameter_from_radius",
+    "category": "Математика",
+    "title": "Діаметр",
+    "does": "Переводить радіус у діаметр: d = 2 * r.",
+    "fields": [
+      {
+        "key": "R",
+        "name": "Радіус",
+        "kind": "value",
+        "meaning": "Радіус кола або значення для розрахунку радіуса."
+      }
+    ],
+    "output": true,
+    "how": [
+      "Потрібно коли в тебе є радіус, а треба діаметр (наприклад для розрахунків/пояснень)."
+    ],
+    "example": "Порахувати діаметр колеса або зони.",
+    "note": "",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"math_diameter_from_radius\">\n                <value name=\"R\"><shadow type=\"math_number\"><field name=\"NUM\">5</field></shadow></value>\n            </block></xml>",
+    "previewWidth": 183,
+    "outputType": "Number"
+  },
+  {
+    "id": "block-math_rect_perimeter",
+    "type": "math_rect_perimeter",
+    "category": "Математика",
+    "title": "Периметр прямокутника",
+    "does": "Рахує периметр: P = 2*(w + h).",
+    "fields": [
+      {
+        "key": "W",
+        "name": "Ширина",
+        "kind": "value",
+        "meaning": "Розмір сторони прямокутника. Використовуй однакові одиниці вимірювання для обох сторін."
+      },
+      {
+        "key": "H",
+        "name": "Висота",
+        "kind": "value",
+        "meaning": "Розмір сторони прямокутника. Використовуй однакові одиниці вимірювання для обох сторін."
+      }
+    ],
+    "output": true,
+    "how": [
+      "Може бути корисно для простих трас/рамок та обмежень."
+    ],
+    "example": "Порахувати довжину рамки/периметра.",
+    "note": "",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"math_rect_perimeter\">\n                <value name=\"W\"><shadow type=\"math_number\"><field name=\"NUM\">10</field></shadow></value>\n                <value name=\"H\"><shadow type=\"math_number\"><field name=\"NUM\">5</field></shadow></value>\n            </block></xml>",
+    "previewWidth": 497,
+    "outputType": "Number"
+  },
+  {
+    "id": "block-math_random_int",
+    "type": "math_random_int",
+    "category": "Математика",
+    "title": "Випадкове ціле число",
+    "does": "Повертає випадкове ціле між двома межами включно.",
+    "fields": [
+      {
+        "key": "FROM",
+        "name": "Початок діапазону",
+        "kind": "value",
+        "meaning": "Початкове значення діапазону."
+      },
+      {
+        "key": "TO",
+        "name": "Кінець діапазону",
+        "kind": "value",
+        "meaning": "Кінцеве значення діапазону."
+      }
+    ],
+    "output": true,
+    "how": [],
+    "example": "Випадкове число від 1 до 6 — імітація кубика.",
+    "note": "",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"math_random_int\">\n                <value name=\"FROM\"><shadow type=\"math_number\"><field name=\"NUM\">1</field></shadow></value>\n                <value name=\"TO\"><shadow type=\"math_number\"><field name=\"NUM\">100</field></shadow></value>\n            </block></xml>",
+    "previewWidth": 381,
+    "outputType": "Number"
+  },
+  {
+    "id": "block-math_pid",
+    "type": "math_pid",
+    "category": "Математика",
+    "title": "PID регулятор",
+    "does": "Обчислює керувальну поправку з помилки та коефіцієнтів P, I і D. Сам мотори не запускає.",
+    "fields": [
+      {
+        "key": "ERROR",
+        "name": "Помилка регулювання",
+        "kind": "value",
+        "meaning": "Наскільки поточний показ відрізняється від потрібного."
+      },
+      {
+        "key": "KP",
+        "name": "Коефіцієнт P",
+        "kind": "value",
+        "meaning": "Сила реакції на поточну помилку."
+      },
+      {
+        "key": "KI",
+        "name": "Коефіцієнт I",
+        "kind": "value",
+        "meaning": "Сила реакції на накопичену помилку."
+      },
+      {
+        "key": "KD",
+        "name": "Коефіцієнт D",
+        "kind": "value",
+        "meaning": "Сила реакції на зміну помилки."
+      }
+    ],
+    "output": true,
+    "how": [],
+    "example": "Почни з Kp = 1, Ki = 0, Kd = 0; поправку додавай до однієї сторони й віднімай від іншої.",
+    "note": "Це розширений блок зі станом. Коефіцієнти підбираються на роботові; він не є готовим рухом по лінії.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"math_pid\">\n                <value name=\"ERROR\"><shadow type=\"math_number\"><field name=\"NUM\">0</field></shadow></value>\n                <value name=\"KP\"><shadow type=\"math_number\"><field name=\"NUM\">1</field></shadow></value>\n                <value name=\"KI\"><shadow type=\"math_number\"><field name=\"NUM\">0</field></shadow></value>\n                <value name=\"KD\"><shadow type=\"math_number\"><field name=\"NUM\">0</field></shadow></value>\n            </block></xml>",
+    "previewWidth": 531,
+    "outputType": "Number"
+  },
+  {
+    "id": "block-math_smooth",
+    "type": "math_smooth",
+    "category": "Математика",
+    "title": "Згладити значення",
+    "does": "Зменшує стрибки показу через історію вимірювань цього блоку.",
+    "fields": [
+      {
+        "key": "VAL",
+        "name": "Значення",
+        "kind": "value",
+        "meaning": "Число або результат іншого блоку, з яким працює ця команда."
+      },
+      {
+        "key": "SIZE",
+        "name": "Кількість вимірювань",
+        "kind": "field",
+        "value": "5",
+        "meaning": "Скільки вимірювань використовувати для згладжування."
+      }
+    ],
+    "output": true,
+    "how": [],
+    "example": "Згладити показ датчика з розміром 5.",
+    "note": "Більше згладжування може сповільнити реакцію на зміну.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"math_smooth\">\n                <field name=\"SIZE\">5</field>\n                <value name=\"VAL\"><shadow type=\"math_number\"><field name=\"NUM\">0</field></shadow></value>\n            </block></xml>",
+    "previewWidth": 284,
+    "outputType": "Number"
+  },
+  {
+    "id": "block-num_convert",
+    "type": "num_convert",
+    "category": "Математика",
+    "title": "Конвертувати систему числення",
+    "does": "Читає введений запис у вибраній системі й повертає текст результату в іншій системі.",
+    "fields": [
+      {
+        "key": "VAL",
+        "name": "Значення",
+        "kind": "field",
+        "value": "1010",
+        "meaning": "Запис числа у вибраній системі. Наприклад, 1010 для двійкової або FF для шістнадцяткової."
+      },
+      {
+        "key": "FROM",
+        "name": "З якої системи",
+        "kind": "field",
+        "value": "BIN",
+        "options": [
+          [
+            "BIN (двійк.)",
+            "BIN"
+          ],
+          [
+            "DEC (десятк.)",
+            "DEC"
+          ],
+          [
+            "HEX (шістн.)",
+            "HEX"
+          ]
+        ],
+        "meaning": "У якій системі записано введене число."
+      },
+      {
+        "key": "TO",
+        "name": "У яку систему",
+        "kind": "field",
+        "value": "DEC",
+        "options": [
+          [
+            "DEC (десятк.)",
+            "DEC"
+          ],
+          [
+            "BIN (двійк.)",
+            "BIN"
+          ],
+          [
+            "HEX (шістн.)",
+            "HEX"
+          ]
+        ],
+        "meaning": "У якій системі має бути записаний результат."
+      }
+    ],
+    "output": true,
+    "how": [],
+    "example": "1010 з BIN у DEC → «10».",
+    "note": "BIN використовує 0 і 1, HEX — 0…9 та A…F. Це текстовий результат, не блок руху.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"num_convert\"><field name=\"VAL\">1010</field><field name=\"FROM\">BIN</field><field name=\"TO\">DEC</field></block></xml>",
+    "previewWidth": 536,
+    "outputType": ""
+  },
+  {
+    "id": "block-num_from_bin",
+    "type": "num_from_bin",
+    "category": "Математика",
+    "title": "Двійковий запис у число",
+    "does": "Перетворює текст двійкового запису на десяткове число.",
+    "fields": [
+      {
+        "key": "VAL",
+        "name": "Значення",
+        "kind": "field",
+        "value": "1010",
+        "meaning": "Запис числа у вибраній системі. Наприклад, 1010 для двійкової або FF для шістнадцяткової."
+      }
+    ],
+    "output": true,
+    "how": [],
+    "example": "1010 → 10.",
+    "note": "",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"num_from_bin\"><field name=\"VAL\">1010</field></block></xml>",
+    "previewWidth": 193,
+    "outputType": "Number"
+  },
+  {
+    "id": "block-num_from_hex",
+    "type": "num_from_hex",
+    "category": "Математика",
+    "title": "Шістнадцятковий запис у число",
+    "does": "Перетворює текст шістнадцяткового запису на десяткове число.",
+    "fields": [
+      {
+        "key": "VAL",
+        "name": "Значення",
+        "kind": "field",
+        "value": "FF",
+        "meaning": "Запис числа у вибраній системі. Наприклад, 1010 для двійкової або FF для шістнадцяткової."
+      }
+    ],
+    "output": true,
+    "how": [],
+    "example": "FF → 255.",
+    "note": "",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"num_from_hex\"><field name=\"VAL\">FF</field></block></xml>",
+    "previewWidth": 177,
+    "outputType": "Number"
+  },
+  {
+    "id": "block-num_to_bin",
+    "type": "num_to_bin",
+    "category": "Математика",
+    "title": "Число у двійковий запис",
+    "does": "Повертає текст двійкового запису введеного числа.",
+    "fields": [
+      {
+        "key": "VAL",
+        "name": "Значення",
+        "kind": "value",
+        "meaning": "Число або результат іншого блоку, з яким працює ця команда."
+      }
+    ],
+    "output": true,
+    "how": [],
+    "example": "10 → «1010».",
+    "note": "",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"num_to_bin\">\n    <value name=\"VAL\"><shadow type=\"math_number\"><field name=\"NUM\">10</field></shadow></value>\n  </block></xml>",
+    "previewWidth": 187,
+    "outputType": "String"
+  },
+  {
+    "id": "block-num_to_hex",
+    "type": "num_to_hex",
+    "category": "Математика",
+    "title": "Число у шістнадцятковий запис",
+    "does": "Повертає текст шістнадцяткового запису числа.",
+    "fields": [
+      {
+        "key": "VAL",
+        "name": "Значення",
+        "kind": "value",
+        "meaning": "Число або результат іншого блоку, з яким працює ця команда."
+      }
+    ],
+    "output": true,
+    "how": [],
+    "example": "255 → «FF».",
+    "note": "",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"num_to_hex\">\n    <value name=\"VAL\"><shadow type=\"math_number\"><field name=\"NUM\">255</field></shadow></value>\n  </block></xml>",
+    "previewWidth": 200,
+    "outputType": "String"
+  },
+  {
+    "id": "block-num_show_convert",
+    "type": "num_show_convert",
+    "category": "Математика",
+    "title": "Показати конвертацію",
+    "does": "Перетворює запис числа між вибраними системами та показує результат на дисплеї.",
+    "fields": [
+      {
+        "key": "VAL",
+        "name": "Значення",
+        "kind": "field",
+        "value": "1010",
+        "meaning": "Запис числа у вибраній системі. Наприклад, 1010 для двійкової або FF для шістнадцяткової."
+      },
+      {
+        "key": "FROM",
+        "name": "З якої системи",
+        "kind": "field",
+        "value": "BIN",
+        "options": [
+          [
+            "BIN",
+            "BIN"
+          ],
+          [
+            "DEC",
+            "DEC"
+          ],
+          [
+            "HEX",
+            "HEX"
+          ]
+        ],
+        "meaning": "У якій системі записано введене число."
+      },
+      {
+        "key": "TO",
+        "name": "У яку систему",
+        "kind": "field",
+        "value": "DEC",
+        "options": [
+          [
+            "DEC",
+            "DEC"
+          ],
+          [
+            "BIN",
+            "BIN"
+          ],
+          [
+            "HEX",
+            "HEX"
+          ]
+        ],
+        "meaning": "У якій системі має бути записаний результат."
+      }
+    ],
+    "output": false,
+    "how": [],
+    "example": "Показати 1010 з BIN у DEC.",
+    "note": "Відрізняється від «Конвертувати»: виконує дію показу, а не повертає значення для формули.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"num_show_convert\"><field name=\"VAL\">1010</field><field name=\"FROM\">BIN</field><field name=\"TO\">DEC</field></block></xml>",
+    "previewWidth": 464,
+    "outputType": ""
+  },
+  {
+    "id": "block-num_show_big",
+    "type": "num_show_big",
+    "category": "Математика",
+    "title": "Показати число по центру",
+    "does": "Очищає зображення, малює велике число по центру та відправляє його на дисплей.",
+    "fields": [
+      {
+        "key": "VAL",
+        "name": "Значення",
+        "kind": "value",
+        "meaning": "Число або результат іншого блоку, з яким працює ця команда."
+      }
+    ],
+    "output": false,
+    "how": [],
+    "example": "Показати число 42.",
+    "note": "Це спеціальна команда показу. Звичайні «Текст» та «Число» використовують координати й окреме відправлення.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"num_show_big\">\n    <value name=\"VAL\"><shadow type=\"math_number\"><field name=\"NUM\">42</field></shadow></value>\n  </block></xml>",
+    "previewWidth": 243,
+    "outputType": ""
+  },
+  {
+    "id": "block-calibrate_speed_line",
+    "type": "calibrate_speed_line",
+    "category": "Контроль",
+    "title": "Калібрувати швидкість по лінії",
+    "does": "Оцінює швидкість у см/с за відомою відстанню та часом між мітками. Зберігає результат для математичного блоку швидкості.",
+    "fields": [
+      {
+        "key": "L",
+        "name": "Відстань між мітками у см",
+        "kind": "value",
+        "meaning": "Виміряна відстань між двома мітками у сантиметрах."
+      },
+      {
+        "key": "PORT",
+        "name": "Порт датчика",
+        "kind": "field",
+        "value": "1",
+        "options": [
+          [
+            "1",
+            "1"
+          ],
+          [
+            "2",
+            "2"
+          ],
+          [
+            "3",
+            "3"
+          ],
+          [
+            "4",
+            "4"
+          ]
+        ],
+        "meaning": "Номер порту, до якого підключено датчик."
+      },
+      {
+        "key": "CMP",
+        "name": "Порівняння",
+        "kind": "field",
+        "value": "LT",
+        "options": [
+          [
+            "<",
+            "LT"
+          ],
+          [
+            ">",
+            "GT"
+          ]
+        ],
+        "meaning": "Чи значення на мітці менше, чи більше за поріг."
+      },
+      {
+        "key": "THR",
+        "name": "Поріг лінії",
+        "kind": "value",
+        "meaning": "Поріг, за яким робот розпізнає мітку. Підбери його за показами датчика."
+      },
+      {
+        "key": "SPD",
+        "name": "Швидкість під час калібрування",
+        "kind": "value",
+        "meaning": "Швидкість під час вимірювального руху."
+      }
+    ],
+    "output": false,
+    "how": [],
+    "example": "Підготуй дві мітки на відстані 50 см, вибери порт і поріг.",
+    "note": "Реалізація спочатку чекає першу мітку та вихід із неї, і лише потім сама запускає вимірювальний рух. Потрібно організувати початковий прохід і доступ до зупинки; тайм-ауту очікування немає.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"calibrate_speed_line\">\n      <value name=\"L\"><shadow type=\"math_number\"><field name=\"NUM\">50</field></shadow></value>\n      <value name=\"THR\"><shadow type=\"math_number\"><field name=\"NUM\">30</field></shadow></value>\n      <value name=\"SPD\"><shadow type=\"math_number\"><field name=\"NUM\">60</field></shadow></value>\n    </block></xml>",
+    "previewWidth": 252,
+    "outputType": ""
+  },
+  {
+    "id": "block-cooldown_do",
+    "type": "cooldown_do",
+    "category": "Контроль",
+    "title": "Не частіше ніж раз на N секунд",
+    "does": "Дозволяє виконання вкладених дій лише коли минув заданий інтервал від попереднього спрацювання цього блоку.",
+    "fields": [
+      {
+        "key": "SEC",
+        "name": "Час у секундах",
+        "kind": "value",
+        "meaning": "Тривалість у секундах. Наприклад, 0.5 — половина секунди."
+      },
+      {
+        "key": "DO",
+        "name": "Вкладені дії",
+        "kind": "statement",
+        "meaning": "Перетягни сюди команди, які виконуються всередині конструкції."
+      }
+    ],
+    "output": false,
+    "how": [],
+    "example": "У циклі: не частіше разу на секунду — додати очко.",
+    "note": "Блок не створює цикл і не чекає інтервал сам: його потрібно регулярно перевіряти.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"cooldown_do\">\n      <value name=\"SEC\"><shadow type=\"math_number\"><field name=\"NUM\">1</field></shadow></value>\n    </block></xml>",
+    "previewWidth": 306,
+    "outputType": ""
+  },
+  {
+    "id": "block-latch_set",
+    "type": "latch_set",
+    "category": "Контроль",
+    "title": "Прапор встановити",
+    "does": "Встановлює прапор (TRUE) з заданим ім’ям і тримає його, доки не скинеш.",
+    "fields": [
+      {
+        "key": "NAME",
+        "name": "Ім’я прапора",
+        "kind": "value",
+        "meaning": "Ім’я прапора. Однакове ім’я означає той самий прапор у різних блоках."
+      }
+    ],
+    "output": false,
+    "how": [
+      "Прапор — це пам’ять про факт: «ціль знайдено», «бачив лінію», «режим увімкнено»."
+    ],
+    "example": "Якщо дистанція < 25 → встановити прапор FOUND.",
+    "note": "",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"latch_set\">\n      <value name=\"NAME\"><shadow type=\"text\"><field name=\"TEXT\">A</field></shadow></value>\n    </block></xml>",
+    "previewWidth": 324,
+    "outputType": ""
+  },
+  {
+    "id": "block-latch_get",
+    "type": "latch_get",
+    "category": "Контроль",
+    "title": "Прапор встановлено?",
+    "does": "Повертає TRUE, якщо прапор з таким ім’ям встановлено.",
+    "fields": [
+      {
+        "key": "NAME",
+        "name": "Ім’я прапора",
+        "kind": "value",
+        "meaning": "Ім’я прапора. Однакове ім’я означає той самий прапор у різних блоках."
+      }
+    ],
+    "output": true,
+    "how": [
+      "Використовуй в if або в умовах таймаутів."
+    ],
+    "example": "Якщо прапор FOUND → атакувати.",
+    "note": "",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"latch_get\">\n      <value name=\"NAME\"><shadow type=\"text\"><field name=\"TEXT\">A</field></shadow></value>\n    </block></xml>",
+    "previewWidth": 371,
+    "outputType": "Boolean"
+  },
+  {
+    "id": "block-latch_reset",
+    "type": "latch_reset",
+    "category": "Контроль",
+    "title": "Прапор скинути",
+    "does": "Скидає прапор (видаляє його).",
+    "fields": [
+      {
+        "key": "NAME",
+        "name": "Ім’я прапора",
+        "kind": "value",
+        "meaning": "Ім’я прапора. Однакове ім’я означає той самий прапор у різних блоках."
+      }
+    ],
+    "output": false,
+    "how": [
+      "Напр. коли ціль втрачена або завершився режим."
+    ],
+    "example": "Втратили ціль → скинути FOUND.",
+    "note": "",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"latch_reset\">\n      <value name=\"NAME\"><shadow type=\"text\"><field name=\"TEXT\">A</field></shadow></value>\n    </block></xml>",
+    "previewWidth": 297,
+    "outputType": ""
+  },
+  {
+    "id": "block-wait_until_true_for",
+    "type": "wait_until_true_for",
+    "category": "Контроль",
+    "title": "Чекати поки умова тримається ... с",
+    "does": "Чекає, щоб умова була TRUE без перерви задану кількість секунд.",
+    "fields": [
+      {
+        "key": "COND",
+        "name": "Умова",
+        "kind": "value",
+        "meaning": "Умова, на яку можна відповісти «так» або «ні»."
+      },
+      {
+        "key": "SEC",
+        "name": "Час у секундах",
+        "kind": "value",
+        "meaning": "Тривалість у секундах. Наприклад, 0.5 — половина секунди."
+      }
+    ],
+    "output": false,
+    "how": [
+      "Використовуй для стабілізації датчика: щоб не реагувати на випадкові стрибки."
+    ],
+    "example": "Чекати: (дистанція < 25) тримається 0.2с.",
+    "note": "Очікування не має тайм-ауту й не зупиняє мотори. Коротка хиба скидає відлік стабільності.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"wait_until_true_for\">\n      <value name=\"SEC\"><shadow type=\"math_number\"><field name=\"NUM\">0.2</field></shadow></value>\n    </block></xml>",
+    "previewWidth": 454,
+    "outputType": ""
+  },
+  {
+    "id": "block-if_true_for",
+    "type": "if_true_for",
+    "category": "Контроль",
+    "title": "Якщо умова тримається",
+    "does": "Перевіряє безперервну істинність умови протягом заданого часу. При успіху виконує «то», при порушенні — «інакше».",
+    "fields": [
+      {
+        "key": "COND",
+        "name": "Умова",
+        "kind": "value",
+        "meaning": "Умова, на яку можна відповісти «так» або «ні»."
+      },
+      {
+        "key": "SEC",
+        "name": "Час у секундах",
+        "kind": "value",
+        "meaning": "Тривалість у секундах. Наприклад, 0.5 — половина секунди."
+      },
+      {
+        "key": "DO",
+        "name": "Вкладені дії",
+        "kind": "statement",
+        "meaning": "Перетягни сюди команди, які виконуються всередині конструкції."
+      },
+      {
+        "key": "ELSE",
+        "name": "Дії інакше",
+        "kind": "statement",
+        "meaning": "Перетягни сюди команди, які виконуються всередині конструкції."
+      }
+    ],
+    "output": false,
+    "how": [],
+    "example": "Якщо сигнал тримається 0.2 с — встановити прапор; інакше — скинути.",
+    "note": "Це часовий тест під час виконання команди, а не постійний паралельний спостерігач.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"if_true_for\">\n      <value name=\"SEC\"><shadow type=\"math_number\"><field name=\"NUM\">0.2</field></shadow></value>\n    </block></xml>",
+    "previewWidth": 399,
+    "outputType": ""
+  },
+  {
+    "id": "block-timeout_do_until",
+    "type": "timeout_do_until",
+    "category": "Контроль",
+    "title": "Робити з обмеженням часу",
+    "does": "Повторює вкладені дії до істинності умови зупинки або до спливу ліміту часу.",
+    "fields": [
+      {
+        "key": "SEC",
+        "name": "Час у секундах",
+        "kind": "value",
+        "meaning": "Тривалість у секундах. Наприклад, 0.5 — половина секунди."
+      },
+      {
+        "key": "COND",
+        "name": "Умова",
+        "kind": "value",
+        "meaning": "Умова, на яку можна відповісти «так» або «ні»."
+      },
+      {
+        "key": "DO",
+        "name": "Вкладені дії",
+        "kind": "statement",
+        "meaning": "Перетягни сюди команди, які виконуються всередині конструкції."
+      }
+    ],
+    "output": false,
+    "how": [],
+    "example": "Максимум 3 с підрулювати, поки не знайдено мітку; після блоку поставити стоп.",
+    "note": "По завершенні не гарантовано зупиняє мотори: явно додай «Стоп». Тривала вкладена команда може затримати наступну перевірку часу.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"timeout_do_until\">\n      <value name=\"SEC\"><shadow type=\"math_number\"><field name=\"NUM\">3</field></shadow></value>\n    </block></xml>",
+    "previewWidth": 393,
+    "outputType": ""
+  },
+  {
+    "id": "block-sensor_display",
+    "type": "sensor_display",
+    "category": "Контроль",
+    "title": "Панель показів датчиків",
+    "does": "Показує отримані значення чотирьох портів безпосередньо на блоці в редакторі.",
+    "fields": [
+      {
+        "key": "P1",
+        "name": "Показ порту 1",
+        "kind": "field",
+        "value": "0",
+        "meaning": "Поточний показ. Оновлюється за даними робота; вводити вручну не потрібно."
+      },
+      {
+        "key": "P2",
+        "name": "Показ порту 2",
+        "kind": "field",
+        "value": "0",
+        "meaning": "Поточний показ. Оновлюється за даними робота; вводити вручну не потрібно."
+      },
+      {
+        "key": "P3",
+        "name": "Показ порту 3",
+        "kind": "field",
+        "value": "0",
+        "meaning": "Поточний показ. Оновлюється за даними робота; вводити вручну не потрібно."
+      },
+      {
+        "key": "P4",
+        "name": "Показ порту 4",
+        "kind": "field",
+        "value": "0",
+        "meaning": "Поточний показ. Оновлюється за даними робота; вводити вручну не потрібно."
+      }
+    ],
+    "output": false,
+    "how": [],
+    "example": "Додай на полотно й спостерігай за показами підключеного робота.",
+    "note": "Інформаційний блок: не надсилає команд і не виводить числа на фізичний дисплей.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"sensor_display\"></block></xml>",
+    "previewWidth": 404,
+    "outputType": ""
+  },
+  {
+    "id": "block-sensor_bat_display",
+    "type": "sensor_bat_display",
+    "category": "Контроль",
+    "title": "Панель батареї",
+    "does": "Показує отриманий рівень батареї на блоці редактора.",
+    "fields": [
+      {
+        "key": "PCT",
+        "name": "Заряд батареї",
+        "kind": "field",
+        "value": "--",
+        "meaning": "Поточний показ. Оновлюється за даними робота; вводити вручну не потрібно."
+      }
+    ],
+    "output": false,
+    "how": [],
+    "example": "Перевір показ перед вправою з рухом.",
+    "note": "«--» означає відсутні дані, а не нульовий заряд.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"sensor_bat_display\"></block></xml>",
+    "previewWidth": 189,
+    "outputType": ""
+  },
+  {
+    "id": "block-wait_until_sensor",
+    "type": "wait_until_sensor",
+    "category": "Контроль",
+    "title": "Чекати датчик",
+    "does": "Чекає, доки показ вибраного порту стане меншим або більшим за поріг.",
+    "fields": [
+      {
+        "key": "VAL",
+        "name": "Значення",
+        "kind": "value",
+        "meaning": "Число або результат іншого блоку, з яким працює ця команда."
+      },
+      {
+        "key": "SENS",
+        "name": "Порт датчика",
+        "kind": "field",
+        "value": "0",
+        "options": [
+          [
+            "1",
+            "0"
+          ],
+          [
+            "2",
+            "1"
+          ],
+          [
+            "3",
+            "2"
+          ],
+          [
+            "4",
+            "3"
+          ]
+        ],
+        "meaning": "Номер порту потрібного датчика."
+      },
+      {
+        "key": "OP",
+        "name": "Операція",
+        "kind": "field",
+        "value": "LT",
+        "options": [
+          [
+            "<",
+            "LT"
+          ],
+          [
+            ">",
+            "GT"
+          ]
+        ],
+        "meaning": "Обери потрібну операцію у списку."
+      }
+    ],
+    "output": false,
+    "how": [],
+    "example": "Їхати → чекати порт 1 < 20 → стоп.",
+    "note": "Не зупиняє мотори під час очікування. Без правильного датчика й порога очікування може бути нескінченним.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"wait_until_sensor\">\n      <value name=\"VAL\"><shadow type=\"math_number\"><field name=\"NUM\">50</field></shadow></value>\n    </block></xml>",
+    "previewWidth": 376,
+    "outputType": ""
+  },
+  {
+    "id": "block-wait_seconds",
+    "type": "wait_seconds",
+    "category": "Контроль",
+    "title": "Чекати секунди",
+    "does": "Затримує наступну команду сценарію на заданий час.",
+    "fields": [
+      {
+        "key": "SECONDS",
+        "name": "Час у секундах",
+        "kind": "value",
+        "meaning": "Тривалість у секундах. Наприклад, 3 — три секунди."
+      }
+    ],
+    "output": false,
+    "how": [],
+    "example": "Їхати → чекати 1 → стоп.",
+    "note": "Мотори продовжують попередню команду під час паузи.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"wait_seconds\">\n      <value name=\"SECONDS\"><shadow type=\"math_number\"><field name=\"NUM\">1</field></shadow></value>\n    </block></xml>",
+    "previewWidth": 207,
+    "outputType": ""
+  },
+  {
+    "id": "block-timer_get",
+    "type": "timer_get",
+    "category": "Контроль",
+    "title": "Таймер: значення",
+    "does": "Повертає, скільки секунд пройшло після останнього скидання.",
+    "fields": [],
+    "output": true,
+    "how": [
+      "Використовуй у if / while для обмеження часу дії."
+    ],
+    "example": "Якщо таймер > 5 → зупинити рух.",
+    "note": "",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"timer_get\"></block></xml>",
+    "previewWidth": 160,
+    "outputType": "Number"
+  },
+  {
+    "id": "block-timer_reset",
+    "type": "timer_reset",
+    "category": "Контроль",
+    "title": "Таймер: скинути",
+    "does": "Обнуляє таймер (час стає 0).",
+    "fields": [],
+    "output": false,
+    "how": [
+      "Став там, де хочеш почати відлік."
+    ],
+    "example": "Скинути → їхати → якщо таймер > 3 → стоп.",
+    "note": "",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"timer_reset\"></block></xml>",
+    "previewWidth": 197,
+    "outputType": ""
+  },
+  {
+    "id": "block-variables_set",
+    "type": "variables_set",
+    "category": "Змінні",
+    "title": "Встановити змінну",
+    "does": "Записує у вибрану змінну число або інше значення, замінюючи попереднє.",
+    "fields": [
+      {
+        "key": "VALUE",
+        "name": "Нове значення",
+        "kind": "value",
+        "meaning": "Що записати у змінну замість її попереднього значення."
+      },
+      {
+        "key": "VAR",
+        "name": "Змінна",
+        "kind": "field",
+        "value": "елемент",
+        "options": [
+          [
+            "елемент",
+            "4@8H-F+o3(5.UP#)M*]6"
+          ]
+        ],
+        "meaning": "Обери змінну, значення якої потрібно змінити або використати."
+      }
+    ],
+    "output": false,
+    "how": [],
+    "example": "Лічильник = 0 перед циклом.",
+    "note": "",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"variables_set\"></block></xml>",
+    "previewWidth": 326,
+    "outputType": ""
+  },
+  {
+    "id": "block-variables_get",
+    "type": "variables_get",
+    "category": "Змінні",
+    "title": "Значення змінної",
+    "does": "Повертає поточне значення вибраної змінної.",
+    "fields": [
+      {
+        "key": "VAR",
+        "name": "Змінна",
+        "kind": "field",
+        "value": "елемент",
+        "options": [
+          [
+            "елемент",
+            "ZjV+C%ffJsZlJqPP{U+@"
+          ]
+        ],
+        "meaning": "Обери змінну, значення якої потрібно змінити або використати."
+      }
+    ],
+    "output": true,
+    "how": [],
+    "example": "Встав «лічильник» у поле числа на дисплеї.",
+    "note": "Це значення для входу іншого блоку, не окрема команда сценарію.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"variables_get\"></block></xml>",
+    "previewWidth": 138,
+    "outputType": ""
+  },
+  {
+    "id": "block-math_change",
+    "type": "math_change",
+    "category": "Змінні",
+    "title": "Змінити змінну на",
+    "does": "Додає задане число до змінної; від’ємне число зменшує її.",
+    "fields": [
+      {
+        "key": "DELTA",
+        "name": "На скільки змінити",
+        "kind": "value",
+        "meaning": "На скільки збільшити змінну. Від’ємне число зменшує її."
+      },
+      {
+        "key": "VAR",
+        "name": "Змінна",
+        "kind": "field",
+        "value": "елемент",
+        "options": [
+          [
+            "елемент",
+            "0]pl~c-m9a!Ik8^{:,pk"
+          ]
+        ],
+        "meaning": "Обери змінну, значення якої потрібно змінити або використати."
+      }
+    ],
+    "output": false,
+    "how": [],
+    "example": "Змінити лічильник на 1 після кожного повторення.",
+    "note": "Не плутай із «Встановити»: зміна на 1 додає 1, а не записує одиницю.",
+    "unsupported": false,
+    "helper": false,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"math_change\"></block></xml>",
+    "previewWidth": 298,
+    "outputType": ""
+  },
+  {
+    "id": "block-math_number_limited",
+    "type": "math_number_limited",
+    "category": "Математика",
+    "title": "Обмежене число",
+    "does": "Число для швидкості з межами −100…100.",
+    "fields": [
+      {
+        "key": "NUM",
+        "name": "Число",
+        "kind": "field",
+        "value": "35",
+        "meaning": "Число, яке використовується в програмі."
+      }
+    ],
+    "output": true,
+    "how": [],
+    "example": "Задай 35 у полі L або R.",
+    "note": "Допоміжний блок, який часто вже вставлено у поле моторної команди.",
+    "unsupported": false,
+    "helper": true,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"math_number_limited\"><field name=\"NUM\">35</field></block></xml>",
+    "previewWidth": 76,
+    "outputType": "Number"
+  },
+  {
+    "id": "block-text",
+    "type": "text",
+    "category": "Змінні",
+    "title": "Текстове значення",
+    "does": "Повертає введений текст, наприклад ім’я прапора.",
+    "fields": [
+      {
+        "key": "TEXT",
+        "name": "Текст",
+        "kind": "field",
+        "value": "A",
+        "meaning": "Текстове значення, яке передається іншому блоку."
+      }
+    ],
+    "output": true,
+    "how": [],
+    "example": "Текст «A» у полі імені прапора.",
+    "note": "Допоміжний блок для текстових входів; не виводить напис на дисплей самостійно.",
+    "unsupported": false,
+    "helper": true,
+    "xml": "<xml xmlns=\"https://developers.google.com/blockly/xml\"><block type=\"text\"><field name=\"TEXT\">A</field></block></xml>",
+    "previewWidth": 120,
+    "outputType": "String"
+  }
+]

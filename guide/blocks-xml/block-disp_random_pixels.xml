@@ -1,0 +1,3 @@
+<xml xmlns="https://developers.google.com/blockly/xml"><block type="disp_random_pixels">
+    <value name="N"><shadow type="math_number"><field name="NUM">50</field></shadow></value>
+  </block></xml>

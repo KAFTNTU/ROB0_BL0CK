@@ -1,0 +1,5 @@
+<xml xmlns="https://developers.google.com/blockly/xml"><block type="sprite_move">
+    <value name="ID"><shadow type="math_number"><field name="NUM">1</field></shadow></value>
+    <value name="DX"><shadow type="math_number"><field name="NUM">1</field></shadow></value>
+    <value name="DY"><shadow type="math_number"><field name="NUM">0</field></shadow></value>
+  </block></xml>

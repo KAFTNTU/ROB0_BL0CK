@@ -1,0 +1,6 @@
+<xml xmlns="https://developers.google.com/blockly/xml"><block type="manip_servo_from_to">
+    <field name="CH">1</field>
+    <value name="FROM"><shadow type="math_number"><field name="NUM">36</field></shadow></value>
+    <value name="TO"><shadow type="math_number"><field name="NUM">90</field></shadow></value>
+    <value name="SECONDS"><shadow type="math_number"><field name="NUM">3</field></shadow></value>
+  </block></xml>

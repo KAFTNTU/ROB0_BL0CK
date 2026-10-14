@@ -1,0 +1,4 @@
+<xml xmlns="https://developers.google.com/blockly/xml"><block type="math_rect_perimeter">
+                <value name="W"><shadow type="math_number"><field name="NUM">10</field></shadow></value>
+                <value name="H"><shadow type="math_number"><field name="NUM">5</field></shadow></value>
+            </block></xml>
