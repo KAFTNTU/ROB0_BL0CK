@@ -21,7 +21,7 @@
   if(id.startsWith('block-')){const eyebrow=main.querySelector('.eyebrow');if(eyebrow)eyebrow.textContent=window.RBBlockReference.get(id).category;}
   if(id==='files')main.querySelector('#images').parentElement.querySelector('p').textContent='Натисни «Збільшити» біля схеми, щоб розглянути поля. Широку схему можна прокручувати у збільшеному перегляді.';
   if(p){const img=main.querySelector('.image-area img');img.style.width=(p.previewWidth||400)+'px';img.src='images/'+p.id+'.png?v=20261014-native-editor';}
-  if(id==='start'){const figure=document.createElement('figure');figure.className='source-figure';figure.innerHTML='<img class="interface-photo" src="images/interface-reference.png" alt="Схема інтерфейсу з методички: статус, ручне керування, блоки, доступ, журнал, налаштування та Bluetooth"><figcaption>Схема з вихідної методички. У поточній версії додано кнопки дитячого режиму та довідки; їх розташування може відрізнятися.</figcaption>';$('workspace').parentElement.append(figure);}
+  if(id==='start'){const figure=document.createElement('figure');figure.className='source-figure';figure.innerHTML='<img class="interface-photo" src="images/interface-reference-v2.png" alt="Інтерфейс ROB0 BL0CK: статус, керування, блоки, дитячий режим, доступ, навчання, навчальна довідка, налаштування та Bluetooth">';$('workspace').parentElement.append(figure);}
   document.title=(window.RBBlockReference.title(id)||(p?p.title:general.concat(end).find(p=>p.id===id)?.title||'Методичка'))+' — ROB0 BL0CK';navigation();
   document.querySelectorAll('#navigation a').forEach(a=>a.title=a.textContent.trim());
   $('pageToc').innerHTML=[...main.querySelectorAll('h2[id]')].map(h=>`<a href="#${id}" data-section="${h.id}">${h.textContent}</a>`).join('');
