@@ -15,6 +15,14 @@
    W:s             → wait_seconds        секунди (дробові ок)
    WU:s,op,v       → wait_until_sensor   s=0..7, op=<>!=, v=число
    TR              → timer_reset
+   ONCE{...}       → run_once
+   MST:m,s,t       → motor_soft_start
+   MSS:m,t         → motor_soft_stop
+   MSC:m,s,t       → motor_soft_change
+   MOT:m,s,t       → motor_on_time
+   AD:t{...}       → do_after_delay
+   RS:cond{...}    → when_signal_rises
+   WTM:t,cond{...}EL{...} → wait_condition_timeout
    C:n{...}        → повтор n разів
    F{...}          → вічний цикл
    WH:s,op,v{...}  → while(sensor op val) {...}
@@ -109,6 +117,62 @@ function encodeBlock(b, out) {
         }
         case 'timer_reset':
             out.push('TR'); break;
+
+        /* ---- Нові блоки циклів, моторів і логіки ---- */
+        case 'run_once': {
+            const body = [];
+            encodeChain(b.getInputTargetBlock('DO'), body);
+            out.push('ONCE{' + body.join(';') + '}');
+            break;
+        }
+        case 'motor_soft_start': {
+            const motor = b.getFieldValue('MOTOR') || '1';
+            const speed = numVal(b.getInputTargetBlock('SPEED'), 50);
+            const sec = numVal(b.getInputTargetBlock('SEC'), 1);
+            out.push('MST:' + motor + ',' + speed + ',' + sec); break;
+        }
+        case 'motor_soft_stop': {
+            const motor = b.getFieldValue('MOTOR') || '1';
+            const sec = numVal(b.getInputTargetBlock('SEC'), 1);
+            out.push('MSS:' + motor + ',' + sec); break;
+        }
+        case 'motor_soft_change': {
+            const motor = b.getFieldValue('MOTOR') || '1';
+            const speed = numVal(b.getInputTargetBlock('SPEED'), 50);
+            const sec = numVal(b.getInputTargetBlock('SEC'), 1);
+            out.push('MSC:' + motor + ',' + speed + ',' + sec); break;
+        }
+        case 'motor_on_time': {
+            const motor = b.getFieldValue('MOTOR') || '1';
+            const speed = numVal(b.getInputTargetBlock('SPEED'), 50);
+            const sec = numVal(b.getInputTargetBlock('SEC'), 1);
+            out.push('MOT:' + motor + ',' + speed + ',' + sec); break;
+        }
+        case 'do_after_delay': {
+            const sec = numVal(b.getInputTargetBlock('SEC'), 1);
+            const body = [];
+            encodeChain(b.getInputTargetBlock('DO'), body);
+            out.push('AD:' + sec + '{' + body.join(';') + '}');
+            break;
+        }
+        case 'when_signal_rises': {
+            const cond = encodeCondBlock(b.getInputTargetBlock('COND'));
+            const body = [];
+            encodeChain(b.getInputTargetBlock('DO'), body);
+            out.push('RS:' + cond + '{' + body.join(';') + '}');
+            break;
+        }
+        case 'wait_condition_timeout': {
+            const sec = numVal(b.getInputTargetBlock('SEC'), 5);
+            const cond = encodeCondBlock(b.getInputTargetBlock('COND'));
+            const yes = [], no = [];
+            encodeChain(b.getInputTargetBlock('THEN'), yes);
+            encodeChain(b.getInputTargetBlock('ELSE'), no);
+            let code = 'WTM:' + sec + ',' + cond + '{' + yes.join(';') + '}';
+            if (no.length) code += 'EL{' + no.join(';') + '}';
+            out.push(code);
+            break;
+        }
 
         /* ---- Цикли ---- */
         case 'controls_repeat_ext': {
@@ -470,6 +534,12 @@ class Parser {
                 return { type:'wait_until_sensor', SENS:params[0], OP:symToOp(params[1]), VAL:n(params[2]) };
             }
 
+            /* ---- Нові блоки моторів ---- */
+            if (t === 'MST') return { type:'motor_soft_start', MOTOR:params[0], SPEED:n(params[1]), SEC:n(params[2]) };
+            if (t === 'MSS') return { type:'motor_soft_stop', MOTOR:params[0], SEC:n(params[1]) };
+            if (t === 'MSC') return { type:'motor_soft_change', MOTOR:params[0], SPEED:n(params[1]), SEC:n(params[2]) };
+            if (t === 'MOT') return { type:'motor_on_time', MOTOR:params[0], SPEED:n(params[1]), SEC:n(params[2]) };
+
             /* ---- Нові прості з параметром ---- */
             if (t === 'RPL') return { type:'replay_loop', TIMES:n(params[0]) };
             if (t === 'CL')  return { type:'count_laps', LAPS:n(params[0]) };
@@ -557,6 +627,29 @@ class Parser {
                 else { this.pos = saved; }
                 return { type:'if_happened_n_times', TIMES:times, SEC:sec, COND:cond, DO:doBody, ELSE:elBody };
             }
+            if (t === 'AD') {
+                const sec = n(args);
+                const bodyStr = this.readBlock();
+                return { type:'do_after_delay', SEC:sec, DO:new Parser(bodyStr).parseStmtList() };
+            }
+            if (t === 'RS') {
+                const cond = parseSimpleCond(args);
+                const bodyStr = this.readBlock();
+                return { type:'when_signal_rises', COND:cond, DO:new Parser(bodyStr).parseStmtList() };
+            }
+            if (t === 'WTM') {
+                const firstComma = args.indexOf(',');
+                const sec = n(args.slice(0, firstComma));
+                const cond = parseSimpleCond(args.slice(firstComma + 1));
+                const yesStr = this.readBlock();
+                const yes = new Parser(yesStr).parseStmtList();
+                let no = [];
+                const saved = this.pos;
+                const nxt = this.readUntil([';', '{', '}']);
+                if (nxt.trim() === 'EL') no = new Parser(this.readBlock()).parseStmtList();
+                else this.pos = saved;
+                return { type:'wait_condition_timeout', SEC:sec, COND:cond, THEN:yes, ELSE:no };
+            }
             /* ---- Оригінальні блокові команди ---- */
             if (t === 'C') {
                 const count = n(args);
@@ -609,6 +702,12 @@ class Parser {
         if (t === 'TA')   return { type:'track_action' };
         if (t === 'SLA')  return { type:'start_line_action' };
         if (t === 'MSPD') return { type:'math_speed_cms' };
+
+        /* ---- ONCE{...} ---- */
+        if (t === 'ONCE') {
+            const bodyStr = this.readBlock();
+            return { type:'run_once', DO:new Parser(bodyStr).parseStmtList() };
+        }
 
         /* ---- Вічний цикл F{...} ---- */
         if (t === 'F') {
@@ -824,6 +923,31 @@ function stmtInnerXML(stmt) {
                    '<statement name="DO0">' + chainXML(stmt.DO) + '</statement>' +
                    elseTag;
         }
+        /* ---- Нові блоки циклів, моторів і логіки ---- */
+        case 'run_once':
+            return '<statement name="DO">' + chainXML(stmt.DO) + '</statement>';
+        case 'motor_soft_start':
+            return '<field name="MOTOR">' + stmt.MOTOR + '</field>' +
+                   valueTag('SPEED', stmt.SPEED) + valueTag('SEC', stmt.SEC);
+        case 'motor_soft_stop':
+            return '<field name="MOTOR">' + stmt.MOTOR + '</field>' + valueTag('SEC', stmt.SEC);
+        case 'motor_soft_change':
+            return '<field name="MOTOR">' + stmt.MOTOR + '</field>' +
+                   valueTag('SPEED', stmt.SPEED) + valueTag('SEC', stmt.SEC);
+        case 'motor_on_time':
+            return '<field name="MOTOR">' + stmt.MOTOR + '</field>' +
+                   valueTag('SPEED', stmt.SPEED) + valueTag('SEC', stmt.SEC);
+        case 'do_after_delay':
+            return valueTag('SEC', stmt.SEC) +
+                   '<statement name="DO">' + chainXML(stmt.DO) + '</statement>';
+        case 'when_signal_rises':
+            return '<value name="COND">' + condToXML(stmt.COND) + '</value>' +
+                   '<statement name="DO">' + chainXML(stmt.DO) + '</statement>';
+        case 'wait_condition_timeout':
+            return '<value name="COND">' + condToXML(stmt.COND) + '</value>' +
+                   valueTag('SEC', stmt.SEC) +
+                   '<statement name="THEN">' + chainXML(stmt.THEN) + '</statement>' +
+                   '<statement name="ELSE">' + chainXML(stmt.ELSE) + '</statement>';
         /* ---- Прості без параметрів ---- */
         case 'go_home':
         case 'wait_start':

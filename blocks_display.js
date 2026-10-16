@@ -612,9 +612,10 @@ class FieldPaintGrid extends Blockly.Field {
             if(origInit) origInit.call(this);
             this.setOnChange(function(event){
                 if(!this.workspace) return;
-                /* Реагуємо на зміну IDX dropdown або на переміщення блоку */
+                /* Оновлюємо onion-skin лише коли змінюється кадр або створюється блок.
+                   BLOCK_MOVE спрацьовує багато разів під час перетягування і змушує
+                   великий редактор малювання перемальовуватися на кожен рух миші. */
                 if(event.type !== Blockly.Events.BLOCK_CHANGE &&
-                   event.type !== Blockly.Events.BLOCK_MOVE &&
                    event.type !== Blockly.Events.BLOCK_CREATE) return;
                 if(event.blockId && event.blockId !== this.id) return;
 
@@ -681,7 +682,7 @@ Blockly.fieldRegistry.register('field_paint_grid',FieldPaintGrid);
     const st=document.createElement('style');
     st.id=CSS_ID;
     st.textContent = `
-.rb-oled-editor{width:936px;height:438px;background:#1e293b;border:1px solid #334155;border-radius:10px;display:flex;flex-direction:column;gap:6px;padding:6px;box-sizing:border-box;color:#e2e8f0;font-family:Arial,system-ui,sans-serif;touch-action:none;user-select:none;overflow:visible}
+.rb-oled-editor{width:936px;height:438px;background:#1e293b;border:1px solid #334155;border-radius:10px;display:flex;flex-direction:column;gap:6px;padding:6px;box-sizing:border-box;color:#e2e8f0;font-family:Arial,system-ui,sans-serif;touch-action:none;user-select:none;overflow:visible;will-change:transform}
 .rb-oled-top{height:344px;display:flex;gap:8px;min-height:0}
 .rb-oled-canvasBox{flex:1;min-width:0;position:relative;background:#0b1326;border:1px solid #334155;border-radius:8px;overflow:hidden}
 .rb-oled-canvas{display:block;width:100%;height:100%;touch-action:none;cursor:crosshair}
@@ -1104,7 +1105,16 @@ Blockly.fieldRegistry.register('field_paint_grid',FieldPaintGrid);
   const oldSetOnion = FieldPaintGrid.prototype.setOnionSkin;
   FieldPaintGrid.prototype.setOnionSkin = function(pixels){
     this._onion=pixels?new Uint8Array(pixels):null;
-    if(this._rbInlineRedraw) this._rbInlineRedraw();
+    if(this._rbInlineRedraw){
+      if(this.__rbOnionRedrawPending) return;
+      this.__rbOnionRedrawPending=true;
+      const redraw=()=>{
+        this.__rbOnionRedrawPending=false;
+        if(this._rbInlineRedraw) this._rbInlineRedraw();
+      };
+      if(typeof requestAnimationFrame==='function') requestAnimationFrame(redraw);
+      else setTimeout(redraw,0);
+    }
     else if(oldSetOnion) oldSetOnion.call(this,pixels);
   };
 
@@ -3717,7 +3727,6 @@ Blockly.fieldRegistry.register('field_paint_grid',FieldPaintGrid);
    ================================================================ */
 window.DISPLAY_CATEGORY=`
 <category name="\uD83D\uDDA5\uFE0F Дисплей" colour="#2563eb">
-  <label text="\u2014 Основне \u2014"></label>
   <block type="disp_clear"></block>
   <block type="disp_send"></block>
   <block type="disp_hud"></block>
@@ -3737,7 +3746,6 @@ window.DISPLAY_CATEGORY=`
     <value name="Y"><shadow type="math_number"><field name="NUM">20</field></shadow></value>
   </block>
   <block type="disp_smile"><field name="FACE">happy</field></block>
-  <label text="\u2014 Малювання \u2014"></label>
   <block type="disp_pixel_on">
     <value name="X"><shadow type="math_number"><field name="NUM">64</field></shadow></value>
     <value name="Y"><shadow type="math_number"><field name="NUM">32</field></shadow></value>
@@ -3771,7 +3779,6 @@ window.DISPLAY_CATEGORY=`
   <block type="disp_random_pixels">
     <value name="N"><shadow type="math_number"><field name="NUM">50</field></shadow></value>
   </block>
-  <label text="\u2014 Малювалка \u2014"></label>
   <block type="disp_paint"></block>
   <label text="\u2014 Анімація \u2014"></label>
   <block type="disp_anim_frame"><field name="IDX">0</field></block>

@@ -379,6 +379,11 @@
       byId("raTutorial").style.display = "none";
     }
     if (byId("raRobot")) byId("raRobot").style.display = "none";
+    // After the onboarding tour the floating buddy stays hidden until the
+    // user deliberately enables it in Settings → Помічник.
+    if (typeof window.setSetting === "function") {
+      try { window.setSetting("buddyEnabled", false); } catch (err) {}
+    }
     if (typeof window.closeSettings === "function") window.closeSettings();
     if (typeof window.switchView === "function") {
       const btn = q('#rcTopNav button[onclick*="view-joystick"]');

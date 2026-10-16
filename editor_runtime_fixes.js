@@ -145,6 +145,7 @@
 
   async function stop() {
     window._shouldStop=true;running=false;runToken++;
+    window.rbAdvancedReset?.();
     window.PixelEngine?.stopTick();
     try{if(typeof isCodeRunning!=='undefined')isCodeRunning=false;}catch(_){}
     try{await window.rbHardStopServo?.();}catch(_){}
