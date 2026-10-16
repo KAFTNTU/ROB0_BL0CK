@@ -42,7 +42,7 @@
  window.rbDoOnce=async function(key,body){check(generation);if(once.has(key))return;once.add(key);await body();};
  window.rbWhenRises=async function(key,value,body){check(generation);const active=!!value,previous=edges.get(key)||false;edges.set(key,active);if(active&&!previous)await body();};
  window.rbAfterDelay=async function(sec,body){const token=generation;await window.rbAdvancedPause(sec,token);await body();};
- window.rbRepeatEvery=async function(sec,body){const token=generation,period=Math.max(.025,seconds(sec));for(;;){check(token);const began=Date.now();await body();await window.rbAdvancedPause(Math.max(.025,period-(Date.now()-began)/1000),token);}};
+ window.rbRepeatEvery=async function(sec,body){const token=generation,period=Math.max(.025,seconds(sec));for(;;){check(token);const began=Date.now();try{await body();}catch(error){if(error&&error.__rbBreak)return;throw error;}await window.rbAdvancedPause(Math.max(.025,period-(Date.now()-began)/1000),token);}};
  window.rbWaitTimeout=async function(sec,condition,yes,no){
   const token=generation,end=Date.now()+seconds(sec)*1000;
   for(;;){check(token);if(condition()){await yes();return true;}if(Date.now()>=end){await no();return false;}await window.rbAdvancedPause(Math.min(.025,(end-Date.now())/1000),token);}
