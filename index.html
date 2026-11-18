@@ -1943,7 +1943,7 @@ select, option{
     <div id="btModal" class="fixed inset-0 z-[90] hidden" onclick="btModalOverlayClick(event)">
         <div class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
         <div class="absolute inset-0 flex items-center justify-center p-4">
-            <div class="relative w-full max-w-sm rounded-2xl border border-slate-700 shadow-2xl overflow-hidden" onclick="event.stopPropagation()" style="background: rgba(14,22,40,0.97)">
+            <div class="relative w-full max-w-md rounded-2xl border border-slate-700 shadow-2xl overflow-hidden" onclick="event.stopPropagation()" style="background: rgba(14,22,40,0.97)">
 
                 <!-- Animated top bar -->
                 <div id="btModalTopBar" class="h-1 bg-blue-600 transition-all duration-500" style="width:0%"></div>
@@ -2109,6 +2109,178 @@ select, option{
 
                     <div id="physJoyList" class="space-y-2 max-h-56 overflow-y-auto pr-1">
                         <!-- filled by JS -->
+                    </div>
+
+                    <!-- Схема керування PS4 DualShock 4: перенесено з наданого фрагмента -->
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between gap-2 px-1">
+                            <span class="text-white text-sm font-bold">Режим керування</span>
+                            <span id="physModeBadge" class="rounded-lg border border-sky-500/40 bg-sky-500/10 px-3 py-1 text-xs font-semibold text-sky-300">2 стіки · L↑↓ R←→</span>
+                        </div>
+            <!-- Візуальний інтерактивний пульт PS4 DualShock 4 -->
+            <div id="physDs4Stage" class="relative rounded-2xl bg-gradient-to-b from-[#0e1422] to-[#121a2b] border border-slate-800/90 px-2 pt-2.5 pb-2 flex flex-col items-center justify-center overflow-hidden">
+              <!-- М'яке фонове світіння під колір обраного режиму -->
+              <div id="physDs4Glow" class="pointer-events-none absolute -top-10 w-44 h-24 rounded-full blur-2xl opacity-20 transition-colors duration-300" style="background-color: #60a5fa;"></div>
+
+              <svg id="physDs4Svg" class="w-full max-w-[300px] h-auto select-none" viewBox="0 0 320 166" fill="none" style="--ds4-left-accent:#60a5fa;--ds4-right-accent:#60a5fa;">
+                <defs>
+                  <!-- Градієнт корпусу DualShock 4 -->
+                  <linearGradient id="ds4BodyGrad" x1="160" y1="24" x2="160" y2="158" gradientUnits="userSpaceOnUse">
+                    <stop offset="0%" stop-color="#253047"></stop>
+                    <stop offset="55%" stop-color="#1a2234"></stop>
+                    <stop offset="100%" stop-color="#131927"></stop>
+                  </linearGradient>
+
+                  <!-- Градієнт сенсорної панелі (Touchpad) -->
+                  <linearGradient id="ds4TouchpadGrad" x1="160" y1="28" x2="160" y2="69" gradientUnits="userSpaceOnUse">
+                    <stop offset="0%" stop-color="#151c2c"></stop>
+                    <stop offset="100%" stop-color="#1d263b"></stop>
+                  </linearGradient>
+
+                  <!-- Градієнт руків'я (Grips) -->
+                  <linearGradient id="ds4GripShade" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="#ffffff" stop-opacity="0.06"></stop>
+                    <stop offset="100%" stop-color="#000000" stop-opacity="0.25"></stop>
+                  </linearGradient>
+                </defs>
+
+                <!-- Шифти L1 / R1 (акуратно повторюють вигин плечей корпусу) -->
+                <path d="M61 38 C62 26, 68 22, 83 22 C93 22, 98 24, 100 27 L98 34 L62 39 Z" fill="#182032" stroke="#334155" stroke-width="1.2" stroke-linejoin="round"></path>
+                <path d="M259 38 C258 26, 252 22, 237 22 C227 22, 222 24, 220 27 L222 34 L258 39 Z" fill="#182032" stroke="#334155" stroke-width="1.2" stroke-linejoin="round"></path>
+
+                <!-- Основний ергономічний корпус DualShock 4 -->
+                <path d="M88 27 L232 27 C254 27, 268 41, 274 67 L285 125 C288 143, 276 157, 260 157 C246 157, 236 147, 228 132 L216 119 C211 114, 203 112, 194 112 L126 112 C117 112, 109 114, 104 119 L92 132 C84 147, 74 157, 60 157 C44 157, 32 143, 35 125 L46 67 C52 41, 66 27, 88 27 Z" fill="url(#ds4BodyGrad)" stroke="#334155" stroke-width="1.5"></path>
+
+                <!-- Контурні лінії бічних руків'їв DualShock 4 -->
+                <path d="M54 78 C48 98, 44 118, 46 138" stroke="url(#ds4GripShade)" stroke-width="2" stroke-linecap="round"></path>
+                <path d="M266 78 C272 98, 276 118, 274 138" stroke="url(#ds4GripShade)" stroke-width="2" stroke-linecap="round"></path>
+
+                <!-- Сенсорна панель (Touchpad) по центру зверху -->
+                <rect x="115" y="28.5" width="90" height="40" rx="7" fill="url(#ds4TouchpadGrad)" stroke="#334155" stroke-width="1.2"></rect>
+                <!-- Світлова панель (Light Bar) на верхньому краї тачпада -->
+                <rect x="120" y="30" width="80" height="3" rx="1.5" fill="#60a5fa" opacity="0.9"></rect>
+                <!-- Мікротекстура тачпада -->
+                <g fill="#64748b" opacity="0.28">
+                  <circle cx="144" cy="46" r="0.9"></circle><circle cx="152" cy="46" r="0.9"></circle><circle cx="160" cy="46" r="0.9"></circle><circle cx="168" cy="46" r="0.9"></circle><circle cx="176" cy="46" r="0.9"></circle>
+                  <circle cx="144" cy="53" r="0.9"></circle><circle cx="152" cy="53" r="0.9"></circle><circle cx="160" cy="53" r="0.9"></circle><circle cx="168" cy="53" r="0.9"></circle><circle cx="176" cy="53" r="0.9"></circle>
+                </g>
+
+                <!-- Кнопки SHARE та OPTIONS -->
+                <rect x="102" y="35" width="5.5" height="11" rx="2.75" fill="#273349" stroke="#475569" stroke-width="1"></rect>
+                <rect x="212.5" y="35" width="5.5" height="11" rx="2.75" fill="#273349" stroke="#475569" stroke-width="1"></rect>
+
+                <!-- Хрестовина D-Pad (ліворуч зверху) -->
+                <g opacity="0.85">
+                  <circle cx="77" cy="55" r="19" fill="#131927" stroke="#28344b" stroke-width="1.2"></circle>
+                  <!-- Вгору -->
+                  <path d="M73 41 H81 V49 L77 52.5 L73 49 Z" fill="#2a364f" stroke="#475569" stroke-width="0.9" stroke-linejoin="round"></path>
+                  <!-- Вниз -->
+                  <path d="M73 69 H81 V61 L77 57.5 L73 61 Z" fill="#2a364f" stroke="#475569" stroke-width="0.9" stroke-linejoin="round"></path>
+                  <!-- Вліво -->
+                  <path d="M63 51 V59 H71 L74.5 55 L71 51 Z" fill="#2a364f" stroke="#475569" stroke-width="0.9" stroke-linejoin="round"></path>
+                  <!-- Вправо -->
+                  <path d="M91 51 V59 H83 L79.5 55 L83 51 Z" fill="#2a364f" stroke="#475569" stroke-width="0.9" stroke-linejoin="round"></path>
+                </g>
+
+                <!-- Фірмові кнопки PlayStation △ ○ ✕ □ (праворуч зверху) -->
+                <g opacity="0.9">
+                  <circle cx="243" cy="55" r="19" fill="#131927" stroke="#28344b" stroke-width="1.2"></circle>
+                  <!-- Трикутник △ -->
+                  <circle cx="243" cy="42.5" r="5.3" fill="#232e44" stroke="#3b4963" stroke-width="0.9"></circle>
+                  <path d="M243 39.6 L245.6 44.2 H240.4 Z" stroke="#34d399" stroke-width="1.1" stroke-linejoin="round"></path>
+                  <!-- Коло ○ -->
+                  <circle cx="255.5" cy="55" r="5.3" fill="#232e44" stroke="#3b4963" stroke-width="0.9"></circle>
+                  <circle cx="255.5" cy="55" r="2.5" stroke="#f87171" stroke-width="1.1"></circle>
+                  <!-- Хрест ✕ -->
+                  <circle cx="243" cy="67.5" r="5.3" fill="#232e44" stroke="#3b4963" stroke-width="0.9"></circle>
+                  <path d="M241 65.5 L245 69.5 M245 65.5 L241 69.5" stroke="#60a5fa" stroke-width="1.15" stroke-linecap="round"></path>
+                  <!-- Квадрат □ -->
+                  <circle cx="230.5" cy="55" r="5.3" fill="#232e44" stroke="#3b4963" stroke-width="0.9"></circle>
+                  <rect x="228.3" y="52.8" width="4.4" height="4.4" stroke="#f472b6" stroke-width="1.1"></rect>
+                </g>
+
+                <!-- Динамік і центральна кнопка PS -->
+                <!-- Динамік і центральна кнопка -->
+                <g fill="#475569" opacity="0.6">
+                  <circle cx="155" cy="75" r="0.9"></circle><circle cx="160" cy="75" r="0.9"></circle><circle cx="165" cy="75" r="0.9"></circle>
+                  <circle cx="157.5" cy="78.5" r="0.9"></circle><circle cx="162.5" cy="78.5" r="0.9"></circle>
+                </g>
+                <circle cx="160" cy="91" r="5.8" fill="#141b2b" stroke="#475569" stroke-width="1.2"></circle>
+
+                <!-- ЛІВИЙ АНАЛОГОВИЙ СТІК PS4 (клікабельний -> вибір 1 джойстика) -->
+                <g id="physDs4Left" onclick="selectMode(1)" class="cursor-pointer" style="cursor:pointer">
+                  <!-- Сенсорна зона кліку -->
+                  <circle cx="118" cy="90" r="24" fill="transparent"></circle>
+                  <!-- Підсвітка активного кільця -->
+                  <circle cx="118" cy="90" r="16.5" fill="var(--ds4-left-accent)" fill-opacity="0.14" stroke="var(--ds4-left-accent)" stroke-width="1.6"></circle>
+                  <!-- Основа та шапка стіка -->
+                  <circle cx="118" cy="90" r="11" fill="#182235" stroke="var(--ds4-left-accent)" stroke-width="1.5"></circle>
+                  <circle cx="118" cy="90" r="6.5" fill="var(--ds4-left-accent)" fill-opacity="0.85"></circle>
+
+                  <!-- Стрілки осей ↑↓ (завжди активні на лівому стіку) -->
+                  <path d="M118 67.5 L114.8 71.8 H121.2 Z" fill="var(--ds4-left-accent)"></path>
+                  <path d="M118 112.5 L114.8 108.2 H121.2 Z" fill="var(--ds4-left-accent)"></path>
+
+                  <!-- Стрілки осей ←→ (активні тільки коли обрано 1 джойстик) -->
+                  <g id="physDs4LeftHorizontal" style="display:none">
+                    <path d="M95.5 90 L99.8 86.8 V93.2 Z" fill="var(--ds4-left-accent)"></path>
+                    <path d="M140.5 90 L136.2 86.8 V93.2 Z" fill="var(--ds4-left-accent)"></path>
+                  </g>
+                  
+                </g>
+
+                <!-- ПРАВИЙ АНАЛОГОВИЙ СТІК PS4 (клікабельний -> вибір 2 джойстиків) -->
+                <g id="physDs4Right" onclick="selectMode(2)" class="cursor-pointer" opacity="1" style="cursor:pointer">
+                  <!-- Сенсорна зона кліку -->
+                  <circle cx="202" cy="90" r="24" fill="transparent"></circle>
+                  <!-- Підсвітка активного кільця -->
+                  <circle cx="202" cy="90" r="16.5" fill="var(--ds4-right-accent)" fill-opacity="0.14" stroke="var(--ds4-right-accent)" stroke-width="1.6"></circle>
+                  <!-- Основа та шапка стіка -->
+                  <circle cx="202" cy="90" r="11" fill="#182235" stroke="var(--ds4-right-accent)" stroke-width="1.5"></circle>
+                  <circle cx="202" cy="90" r="6.5" fill="var(--ds4-right-accent)" fill-opacity="0.85"></circle>
+
+                  <!-- Стрілки осей ←→ (активні тільки коли обрано 2 джойстики) -->
+                  <g id="physDs4RightHorizontal">
+                    <path d="M179.5 90 L183.8 86.8 V93.2 Z" fill="var(--ds4-right-accent)"></path>
+                    <path d="M224.5 90 L220.2 86.8 V93.2 Z" fill="var(--ds4-right-accent)"></path>
+                  </g>
+                  
+                </g>
+              </svg>
+            </div>
+
+            <!-- Дві кнопки-іконки під схемою PS4 -->
+            <div class="grid grid-cols-2 gap-2.5">
+              <button id="physJoyModeOneCard" type="button" aria-pressed="false" onclick="selectMode(1)" class="flex items-center gap-2.5 p-2.5 rounded-xl border transition-all bg-slate-800/60 border-slate-700 text-slate-400 hover:text-slate-200 hover:border-slate-600">
+                <span id="physJoyModeOneIcon" class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-slate-800 text-slate-400">
+                  <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <circle cx="12" cy="12" r="3.5" fill="currentColor"></circle>
+                    <path d="M12 3v3M12 18v3M3 12h3M18 12h3" stroke-linecap="round"></path>
+                  </svg>
+                </span>
+                <div class="text-left">
+                  <div class="text-xs font-bold leading-tight">1 стік</div>
+                  <div id="physJoyModeOneSub" class="text-[10px] opacity-75">Лівий стік: ↑↓←→</div>
+                </div>
+              </button>
+
+              <button id="physJoyModeTwoCard" type="button" aria-pressed="true" onclick="selectMode(2)" class="flex items-center gap-2.5 p-2.5 rounded-xl border transition-all bg-sky-500/15 border-sky-400/60 text-white shadow-sm">
+                <span id="physJoyModeTwoIcon" class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-sky-400/20 text-sky-300">
+                  <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <circle cx="7" cy="12" r="2.8" fill="currentColor"></circle>
+                    <path d="M7 4v2.5M7 17.5V20" stroke-linecap="round"></path>
+                    <circle cx="17" cy="12" r="2.8" fill="currentColor"></circle>
+                    <path d="M12.5 12H14M20 12h1.5" stroke-linecap="round"></path>
+                  </svg>
+                </span>
+                <div class="text-left">
+                  <div class="text-xs font-bold leading-tight">2 стіки</div>
+                  <div id="physJoyModeTwoSub" class="text-[10px] text-sky-300">L ↑↓ · R ←→</div>
+                </div>
+              </button>
+            </div>
+                        <input id="physJoyModeOne" type="radio" name="physJoyControlMode" value="one" class="hidden">
+                        <input id="physJoyModeTwo" type="radio" name="physJoyControlMode" value="two" class="hidden">
                     </div>
 
                     <button onclick="closePhysJoyModal()" class="w-full mt-1 py-2 rounded-xl bg-slate-800/70 hover:bg-slate-700 text-slate-200 text-xs font-bold border border-slate-700 transition-colors">
@@ -3098,7 +3270,11 @@ function a0_0x52c6(W,o){W-=348;const c=a0_0x54fe();let n=c[W];if(void 0===a0_0x5
   let desiredL = 0;
   let desiredR = 0;
   let _lastActiveTs = Date.now();
-  let _activeStick = null; // "L" | "R" | null
+  let physControlMode = "one";
+  try {
+    const savedMode = localStorage.getItem("physJoyControlMode");
+    if(savedMode === "two" || savedMode === "one") physControlMode = savedMode;
+  } catch(_) {}
 
   function $(id){ return document.getElementById(id); }
   function clamp(n, min, max){ return Math.max(min, Math.min(max, n)); }
@@ -3320,31 +3496,24 @@ function a0_0x52c6(W,o){W-=348;const c=a0_0x54fe();let n=c[W];if(void 0===a0_0x5
       const speed = getSpeedPercent() / 100;
       const dz = 0.08;
 
-      // Two 360° sticks: use either Left stick (X/Y) or Right stick (X/Y).
-      // When one stick is active, the other is ignored until the active one returns to center.
+      // Схема PS4: режим 1 — усі напрямки лівим стіком;
+      // режим 2 — лівий стік керує вперед/назад, правий — поворотом.
       const leftX = gp.axes && gp.axes.length > 0 ? deadzone(gp.axes[0], dz) : 0;
       const leftY = gp.axes && gp.axes.length > 1 ? deadzone(-gp.axes[1], dz) : 0;
       const rightX = gp.axes && gp.axes.length > 2 ? deadzone(gp.axes[2], dz) : 0;
-      const rightY = gp.axes && gp.axes.length > 3 ? deadzone(-gp.axes[3], dz) : 0;
 
-      const magL = Math.hypot(leftX, leftY);
-      const magR = Math.hypot(rightX, rightY);
+      let stickX = 0;
+      let stickY = 0;
 
-      const acquire = 0.18;
-      const release = 0.10;
-      if(_activeStick === "L" && magL < release) _activeStick = null;
-      if(_activeStick === "R" && magR < release) _activeStick = null;
-      if(_activeStick == null){
-        if(magL > acquire && magR <= acquire) _activeStick = "L";
-        else if(magR > acquire && magL <= acquire) _activeStick = "R";
-        else if(magL > acquire && magR > acquire) _activeStick = (magL >= magR) ? "L" : "R";
+      if(physControlMode === "two"){
+        stickY = leftY;
+        stickX = rightX;
+      }else{
+        stickY = leftY;
+        stickX = leftX;
       }
 
-      const stickX = _activeStick === "R" ? rightX : leftX;
-      const stickY = _activeStick === "R" ? rightY : leftY;
-
-      // Arcade drive from one stick (360°):
-      // Y = throttle, X = turn. Normalize to keep within [-1..1].
+      // Arcade drive: Y = throttle, X = turn. Both controls can be active together.
       const norm = Math.max(1, Math.abs(stickY) + Math.abs(stickX));
       const y = stickY / norm;
       const x = stickX / norm;
@@ -3384,13 +3553,81 @@ function a0_0x52c6(W,o){W-=348;const c=a0_0x54fe();let n=c[W];if(void 0===a0_0x5
       lastSentR = 0;
       desiredL = 0;
       desiredR = 0;
-      _activeStick = null;
-      stopPhysSender();
+        stopPhysSender();
       safeSendDrive(0,0);
       return;
     }
     startPhysSender();
     startPhysPolling();
+  }
+
+  function updatePhysDs4Diagram(){
+    const one = physControlMode === "one";
+    const svg = $("physDs4Svg");
+    const glow = $("physDs4Glow");
+    const left = $("physDs4Left");
+    const right = $("physDs4Right");
+    const leftHorizontal = $("physDs4LeftHorizontal");
+    const rightHorizontal = $("physDs4RightHorizontal");
+    const badge = $("physModeBadge");
+    const oneCard = $("physJoyModeOneCard");
+    const twoCard = $("physJoyModeTwoCard");
+    const oneIcon = $("physJoyModeOneIcon");
+    const twoIcon = $("physJoyModeTwoIcon");
+    const oneSub = $("physJoyModeOneSub");
+    const twoSub = $("physJoyModeTwoSub");
+
+    const leftAccent = one ? "#34d399" : "#60a5fa";
+    const rightAccent = one ? "#64748b" : "#60a5fa";
+    if(svg){
+      svg.style.setProperty("--ds4-left-accent", leftAccent);
+      svg.style.setProperty("--ds4-right-accent", rightAccent);
+    }
+    if(glow) glow.style.backgroundColor = leftAccent;
+    if(left) left.style.opacity = "1";
+    if(right) right.style.opacity = one ? "0.35" : "1";
+    if(leftHorizontal) leftHorizontal.style.display = one ? "" : "none";
+    if(rightHorizontal) rightHorizontal.style.display = one ? "none" : "";
+
+    if(badge) badge.textContent = one ? "1 стік · ↑↓←→" : "2 стіки · L↑↓ R←→";
+
+    if(oneCard){
+      oneCard.className = "flex items-center gap-2.5 p-2.5 rounded-xl border transition-all " +
+        (one ? "bg-emerald-500/15 border-emerald-400/60 text-white shadow-sm" : "bg-slate-800/60 border-slate-700 text-slate-400 hover:text-slate-200 hover:border-slate-600");
+      oneCard.setAttribute("aria-pressed", one ? "true" : "false");
+    }
+    if(oneIcon) oneIcon.className = "w-8 h-8 rounded-lg flex items-center justify-center shrink-0 " +
+      (one ? "bg-emerald-400/20 text-emerald-300" : "bg-slate-800 text-slate-400");
+    if(oneSub) oneSub.className = "text-[10px] " + (one ? "text-emerald-300" : "opacity-75");
+
+    if(twoCard){
+      twoCard.className = "flex items-center gap-2.5 p-2.5 rounded-xl border transition-all " +
+        (!one ? "bg-sky-500/15 border-sky-400/60 text-white shadow-sm" : "bg-slate-800/60 border-slate-700 text-slate-400 hover:text-slate-200 hover:border-slate-600");
+      twoCard.setAttribute("aria-pressed", !one ? "true" : "false");
+    }
+    if(twoIcon) twoIcon.className = "w-8 h-8 rounded-lg flex items-center justify-center shrink-0 " +
+      (!one ? "bg-sky-400/20 text-sky-300" : "bg-slate-800 text-slate-400");
+    if(twoSub) twoSub.className = "text-[10px] " + (!one ? "text-sky-300" : "opacity-75");
+  }
+
+  function setPhysControlMode(mode){
+    if(mode !== "one" && mode !== "two") return;
+    physControlMode = mode;
+    _activeStick = null;
+    try { localStorage.setItem("physJoyControlMode", mode); } catch(_) {}
+    const one = $("physJoyModeOne");
+    const two = $("physJoyModeTwo");
+    if(one) one.checked = mode === "one";
+    if(two) two.checked = mode === "two";
+    updatePhysDs4Diagram();
+  }
+
+  function syncPhysControlModeUI(){
+    const one = $("physJoyModeOne");
+    const two = $("physJoyModeTwo");
+    if(one) one.checked = physControlMode === "one";
+    if(two) two.checked = physControlMode === "two";
+    updatePhysDs4Diagram();
   }
 
   function buildPhysJoyItem(gp, index){
@@ -3443,6 +3680,10 @@ function a0_0x52c6(W,o){W-=348;const c=a0_0x54fe();let n=c[W];if(void 0===a0_0x5
       list.appendChild(buildPhysJoyItem(gp, idx));
     }
   }
+
+  $("physJoyModeOne")?.addEventListener("change", () => setPhysControlMode("one"));
+  $("physJoyModeTwo")?.addEventListener("change", () => setPhysControlMode("two"));
+  syncPhysControlModeUI();
 
   function openPhysJoyModal(){
     const modal = $("physJoyModal");
@@ -3521,6 +3762,10 @@ function a0_0x52c6(W,o){W-=348;const c=a0_0x54fe();let n=c[W];if(void 0===a0_0x5
   window.physJoyOverlayClick = physJoyOverlayClick;
   window.physJoyConfirmYes = physJoyConfirmYes;
   window.physJoyConfirmNo = physJoyConfirmNo;
+  window.setPhysControlMode = setPhysControlMode;
+  window.selectMode = function(mode){
+    setPhysControlMode(Number(mode) === 1 ? "one" : "two");
+  };
 
   window.copySystemLog = async function copySystemLog(){
     try{
